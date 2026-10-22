@@ -34,10 +34,10 @@ describe('utilisation of a resource (P-5)', () => {
   it('waiting per entity and days used against a quota (A-3)', () => {
     const day = 86_400_000;
     expect(waitingByEntity([
-      { entityCode: 'EPCFR', requestedAt: 0, start: 4 * day, status: 'done' },
+      { entityCode: 'EPCFR', requestedAt: 0, start: 4 * day, status: 'done', late: true },
       { entityCode: 'EPCFR', requestedAt: 0, start: 10 * day, status: 'confirmed' },
-      { entityCode: 'EPC2I', requestedAt: 0, start: 2 * day, status: 'cancelled' },
-    ])).toEqual([{ entityCode: 'EPCFR', count: 2, averageDays: 7, maxDays: 10 }]);
+      { entityCode: 'EPC2I', requestedAt: 0, start: 2 * day, status: 'cancelled', late: true },
+    ])).toEqual([{ entityCode: 'EPCFR', count: 2, averageDays: 7, maxDays: 10, late: 1 }]);
     const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
     expect(daysUsed([
       { start: at('2026-10-19', '07:00'), end: at('2026-10-20', '17:00'), status: 'confirmed' },

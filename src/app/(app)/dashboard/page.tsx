@@ -1,6 +1,6 @@
 // Utilisation dashboard (docs/spec/02 §6, P-5): over a period, per resource and per facility, the net open hours and the
 // booked, realised, realised-with-preparation and blocked rates; waiting from request to test per entity; bookings not held;
-// days used against the quotas of the agreements this month (A-3). Computed from the bookings and calendars, never stored.
+// days used against the quotas of the agreements this month (A-3); late requests per entity (F-5, delivery 3). Computed from the bookings and calendars, never stored.
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { KpiGrid, KpiTile } from '@/components/app/Kpi';
@@ -11,6 +11,7 @@ import { Table, Td, Th } from '@/components/ds/Table';
 import { canSee } from '@/config/screens';
 import { DEFAULT_HOURS, addMonthsIso, openWindows } from '@/domain/calendar';
 import { isIsoDate } from '@/domain/clock';
+import { DEFAULT_NOTICE_WORKDAYS, isLateRequest } from '@/domain/needs';
 import { daysUsed, rateOf, resourceUsage, waitingByEntity, type ResourceUsage } from '@/domain/utilisation';
 import { dataText } from '@/i18n/data-text';
 import { addDaysIso, parisParts } from '@/lib/dates';
@@ -44,9 +45,11 @@ export default async function DashboardPage({ searchParams }: PageProps<'/dashbo
       unavailable: f.unavailabilities.filter((u) => u.resourceId === r.id), bookings: f.bookings, rules: f.rules,
     })];
   }));
-  const waiting = waitingByEntity(f.bookings);
-  const presets: [string, string, string][] = [['Last 4 weeks', addDaysIso(today, -28), today], ['Last 13 weeks', addDaysIso(today, -91), today], ['This month', monthStart, today]];
   const isoOf = (ms: number) => parisParts(new Date(ms)).iso;
+  const noticeOf = (facilityCode: string, entityCode: string) => f.agreements.find((a) => a.facilityCode === facilityCode && a.entityCode === entityCode)?.noticeWorkdays ?? DEFAULT_NOTICE_WORKDAYS;
+  // Imported history (F-9) carries no request date of its own: never counted late.
+  const waiting = waitingByEntity(f.bookings.map((b) => ({ ...b, late: b.source === 'crucible' && isLateRequest(isoOf(b.requestedAt), isoOf(b.start), noticeOf(b.facilityCode, b.entityCode)) })));
+  const presets: [string, string, string][] = [['Last 4 weeks', addDaysIso(today, -28), today], ['Last 13 weeks', addDaysIso(today, -91), today], ['This month', monthStart, today]];
 
   return (
     <>
@@ -103,7 +106,7 @@ export default async function DashboardPage({ searchParams }: PageProps<'/dashbo
         )}
       </SectionCard>
 
-      <SectionCard title={t('Waiting from request to test')} subtitle={t('Calendar days between the request and the start of the test, for the confirmed, started and done bookings starting in the period.')} scroll>
+      <SectionCard title={t('Waiting from request to test')} subtitle={t('Calendar days between the request and the start of the test, for the confirmed, started and done bookings starting in the period. Late: requested less than 10 working days before (F-5).')} scroll>
         {waiting.length ? (
           <Table>
             <thead>
@@ -112,6 +115,7 @@ export default async function DashboardPage({ searchParams }: PageProps<'/dashbo
                 <Th align="right">{t('Bookings')}</Th>
                 <Th align="right">{t('Average (days)')}</Th>
                 <Th align="right">{t('Longest (days)')}</Th>
+                <Th align="right">{t('Late requests')}</Th>
               </tr>
             </thead>
             <tbody>
@@ -121,6 +125,7 @@ export default async function DashboardPage({ searchParams }: PageProps<'/dashbo
                   <Td align="right" numeric>{w.count}</Td>
                   <Td align="right" numeric>{w.averageDays.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')}</Td>
                   <Td align="right" numeric>{w.maxDays.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')}</Td>
+                  <Td align="right" numeric>{w.late}</Td>
                 </tr>
               ))}
             </tbody>

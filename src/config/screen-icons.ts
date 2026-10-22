@@ -18,6 +18,7 @@ export const SCREEN_ICONS: Record<ScreenId, Icon> = {
   facilities: Flask,
   facility: Flask,
   projects: Stack,
+  project: Stack,
   rules: ShieldCheck,
   dashboard: ChartBar,
   'admin-org': Buildings,

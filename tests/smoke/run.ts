@@ -48,8 +48,8 @@ async function main(): Promise<void> {
   const org = await get('/admin/organisation', 'rd_director');
   check(org.status === 200 && org.body.includes('Classe de priorité'), 'the R&D director records projects and their priority class');
   check((await get('/facilities', 'admin')).status === 404, 'the administrator sees no business screen');
-  const soon = await get('/load', 'coordinator');
-  check(soon.status === 200 && soon.body.includes('Prévu pour la livraison 3'), 'a screen of a later delivery says when it comes');
+  const soon = await get('/propose', 'coordinator');
+  check(soon.status === 200 && soon.body.includes('Prévu pour la livraison 4'), 'a screen of a later delivery says when it comes');
 
   // Delivery 2: resources, rules, bookings, utilisation.
   const plan = await get('/planning?week=2026-10-26', 'coordinator');
@@ -66,6 +66,19 @@ async function main(): Promise<void> {
   check(dash.status === 200 && dash.body.includes('Occupation par moyen') && dash.body.includes('Bloqué par une règle'), 'utilisation dashboard: rates per resource, blocked by a rule');
   const mine = await get('/my/schedule', 'technician');
   check(mine.status === 200 && mine.body.includes('B-2026-0010'), 'my schedule: today’s test of the PDE for its technician');
+  // Delivery 3: milestones, needs, load forecast, connectors.
+  const load = await get('/load', 'coordinator');
+  check(load.status === 200 && load.body.includes('Goulots') && load.body.includes('PDE-ONE-ZONE') && load.body.includes('PDE-ONE-ZONE · Semaine du 14/12/2026 · dans 8 semaines'), 'load forecast: the PDE bottleneck 8 weeks ahead');
+  check((await get('/load', 'project_lead')).status === 404, 'the load forecast is not in a project lead’s workspace');
+  const needs = await get('/my/needs', 'project_lead');
+  check(needs.status === 200 && needs.body.includes('N-2026-0001') && needs.body.includes('RD-CASSIOPEE'), 'my test needs: the needs of the project lead’s projects');
+  const lyra = await get('/my/needs', 'partner');
+  check(lyra.status === 200 && lyra.body.includes('N-2026-0005') && !lyra.body.includes('N-2026-0001'), 'my test needs of EPC France: its projects only');
+  const orion = await get('/projects/RD-ORION', 'rd_director');
+  check(orion.status === 200 && orion.body.includes('Revue de qualification') && orion.body.includes('N-2026-0004'), 'project sheet: milestones and needs');
+  check((await get('/projects/RD-ORION', 'partner')).status === 404 && (await get('/projects/RD-CASSIOPEE', 'coordinator')).status === 404, 'project sheet: outside the visibility, the project does not exist (U-3)');
+  const conn = await get('/admin/connectors', 'admin');
+  check(conn.status === 200 && conn.body.includes('crucible.pub_reservations') && conn.body.includes('Pas encore publiée'), 'connectors: published views and the views not published yet');
   check((await get('/propose', 'partner')).status === 404, 'a screen outside the profile’s workspace is not found');
   check((await get('/nowhere', 'rd_director')).status === 404, 'an unknown path is not found');
 

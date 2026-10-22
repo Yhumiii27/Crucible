@@ -10,6 +10,7 @@ import { checkBooking, canMarkNoShow, canTransition, ISSUE_LABEL, slotInterval, 
 import { DEFAULT_HOURS, inspectionDueOn, isHhmm } from '@/domain/calendar';
 import { isIsoDate } from '@/domain/clock';
 import { parseHistory } from '@/domain/history-import';
+import { DEFAULT_NOTICE_WORKDAYS } from '@/domain/needs';
 import {
   checkAgreement, checkExclusionRule, checkInspection, checkResource, checkSlotInput, checkTitle, checkUnavailability, RESOURCE_STATUSES, type ResourceStatus,
 } from '@/domain/resources';
@@ -19,7 +20,7 @@ import { businessNow, businessToday } from '@/server/clock';
 import { getDb } from '@/server/db/client';
 import { writeAudit } from '@/server/db/helpers';
 import {
-  bookings, closures, entityAgreements, exclusionRuleResources, exclusionRules, facilities, facilityHours, facilityPartners, inspections, projects, resources, unavailabilities,
+  bookings, closures, entityAgreements, exclusionRuleResources, exclusionRules, facilities, facilityHours, facilityPartners, inspections, projects, resources, testNeeds, unavailabilities,
 } from '@/server/db/schema';
 import type { Tx } from '@/server/db/types';
 import { calendarsOf, rulesOf } from '@/server/dal/resources';
@@ -312,7 +313,7 @@ async function contextOf(tx: Tx, res: typeof resources.$inferSelect, slot: { sta
     bookings: bk.map((b) => ({ ...b, start: b.start.getTime(), end: b.end.getTime() })),
     rules: rules.map((r) => ({ code: r.code, maxActive: r.maxActive, status: r.status, resourceIds: r.resourceIds })),
     now: now.getTime(),
-    noticeWorkdays: agreement[0]?.noticeWorkdays ?? null,
+    noticeWorkdays: agreement[0]?.noticeWorkdays ?? DEFAULT_NOTICE_WORKDAYS,
   };
 }
 
@@ -344,20 +345,25 @@ export async function requestBookingAction(_prev: ActionResult | null, fd: FormD
     if (!slot) return { ok: false, error: ISSUE_LABEL.outside_hours };
     const check = checkBooking(slot, await contextOf(tx, res, slot, proj.entityCode, now));
     if (check.errors.length) return { ok: false, error: check.errors.map(issueText).join(' — ') };
+    const needId = String(raw.needId ?? '') || null;
+    if (needId) {
+      const [need] = /^[0-9a-f-]{36}$/i.test(needId) ? await tx.select({ projectCode: testNeeds.projectCode, status: testNeeds.status }).from(testNeeds).where(eq(testNeeds.id, needId)) : [];
+      if (!need || need.projectCode !== proj.code || need.status !== 'open') return { ok: false, error: 'Choose an open need of the project' };
+    }
     const ref = await nextRef(tx, parisParts(new Date(slot.start)).iso.slice(0, 4));
     const operators = String(raw.operators ?? '').trim().slice(0, 200) || null;
     const [b] = await tx.insert(bookings).values({
       ref, resourceId: res.id, projectCode: proj.code, entityCode: proj.entityCode, title: title.value, startsAt: new Date(slot.start), endsAt: new Date(slot.end),
       setupMinutes: res.setupMinutes, teardownMinutes: res.teardownMinutes, status: 'requested', operators,
-      requestedByUserId: v.userId, requestedByName: v.name, requestedAt: now,
+      requestedByUserId: v.userId, requestedByName: v.name, requestedAt: now, needId,
     }).returning({ id: bookings.id });
     await writeAudit(tx, audit(v, 'Bookings', `Booking ${ref}`, `requested: ${res.code}`, {
       entityType: 'booking', entityId: b.id, projectCode: proj.code,
-      after: { resource: res.code, start: new Date(slot.start).toISOString(), end: new Date(slot.end).toISOString(), warnings: check.warnings.map((w) => w.code) },
+      after: { resource: res.code, start: new Date(slot.start).toISOString(), end: new Date(slot.end).toISOString(), needId, warnings: check.warnings.map((w) => w.code) },
     }));
     return { ok: true, warnings: check.warnings.map(issueText) };
   });
-  if (r.ok) revalidate('/planning', '/my/schedule', '/');
+  if (r.ok) revalidate('/planning', '/my/schedule', '/', '/my/needs', '/load', `/projects/${raw.projectCode}`);
   return r;
 }
 

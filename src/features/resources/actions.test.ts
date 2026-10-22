@@ -55,7 +55,8 @@ describe('booking requests', () => {
   it('a project lead books a free half-day of the pilot for their project; the request is audited', async () => {
     as('project_lead');
     const r = await requestBookingAction(null, halfDays(await rid('PDE-PIL'), 'RD-ORION', '2026-11-02', 'am', 'am', 'Firing tests, series 3'));
-    expect(r).toEqual({ ok: true, warnings: [] });
+    // F-5 (delivery 3): 10 working days of notice for every entity — 2 Nov is less than that after 22 Oct: accepted, flagged late.
+    expect(r).toEqual({ ok: true, warnings: ['Late request: less notice than agreed'] });
     const [b] = await t.db.select().from(bookings).where(eq(bookings.title, 'Firing tests, series 3'));
     expect(b).toMatchObject({ status: 'requested', projectCode: 'RD-ORION', entityCode: 'EPC2I', requestedByName: 'Camille Fabre', setupMinutes: 90, teardownMinutes: 60 });
     expect(b.startsAt).toEqual(parisInstant('2026-11-02', '07:00'));
@@ -158,7 +159,7 @@ describe('resources, calendars, rules, agreements', () => {
     expect(rule.status).toBe('proposed');
     // Awaiting validation, the rule only warns: the tensile bench is booked on 29 Oct 08:00–11:00 (B-2026-0015).
     const morning = () => halfDays(ana, 'RD-ORION', '2026-10-29', 'am', 'am', 'Residue analysis');
-    expect(await requestBookingAction(null, morning())).toEqual({ ok: true, warnings: ['An exclusion rule awaiting validation concerns this slot · LAB67-POWER · LAB67-TRAC'] });
+    expect(await requestBookingAction(null, morning())).toEqual({ ok: true, warnings: ['An exclusion rule awaiting validation concerns this slot · LAB67-POWER · LAB67-TRAC', 'Late request: less notice than agreed'] });
     expect(await validateRuleAction(rule.id)).toEqual({ ok: false, error: 'Only the safety officer validates an exclusion rule' });
     as('safety');
     vi.setSystemTime(parisInstant('2026-10-22', '10:01'));

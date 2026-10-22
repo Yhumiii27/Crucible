@@ -247,9 +247,11 @@ export interface BookableResource {
 }
 
 /** Request for a slot: half-days or times depending on the resource (F-1). */
-export function RequestBookingForm({ resources, projects, today }: { resources: BookableResource[]; projects: Ref[]; today: string }) {
+export function RequestBookingForm({ resources, projects, today, needs = [] }: { resources: BookableResource[]; projects: Ref[]; today: string; needs?: { id: string; ref: string; projectCode: string; title: string }[] }) {
   const { t } = useI18n();
   const [resourceId, setResourceId] = useState(resources[0]?.id ?? '');
+  const [projectCode, setProjectCode] = useState(projects[0]?.code ?? '');
+  const served = needs.filter((n) => n.projectCode === projectCode);
   const hour = resources.find((r) => r.id === resourceId)?.granularity === 'hour';
   const halves = [{ value: 'am', label: t('Morning') }, { value: 'pm', label: t('Afternoon') }];
   return (
@@ -258,8 +260,13 @@ export function RequestBookingForm({ resources, projects, today }: { resources: 
         <Select id="rq-res" name="resourceId" value={resourceId} onChange={(e) => setResourceId(e.target.value)} options={resources.map((r) => ({ value: r.id, label: `${r.code} · ${r.name}` }))} />
       </Field>
       <Field label={t('Project')} htmlFor="rq-proj" required>
-        <Select id="rq-proj" name="projectCode" options={projects.map((p) => ({ value: p.code, label: `${p.code} · ${p.name}` }))} />
+        <Select id="rq-proj" name="projectCode" value={projectCode} onChange={(e) => setProjectCode(e.target.value)} options={projects.map((p) => ({ value: p.code, label: `${p.code} · ${p.name}` }))} />
       </Field>
+      {served.length > 0 && (
+        <Field label={t('Need served')} htmlFor="rq-need">
+          <Select id="rq-need" name="needId" options={[{ value: '', label: '—' }, ...served.map((n) => ({ value: n.id, label: `${n.ref} · ${n.title}` }))]} />
+        </Field>
+      )}
       <Field label={t('Purpose of the test')} htmlFor="rq-title" required>
         <Input id="rq-title" name="title" required />
       </Field>

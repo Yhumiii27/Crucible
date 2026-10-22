@@ -2,6 +2,10 @@
 
 > 22 oct. 2026. Crucible ne modifie jamais le dépôt Keystone : ces demandes sont à transmettre par le responsable produit.
 > Relevé du dépôt `Yhumiii27/Keystone` au commit `a8ba6df`.
+>
+> **Transmise** (règles inter-dépôts, validée par le responsable produit le 22/10/2026) : K-2, entrée du `REQUESTS.md` de
+> Keystone (Yhumiii27/Keystone#22, fusionnée), statut OUVERTE. En attendant, les jalons sont saisis dans Crucible (S-1,
+> livraison 3) ; l’écran « Connecteurs » montre `keystone.pub_jalons` dès qu’elle est publiée et accordée.
 
 | # | Demande | Pourquoi | Bloque | Décision liée |
 |---|---|---|---|---|

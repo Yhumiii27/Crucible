@@ -1,6 +1,9 @@
 # Demandes de Crucible à Cursus
 
 > 22 oct. 2026. Crucible ne modifie jamais le dépôt Cursus : ces demandes sont à transmettre par le responsable produit.
+>
+> **Transmise** (validée par le responsable produit le 22/10/2026) : CU-1, entrée du `REQUESTS.md` de Cursus
+> (Yhumiii27/Cursus#15, fusionnée), statut OUVERTE — vue `pub_absences` sans type ni motif d’absence.
 
 | # | Demande | Pourquoi | Bloque | Décision liée |
 |---|---|---|---|---|

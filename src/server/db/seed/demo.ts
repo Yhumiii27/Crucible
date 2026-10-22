@@ -4,13 +4,16 @@
 // The e-mail domains are reserved example domains. Delivery 2 adds the resources (the three zones of the PDE, three means of
 // laboratoire 67), the opening hours, the rule "one zone of the PDE at a time" validated by the safety officer, the agreement
 // with EPC France, inspections, an unavailability and bookings around the demonstration date (Thu 22 Oct 2026): a history
-// of done tests, today's, and requests and confirmations of the next weeks — one of which the PDE rule forbids.
+// of done tests, today's, and requests and confirmations of the next weeks — one of which the PDE rule forbids. Delivery 3
+// adds the milestones of the projects, a test type catalogue and test needs: forecasts that overload the PDE in the week of
+// 14 Dec 2026 (a bottleneck signalled 8 weeks ahead), a request covered by its booking and a late request (F-5).
 import type { RoleKey, ScopeKind } from '@/config/roles';
 import type { PriorityClass } from '@/domain/organisation';
+import type { MilestoneCriticality, NeedLevel } from '@/domain/needs';
 import type { BookingStatus, Granularity, ResourceKind } from '@/domain/resources';
 import { parisInstant } from '@/lib/dates';
 import {
-  bookings, closures, entities, entityAgreements, exclusionRuleResources, exclusionRules, facilities, facilityHours, facilityPartners, inspections, projects,
+  bookings, closures, projectMilestones, testNeeds, testTypes, entities, entityAgreements, exclusionRuleResources, exclusionRules, facilities, facilityHours, facilityPartners, inspections, projects,
   resources, roleAssignments, sites, unavailabilities, users,
 } from '../schema';
 import type { Tx } from '../types';
@@ -90,8 +93,8 @@ const AM = (d: string): Slot => [d, '07:00', d, '12:00'];
 const PM = (d: string): Slot => [d, '12:00', d, '17:00'];
 const DAY = (d: string, to = d): Slot => [d, '07:00', to, '17:00'];
 
-/** Bookings of the demo: resource, project, slot, status, purpose, actual times (done), requested on, requester key. */
-const DEMO_BOOKINGS: { r: string; p: string; slot: Slot; status: BookingStatus; title: string; actual?: [string, string]; on: string; by: string }[] = [
+/** Bookings of the demo: resource, project, slot, status, purpose, actual times (done), requested on, requester key, need served. */
+const DEMO_BOOKINGS: { r: string; p: string; slot: Slot; status: BookingStatus; title: string; actual?: [string, string]; on: string; by: string; need?: string }[] = [
   { r: 'PDE-PIL', p: 'RD-ORION', slot: DAY('2026-10-05'), status: 'done', title: 'Firing tests, series 1', actual: ['07:40', '15:30'], on: '2026-09-21', by: 'project_lead' },
   { r: 'PDE-ATM', p: 'RD-VEGA', slot: AM('2026-10-06'), status: 'done', title: 'Machining of test casings', actual: ['07:05', '11:50'], on: '2026-09-28', by: 'vega_lead' },
   { r: 'PDE-LAB', p: 'RD-CASSIOPEE', slot: DAY('2026-10-07'), status: 'done', title: 'Formulation trials', actual: ['07:30', '16:10'], on: '2026-09-25', by: 'project_lead' },
@@ -102,12 +105,38 @@ const DEMO_BOOKINGS: { r: string; p: string; slot: Slot; status: BookingStatus; 
   { r: 'PDE-ATM', p: 'RD-VEGA', slot: DAY('2026-10-19'), status: 'done', title: 'Assembly of the test rig', actual: ['07:00', '16:30'], on: '2026-10-08', by: 'vega_lead' },
   { r: 'PDE-PIL', p: 'RD-ORION', slot: AM('2026-10-21'), status: 'done', title: 'Instrumentation check', actual: ['07:20', '11:45'], on: '2026-10-13', by: 'project_lead' },
   { r: 'PDE-LAB', p: 'RD-CASSIOPEE', slot: PM('2026-10-22'), status: 'confirmed', title: 'Stability measurements', on: '2026-10-12', by: 'project_lead' },
-  { r: 'PDE-PIL', p: 'RD-ORION', slot: DAY('2026-10-27'), status: 'confirmed', title: 'Firing tests, series 2', on: '2026-10-09', by: 'project_lead' },
+  { r: 'PDE-PIL', p: 'RD-ORION', slot: DAY('2026-10-27'), status: 'confirmed', title: 'Firing tests, series 2', on: '2026-10-09', by: 'project_lead', need: 'N-2026-0004' },
   { r: 'PDE-LAB', p: 'RD-CASSIOPEE', slot: AM('2026-10-27'), status: 'requested', title: 'Stability measurements, second run', on: '2026-10-08', by: 'project_lead' },
   { r: 'PDE-ATM', p: 'RD-VEGA', slot: AM('2026-10-28'), status: 'requested', title: 'Casing rework', on: '2026-10-20', by: 'vega_lead' },
   { r: 'LAB67-CLIM', p: 'FR-LYRA', slot: DAY('2026-10-28', '2026-10-29'), status: 'confirmed', title: 'Ageing cycle 2', on: '2026-10-02', by: 'partner' },
   { r: 'LAB67-TRAC', p: 'RD-ORION', slot: ['2026-10-29', '08:00', '2026-10-29', '11:00'], status: 'confirmed', title: 'Tensile tests on casings', on: '2026-10-14', by: 'project_lead' },
   { r: 'LAB67-ANA', p: 'FR-LYRA', slot: AM('2026-11-05'), status: 'requested', title: 'Residue analysis', on: '2026-10-21', by: 'partner' },
+];
+
+export const DEMO_MILESTONES: { key: string; p: string; label: string; dueOn: string; criticality: MilestoneCriticality }[] = [
+  { key: 'orion-freeze', p: 'RD-ORION', label: 'Design freeze', dueOn: '2026-11-20', criticality: 'internal' },
+  { key: 'orion-qual', p: 'RD-ORION', label: 'Qualification review', dueOn: '2027-01-15', criticality: 'contractual' },
+  { key: 'vega-proto', p: 'RD-VEGA', label: 'Prototype ready', dueOn: '2026-12-21', criticality: 'internal' },
+  { key: 'cass-safety', p: 'RD-CASSIOPEE', label: 'Safety file submitted', dueOn: '2027-02-01', criticality: 'regulatory' },
+  { key: 'lyra-report', p: 'FR-LYRA', label: 'Ageing report to the customer', dueOn: '2027-03-12', criticality: 'contractual' },
+];
+
+export const DEMO_TEST_TYPES: { code: string; name: string; r: string; halfDays: number; skills: string | null }[] = [
+  { code: 'FIRING', name: 'Firing test', r: 'PDE-PIL', halfDays: 2, skills: 'Authorised pyrotechnician' },
+  { code: 'MACHINING', name: 'Machining of test parts', r: 'PDE-ATM', halfDays: 2, skills: 'Workshop technician' },
+  { code: 'FORMULATION', name: 'Formulation trial', r: 'PDE-LAB', halfDays: 2, skills: 'Authorised pyrotechnician' },
+  { code: 'TENSILE', name: 'Tensile test', r: 'LAB67-TRAC', halfDays: 1, skills: null },
+  { code: 'AGEING', name: 'Climatic ageing cycle', r: 'LAB67-CLIM', halfDays: 6, skills: null },
+];
+
+/** Needs of the demo: the PDE forecasts of the week of 14 Dec exceed its capacity (one zone at a time, P-2). */
+export const DEMO_NEEDS: { ref: string; p: string; r: string; level: NeedLevel; title: string; halfDays: number; earliestOn: string; deadlineOn: string; milestone?: string; type?: string; on: string; by: string }[] = [
+  { ref: 'N-2026-0001', p: 'RD-ORION', r: 'PDE-PIL', level: 'forecast', title: 'Firing campaign before the qualification review', halfDays: 12, earliestOn: '2026-12-07', deadlineOn: '2026-12-18', milestone: 'orion-qual', type: 'FIRING', on: '2026-10-05', by: 'project_lead' },
+  { ref: 'N-2026-0002', p: 'RD-VEGA', r: 'PDE-ATM', level: 'forecast', title: 'Machining of the endurance rig', halfDays: 8, earliestOn: '2026-12-14', deadlineOn: '2026-12-18', milestone: 'vega-proto', type: 'MACHINING', on: '2026-10-12', by: 'vega_lead' },
+  { ref: 'N-2026-0003', p: 'RD-CASSIOPEE', r: 'PDE-LAB', level: 'forecast', title: 'Formulation trials for the safety file', halfDays: 4, earliestOn: '2026-12-14', deadlineOn: '2026-12-18', milestone: 'cass-safety', type: 'FORMULATION', on: '2026-10-14', by: 'project_lead' },
+  { ref: 'N-2026-0004', p: 'RD-ORION', r: 'PDE-PIL', level: 'request', title: 'Firing tests, series 2', halfDays: 2, earliestOn: '2026-10-27', deadlineOn: '2026-10-30', milestone: 'orion-freeze', type: 'FIRING', on: '2026-10-09', by: 'project_lead' },
+  { ref: 'N-2026-0005', p: 'FR-LYRA', r: 'LAB67-CLIM', level: 'forecast', title: 'Ageing cycles, phase 2', halfDays: 10, earliestOn: '2027-01-04', deadlineOn: '2027-02-26', milestone: 'lyra-report', type: 'AGEING', on: '2026-10-16', by: 'partner' },
+  { ref: 'N-2026-0006', p: 'RD-VEGA', r: 'LAB67-TRAC', level: 'request', title: 'Casing tensile tests (repeat)', halfDays: 1, earliestOn: '2026-11-02', deadlineOn: '2026-11-06', milestone: 'vega-proto', type: 'TENSILE', on: '2026-10-21', by: 'vega_lead' },
 ];
 
 async function seedResources(tx: Tx, idOf: Map<string, string>): Promise<void> {
@@ -133,6 +162,19 @@ async function seedResources(tx: Tx, idOf: Map<string, string>): Promise<void> {
   await tx.insert(unavailabilities).values({
     resourceId: rid.get('LAB67-CLIM')!, kind: 'maintenance', label: 'Annual maintenance of the chamber', startsAt: parisInstant('2026-11-03', '00:00'), endsAt: parisInstant('2026-11-05', '00:00'), createdByName: 'Sandrine Roux',
   });
+  await tx.insert(testTypes).values(DEMO_TEST_TYPES.map((x) => ({ code: x.code, name: x.name, nominalResourceId: rid.get(x.r)!, typicalHalfDays: x.halfDays, skills: x.skills, updatedByName: 'Antoine Leroy' })));
+  const ms = await tx.insert(projectMilestones).values(DEMO_MILESTONES.map((m) => ({ projectCode: m.p, label: m.label, dueOn: m.dueOn, criticality: m.criticality, updatedByName: 'Demonstration data set' })))
+    .returning({ id: projectMilestones.id });
+  const milestoneId = new Map(DEMO_MILESTONES.map((m, i) => [m.key, ms[i].id]));
+  const needRows = await tx.insert(testNeeds).values(DEMO_NEEDS.map((n) => {
+    const requester = byKey.get(n.by)!;
+    return {
+      ref: n.ref, projectCode: n.p, milestoneId: n.milestone ? milestoneId.get(n.milestone)! : null, testTypeCode: n.type ?? null, resourceId: rid.get(n.r)!, level: n.level,
+      title: n.title, halfDays: n.halfDays, earliestOn: n.earliestOn, deadlineOn: n.deadlineOn, requestedByUserId: idOf.get(requester.email)!, requestedByName: requester.name,
+      requestedAt: parisInstant(n.on, '09:00'),
+    };
+  })).returning({ id: testNeeds.id, ref: testNeeds.ref });
+  const needId = new Map(needRows.map((n) => [n.ref, n.id]));
   const res = new Map(DEMO_RESOURCES.map((r) => [r.code, r]));
   const entityOf = new Map(DEMO_PROJECTS.map((p) => [p.code, p.entityCode]));
   await tx.insert(bookings).values(DEMO_BOOKINGS.map((b, i) => {
@@ -145,6 +187,7 @@ async function seedResources(tx: Tx, idOf: Map<string, string>): Promise<void> {
       status: b.status, actualStartAt: b.actual ? parisInstant(fromOn, b.actual[0]) : null, actualEndAt: b.actual ? parisInstant(toOn, b.actual[1]) : null,
       requestedByUserId: idOf.get(requester.email)!, requestedByName: requester.name, requestedAt: parisInstant(b.on, '10:00'),
       confirmedByName: confirmed ? 'Antoine Leroy' : null, confirmedAt: confirmed ? parisInstant(b.on, '16:00') : null,
+      needId: b.need ? needId.get(b.need)! : null,
     };
   }));
 }

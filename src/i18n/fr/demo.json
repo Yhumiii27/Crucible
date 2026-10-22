@@ -11,5 +11,22 @@
   "Engineering manager": "Responsable de l’ingénierie",
   "Crucible administrator": "Administrateur Crucible",
   "Laboratoire 67 manager": "Responsable du laboratoire 67",
-  "Head of R&D": "Directrice R&D"
+  "Head of R&D": "Directrice R&D",
+  "Design freeze": "Gel de la conception",
+  "Qualification review": "Revue de qualification",
+  "Prototype ready": "Prototype prêt",
+  "Safety file submitted": "Dossier de sécurité déposé",
+  "Ageing report to the customer": "Rapport de vieillissement au client",
+  "Firing test": "Essai de tir",
+  "Machining of test parts": "Usinage de pièces d’essai",
+  "Formulation trial": "Essai de formulation",
+  "Tensile test": "Essai de traction",
+  "Climatic ageing cycle": "Cycle de vieillissement climatique",
+  "Authorised pyrotechnician": "Pyrotechnicien habilité",
+  "Workshop technician": "Technicien d’atelier",
+  "Firing campaign before the qualification review": "Campagne de tirs avant la revue de qualification",
+  "Machining of the endurance rig": "Usinage du banc d’endurance",
+  "Formulation trials for the safety file": "Essais de formulation pour le dossier de sécurité",
+  "Ageing cycles, phase 2": "Cycles de vieillissement, phase 2",
+  "Casing tensile tests (repeat)": "Essais de traction des enveloppes (reprise)"
 }

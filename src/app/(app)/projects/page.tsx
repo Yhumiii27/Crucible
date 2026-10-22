@@ -1,6 +1,7 @@
 // Projects (docs/spec/05, S-1): the R&D projects the viewer sees in full — every non-confidential project for the people who
-// plan the facilities, their own projects for a project lead, their entity's for a partner (U-3). Their test needs and
-// milestones come with delivery 3.
+// plan the facilities, their own projects for a project lead, their entity's for a partner (U-3). Each opens its sheet:
+// milestones, test needs and bookings (delivery 3).
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
@@ -35,7 +36,7 @@ export default async function ProjectsPage() {
               {rows.map((p) => (
                 <tr key={p.code}>
                   <Td>
-                    {p.code}
+                    <Link href={`/projects/${encodeURIComponent(p.code)}`}>{p.code}</Link>
                     {p.confidential && <span className="tag tag-neutral" style={{ marginLeft: 8 }}>{t('Confidential')}</span>}
                   </Td>
                   <Td>{dataText(p.name, lang)}</Td>
