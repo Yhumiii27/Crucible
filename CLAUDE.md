@@ -25,7 +25,8 @@ go in `docs/DEMANDES-<APP>.md`.
   (above); the data D-1 to D-11 are still to come.
 - **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
   run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
-  and republish the HTML with the Artifact tool to the same page (URL in `docs/RESTE-A-DEVELOPPER.md`'s header once published).
+  and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
+  as `url`).
 - Next: delivery 2 (resources, rules, bookings, utilisation), see `docs/PLAN.md`.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
