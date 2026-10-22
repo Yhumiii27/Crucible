@@ -1,0 +1,112 @@
+# Crucible on Coolify on the SHARED EPC2I PostgreSQL server (decision M-01) — a "Docker Compose" resource, base directory `/`,
+# compose file `/deploy/compose.shared.yaml`. Runbook in French: docs/EXPLOITATION.md § 4. The standalone kit (its own
+# PostgreSQL) stays deploy/compose.yaml.
+#
+#   (no db)  the database is Matrix's server (resource epc2i-postgres, repository Yhumiii27/Matrix, infra/postgres/): role
+#            crucible_app and schema `crucible` are created there by Matrix (docs/DEMANDES-MATRIX.md M-1, M-2);
+#            CRUCIBLE_APP_PASSWORD is the value set on THAT resource
+#   migrate  one-shot `npm run db:migrate` before every start (migrations, then the seed of an EMPTY schema:
+#            CRUCIBLE_SEED must be set — demo for the beta, production for reference data only); left out of Coolify's
+#            health status
+#   app      the web server (port 3500, behind Coolify's proxy and TLS); starts once the migration has succeeded
+#   worker   `npm run worker`: backups of the schema into the crucible-backups volume, daily declaration to Matrix
+#
+# Network: every service joins the external Docker network `coolify` (EPC2I_DOCKER_NETWORK), where Matrix's server answers
+# under the fixed alias `epc2i-postgres` (EPC2I_PG_HOST). Coolify adds its own per-resource network to each service and
+# points its proxy at it (label traefik.docker.network), so the app stays reachable by the proxy; leave the resource's
+# "Predefined network" option (Advanced) unconnected: this file already joins `coolify`.
+#
+# HTTP basic authentication (mandatory while CRUCIBLE_AUTH=demo: "View as" any profile, the CEO included). Coolify v4.4.x has
+# no basic-auth setting for Docker Compose resources (only for Applications), but it attaches every Traefik middleware
+# DEFINED in a service's labels to the routers it generates for that service's domain. The middleware below therefore
+# protects the app's domain, provided that in Coolify (1) "Escape special characters in labels" is OFF, so that the
+# variable is interpolated, and (2) CRUCIBLE_BASIC_AUTH_USERS (`htpasswd -nbB <user> <password>`) is created with
+# "Interpolation: Literal", so that the `$` of the bcrypt hash are kept. The proxy must be Traefik (Coolify's default).
+# Check: `curl -sI https://<domain>/` without credentials answers 401.
+# Fail-closed: left escaped, the label is not a valid user list and every request is refused.
+#
+# The key `exclude_from_hc` is Coolify's: remove it to run this file with plain `docker compose`, from the repository root
+# with `--project-directory .` (local test: docker network create coolify, then Matrix's server on that network with the
+# alias epc2i-postgres).
+
+x-crucible-env: &crucible-env
+  NODE_ENV: production
+  DATABASE_URL: postgresql://crucible_app:${CRUCIBLE_APP_PASSWORD:?CRUCIBLE_APP_PASSWORD is required (the value set on the epc2i-postgres resource)}@${EPC2I_PG_HOST:-epc2i-postgres}:5432/epc2i
+  DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-}
+  CRUCIBLE_SEED: ${CRUCIBLE_SEED:?CRUCIBLE_SEED is required (demo or production)}
+  CRUCIBLE_AUTH: ${CRUCIBLE_AUTH:-}
+  CRUCIBLE_SESSION_SECRET: ${CRUCIBLE_SESSION_SECRET:-}
+  CRUCIBLE_SESSION_HOURS: ${CRUCIBLE_SESSION_HOURS:-}
+  CRUCIBLE_ADMIN_EMAILS: ${CRUCIBLE_ADMIN_EMAILS:-}
+  CRUCIBLE_CLOCK: ${CRUCIBLE_CLOCK:-}
+  ENTRA_TENANT_ID: ${ENTRA_TENANT_ID:-}
+  ENTRA_ISSUER: ${ENTRA_ISSUER:-}
+  ENTRA_CLIENT_ID: ${ENTRA_CLIENT_ID:-}
+  ENTRA_CLIENT_SECRET: ${ENTRA_CLIENT_SECRET:-}
+  ENTRA_REDIRECT_URI: ${ENTRA_REDIRECT_URI:-}
+  ENTRA_POST_LOGOUT_REDIRECT_URI: ${ENTRA_POST_LOGOUT_REDIRECT_URI:-}
+  NEXT_PUBLIC_KEYSTONE_URL: ${NEXT_PUBLIC_KEYSTONE_URL:-}
+  NEXT_PUBLIC_CODEX_URL: ${NEXT_PUBLIC_CODEX_URL:-}
+  NEXT_PUBLIC_VIGIE_URL: ${NEXT_PUBLIC_VIGIE_URL:-}
+  LOG_LEVEL: ${LOG_LEVEL:-}
+  MATRIX_URL: ${MATRIX_URL:-}
+  MATRIX_TOKEN: ${MATRIX_TOKEN:-}
+  CRUCIBLE_BACKUP_EVERY_MIN: ${CRUCIBLE_BACKUP_EVERY_MIN:-}
+  CRUCIBLE_BACKUP_RETENTION_DAYS: ${CRUCIBLE_BACKUP_RETENTION_DAYS:-}
+
+services:
+  migrate:
+    image: crucible:local
+    pull_policy: never
+    command: ["npm", "run", "db:migrate"]
+    environment: *crucible-env
+    networks: [default, partage]
+    restart: "no"
+    exclude_from_hc: true
+
+  app:
+    image: crucible:local
+    build:
+      # Relative to the PROJECT directory: Coolify runs `docker compose --project-directory <clone>/<base directory>`, so
+      # with the base directory `/` the context is the repository root (locally: --project-directory . from the root).
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_KEYSTONE_URL: ${NEXT_PUBLIC_KEYSTONE_URL:-}
+        NEXT_PUBLIC_CODEX_URL: ${NEXT_PUBLIC_CODEX_URL:-}
+        NEXT_PUBLIC_VIGIE_URL: ${NEXT_PUBLIC_VIGIE_URL:-}
+    restart: unless-stopped
+    environment: *crucible-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks: [default, partage]
+    expose:
+      - "3500"
+    labels:
+      - "traefik.http.middlewares.crucible-basic-auth.basicauth.users=${CRUCIBLE_BASIC_AUTH_USERS:?CRUCIBLE_BASIC_AUTH_USERS is required (htpasswd -nbB user password)}"
+
+  worker:
+    image: crucible:local
+    pull_policy: never
+    command: ["npm", "run", "worker"]
+    environment:
+      <<: *crucible-env
+      CRUCIBLE_BACKUP_DIR: /backups
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks: [default, partage]
+    restart: unless-stopped
+    volumes:
+      - crucible-backups:/backups
+    exclude_from_hc: true
+
+volumes:
+  crucible-backups:
+
+networks:
+  # Docker network of the tools: "coolify" in Coolify; locally, create it once (docker network create coolify).
+  partage:
+    name: ${EPC2I_DOCKER_NETWORK:-coolify}
+    external: true
