@@ -11,6 +11,9 @@ describe('screen registry', () => {
 
   it('builds hrefs and matches paths', () => {
     expect(screenHref('facilities')).toBe('/facilities');
+    expect(screenHref('facility', { code: 'LAB67' })).toBe('/facilities/LAB67');
+    expect(() => screenHref('facility')).toThrow();
+    expect(matchScreen('/facilities/PDE')?.id).toBe('facility');
     expect(matchScreen('/facilities')?.id).toBe('facilities');
     expect(matchScreen('/admin/users')?.id).toBe('admin-users');
     expect(matchScreen('/my/schedule/')?.id).toBe('my-schedule');
@@ -25,6 +28,6 @@ describe('screen registry', () => {
     expect(canSee('rd_director', 'admin-users')).toBe(false);
     expect(canSee('rd_director', 'admin-org')).toBe(true);
     expect(canSee('technician', 'projects')).toBe(false);
-    expect([...BUILT].sort()).toEqual(['admin-org', 'admin-users', 'facilities', 'home', 'projects']);
+    expect([...BUILT].sort()).toEqual(['admin-org', 'admin-users', 'dashboard', 'facilities', 'facility', 'home', 'my-schedule', 'planning', 'projects', 'rules']);
   });
 });

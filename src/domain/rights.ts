@@ -108,3 +108,34 @@ export function managedFacilities(role: RoleKey, assignments: readonly RoleAssig
   if (role !== 'facility_manager' && role !== 'coordinator') return [];
   return refsOf(mineOf(role, assignments));
 }
+
+/** Facilities where a viewer in `role` runs the tests (starts and ends them, declares an incident): managers and technicians. */
+export function operatedFacilities(role: RoleKey, assignments: readonly RoleAssignment[]): string[] {
+  if (role === 'technician') return refsOf(mineOf(role, assignments));
+  return managedFacilities(role, assignments);
+}
+
+/**
+ * Who may request a slot (spec 01 §3): the coordinator and the facility manager on their facilities, a project lead for
+ * their projects, a partner contact for their entity's projects on the facilities shared with it.
+ */
+export function canRequestBooking(role: RoleKey, assignments: readonly RoleAssignment[], facility: FacilityScopeFacts, project: ProjectScopeFacts): boolean {
+  if (role === 'coordinator' || role === 'facility_manager') {
+    return managedFacilities(role, assignments).includes(facility.code) && canSeeProject(projectVisibility(role, assignments), project);
+  }
+  if (role === 'project_lead') return refsOf(mineOf(role, assignments)).includes(project.code);
+  if (role === 'partner') {
+    const ents = refsOf(mineOf(role, assignments));
+    return ents.includes(project.entityCode) && facility.partnerEntityCodes.some((e) => ents.includes(e));
+  }
+  return false;
+}
+
+/**
+ * Whether the viewer sees what a booking is for (project, purpose) or only that the slot is taken (U-3): those who see the
+ * project, and the technicians of the facility for a non-confidential project.
+ */
+export function canSeeBookingDetail(role: RoleKey, assignments: readonly RoleAssignment[], facilityCode: string, project: ProjectScopeFacts): boolean {
+  if (canSeeProject(projectVisibility(role, assignments), project)) return true;
+  return role === 'technician' && !project.confidential && operatedFacilities(role, assignments).includes(facilityCode);
+}

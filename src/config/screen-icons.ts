@@ -16,6 +16,7 @@ export const SCREEN_ICONS: Record<ScreenId, Icon> = {
   conflicts: Scales,
   incidents: Lightning,
   facilities: Flask,
+  facility: Flask,
   projects: Stack,
   rules: ShieldCheck,
   dashboard: ChartBar,

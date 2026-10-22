@@ -3,9 +3,10 @@
 import admin from './admin.json';
 import auth from './auth.json';
 import demo from './demo.json';
+import resources from './resources.json';
 import shell from './shell.json';
 
-const FILES: Record<string, Record<string, string>> = { admin, auth, demo, shell };
+const FILES: Record<string, Record<string, string>> = { admin, auth, demo, resources, shell };
 
 export const FR_FILES = FILES;
 export const FR_DICT: Record<string, string> = Object.assign({}, ...Object.values(FILES));

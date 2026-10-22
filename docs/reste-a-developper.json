@@ -10,6 +10,10 @@
   {
    "date": "2026-10-22",
    "text": "Livraison 1 (socle) : socle d’Arche sur PostgreSQL seul, 9 profils et visibilité par entité, installation et projet (U-3), administration, jeu de démonstration (laboratoire 67, PDE), CI ; réponses du questionnaire appliquées."
+  },
+  {
+   "date": "2026-10-22",
+   "text": "Livraison 2 : moyens et calendriers, règles d’exclusion validées par la sécurité (PDE : une zone à la fois), accords, réservations sous contraintes dures, planning, Mon planning, pilotage de l’occupation, import de l’historique."
   }
  ],
  "items": [
@@ -50,9 +54,8 @@
    ],
    "evidence": [],
    "progress": {
-    "state": "fait",
-    "delivery": "Livraison 1",
-    "note": "22 oct. 2026 : 56 réponses par défaut confirmées ; P-2 précisée (le PDE est un bâtiment unique en zones, une zone active à la fois)."
+    "state": "en_cours",
+    "note": "22 oct. 2026 : 56 réponses par défaut, P-2 précisée. Nouvelles questions de la livraison 2 : F-10, R-10, P-7 (défaut appliqué)."
    }
   },
   {
@@ -72,7 +75,7 @@
    "evidence": [],
    "progress": {
     "state": "a_faire",
-    "note": "À collecter lors de l’atelier avec les équipes."
+    "note": "Indispensables pour remplacer le jeu de démonstration : moyens réels (D-1), règles (D-2), accord EPC France (D-7), historique (D-8), origine des 30 % (D-9), contrôles (D-10)."
    }
   },
   {
@@ -169,7 +172,9 @@
    ],
    "evidence": [],
    "progress": {
-    "state": "a_faire"
+    "state": "fait",
+    "delivery": "Livraison 2",
+    "note": "Moyens, zones du PDE, horaires, fermetures, indisponibilités, contrôles (R-6) ; fiche /facilities/[code]."
    }
   },
   {
@@ -187,7 +192,9 @@
    ],
    "evidence": [],
    "progress": {
-    "state": "a_faire"
+    "state": "fait",
+    "delivery": "Livraison 2",
+    "note": "Règles proposées, validées ou retirées par le référent sécurité ; PDE-ONE-ZONE appliquée à chaque réservation."
    }
   },
   {
@@ -206,7 +213,9 @@
    ],
    "evidence": [],
    "progress": {
-    "state": "a_faire"
+    "state": "fait",
+    "delivery": "Livraison 2",
+    "note": "Demande, confirmation, annulation, démarrer / terminer, non-tenue (A-7) ; planning des moyens ; Mon planning."
    }
   },
   {
@@ -224,7 +233,9 @@
    ],
    "evidence": [],
    "progress": {
-    "state": "a_faire"
+    "state": "fait",
+    "delivery": "Livraison 2",
+    "note": "Pilotage /dashboard (réservé, réalisé, avec préparation, blocage, attente par entité, quotas) ; import de l’historique (F-9)."
    }
   },
   {
