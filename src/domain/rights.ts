@@ -153,3 +153,18 @@ export function canManageNeeds(role: RoleKey, assignments: readonly RoleAssignme
 
 /** Who keeps the test type catalogue (D-3): the coordinator and the R&D director. */
 export const canEditTestTypes = (role: RoleKey) => role === 'coordinator' || role === 'rd_director';
+
+/** Who runs the engine (spec 01 §3): the R&D director and the coordinator. */
+export const canRunEngine = (role: RoleKey) => role === 'rd_director' || role === 'coordinator';
+
+/** Who publishes a new version of the priority rules (A-1): the R&D director. */
+export const canPublishPriorityRules = (role: RoleKey) => role === 'rd_director';
+
+/**
+ * Who keeps the people of a facility, their skills and absences (F-7, S-3): the coordinator and the facility manager, for the
+ * facilities they manage. Returns those facilities.
+ */
+export const peopleFacilities = (role: RoleKey, assignments: readonly RoleAssignment[]) => managedFacilities(role, assignments);
+
+/** Who keeps the skill catalogue: the coordinator and the R&D director (as the test type catalogue, F-13). */
+export const canEditSkills = (role: RoleKey) => role === 'coordinator' || role === 'rd_director';

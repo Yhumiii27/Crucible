@@ -26,6 +26,10 @@
   {
    "date": "2026-10-22",
    "text": "Sécurité : Next.js 16.4.0 → 16.4.2 (avis critiques GHSA-2464-fhr4-w9xw, GHSA-673q-mjm6-r5xr et GHSA-p3m5-59mp-jv5r) ; npm audit de production sans vulnérabilité. Demande M-7 transmise à Matrix (Yhumiii27/Matrix#17)."
+  },
+  {
+   "date": "2026-10-22",
+   "text": "Livraison 4 : personnes et compétences, substitutions validées, règles de priorité versionnées, moteur de proposition déterministe, acceptation des propositions, fiches de conflit, arbitrages et veto sécurité, équipements mobiles."
   }
  ],
  "items": [
@@ -67,7 +71,7 @@
    "evidence": [],
    "progress": {
     "state": "en_cours",
-    "note": "22 oct. 2026 : 56 réponses par défaut, P-2 précisée. Nouvelles questions à confirmer : F-10, R-10, P-7 (livraison 2), F-11, F-12, F-13, S-7 (livraison 3), défaut appliqué."
+    "note": "22 oct. 2026 : 56 réponses par défaut, P-2 précisée. Nouvelles questions à confirmer : F-10, R-10, P-7 (livraison 2), F-11, F-12, F-13, S-7 (livraison 3), R-11, A-9, F-14 (livraison 4), défaut appliqué."
    }
   },
   {
@@ -287,7 +291,9 @@
    ],
    "evidence": [],
    "progress": {
-    "state": "a_faire"
+    "state": "fait",
+    "delivery": "Livraison 4",
+    "note": "Personnes et compétences (lecture de Cursus quand la vue est accordée), exigences des types d’essai, équipements mobiles, substitutions validées (R-4), règles de priorité versionnées, moteur déterministe qui propose seulement (passage quotidien), acceptation par lot après un nouveau contrôle, fiches de conflit avec options, règle citée et recommandation, arbitrages en ajout seul, veto sécurité. Propriété vérifiée sur 60 scénarios aléatoires. Choix à confirmer : R-11, A-9, F-14."
    }
   },
   {
@@ -343,7 +349,7 @@
    "progress": {
     "state": "en_cours",
     "delivery": "Livraison 3",
-    "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées."
+    "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. Livraison 4 : lecture des titres de cursus.pub_titres_detenus (compétences rattachées à un titre, personnes avec matricule) dès que la vue est accordée."
    }
   }
  ]

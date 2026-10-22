@@ -12,7 +12,9 @@ import type { PriorityClass } from '@/domain/organisation';
 import type { MilestoneCriticality, NeedLevel } from '@/domain/needs';
 import type { BookingStatus, Granularity, ResourceKind } from '@/domain/resources';
 import { parisInstant } from '@/lib/dates';
+import { eq } from 'drizzle-orm';
 import {
+  bookingEquipment, bookingStaff, mobileEquipment, people, personAbsences, personSkills, priorityRuleSets, skills, substitutions, testTypeEquipment, testTypeSkills,
   bookings, closures, projectMilestones, testNeeds, testTypes, entities, entityAgreements, exclusionRuleResources, exclusionRules, facilities, facilityHours, facilityPartners, inspections, projects,
   resources, roleAssignments, sites, unavailabilities, users,
 } from '../schema';
@@ -77,6 +79,7 @@ export async function seedDemo(tx: Tx): Promise<void> {
     userId: idOf.get(p.email)!, role: r.role, scopeKind: r.scope, scopeRef: r.ref, createdByName: 'Demonstration data set',
   }))));
   await seedResources(tx, idOf);
+  await seedPlanning(tx, idOf);
 }
 
 export const DEMO_RESOURCES: { code: string; facilityCode: string; name: string; kind: ResourceKind; granularity: Granularity; capacity: number; setupMinutes: number; teardownMinutes: number }[] = [
@@ -190,4 +193,65 @@ async function seedResources(tx: Tx, idOf: Map<string, string>): Promise<void> {
       needId: b.need ? needId.get(b.need)! : null,
     };
   }));
+}
+
+export const DEMO_SKILLS = [
+  { code: 'PYRO', name: 'Authorised pyrotechnician', cursusTitreId: 'habilitation.PYRO' },
+  { code: 'MECA', name: 'Workshop technician', cursusTitreId: null },
+  { code: 'LABO', name: 'Laboratory technician', cursusTitreId: null },
+] as const;
+
+export const DEMO_OPERATORS: { name: string; matricule: string | null; facilities: string[]; skills: [string, string | null][]; user?: string; absences?: [string, string][] }[] = [
+  { name: 'Julien Masson', matricule: 'EP0412', facilities: ['PDE'], skills: [['PYRO', '2027-09-30'], ['MECA', null]], user: 'technician' },
+  { name: 'Karim Benali', matricule: 'EP0388', facilities: ['PDE'], skills: [['PYRO', '2027-03-31']], absences: [['2026-11-23', '2026-11-27']] },
+  { name: 'Sophie Lambert', matricule: 'EP0521', facilities: ['PDE'], skills: [['MECA', null]] },
+  { name: 'Léa Martin', matricule: 'EP0607', facilities: ['LAB67', 'PDE'], skills: [['LABO', null], ['PYRO', '2027-06-30']] },
+];
+
+async function seedPlanning(tx: Tx, idOf: Map<string, string>): Promise<void> {
+  const { runEngine } = await import('@/server/planning/engine-run');
+  const { DEMO_TODAY_ISO } = await import('@/domain/clock');
+  const { PRIORITY_CRITERIA } = await import('@/domain/planning-vocabulary');
+  const rid = new Map((await tx.select({ id: resources.id, code: resources.code }).from(resources)).map((r) => [r.code, r.id]));
+  const byKey = new Map(DEMO_PEOPLE.map((p) => [p.key, p]));
+  await tx.insert(skills).values(DEMO_SKILLS.map((x) => ({ ...x })));
+  for (const o of DEMO_OPERATORS) {
+    const [p] = await tx.insert(people).values({
+      name: o.name, entityCode: 'EPC2I', matricule: o.matricule, facilityCodes: o.facilities, updatedByName: 'Demonstration data set',
+      userId: o.user ? idOf.get(byKey.get(o.user)!.email)! : null,
+    }).returning({ id: people.id });
+    await tx.insert(personSkills).values(o.skills.map(([skillCode, validUntil]) => ({ personId: p.id, skillCode, validUntil, updatedByName: 'Demonstration data set' })));
+    if (o.absences) await tx.insert(personAbsences).values(o.absences.map(([fromOn, toOn]) => ({ personId: p.id, fromOn, toOn, createdByName: 'Damien Petit' })));
+  }
+  await tx.insert(mobileEquipment).values([
+    { code: 'CAM-01', name: 'High-speed camera', facilityCode: 'PDE', updatedByName: 'Damien Petit' },
+    { code: 'ACQ-01', name: 'Acquisition chain', facilityCode: 'PDE', updatedByName: 'Damien Petit' },
+  ]);
+  await tx.insert(testTypeSkills).values([
+    { testTypeCode: 'FIRING', skillCode: 'PYRO', count: 2 },
+    { testTypeCode: 'MACHINING', skillCode: 'MECA', count: 1 },
+    { testTypeCode: 'FORMULATION', skillCode: 'PYRO', count: 1 },
+    { testTypeCode: 'TENSILE', skillCode: 'LABO', count: 1 },
+    { testTypeCode: 'AGEING', skillCode: 'LABO', count: 1 },
+  ]);
+  await tx.insert(testTypeEquipment).values([{ testTypeCode: 'FIRING', equipmentCode: 'CAM-01' }, { testTypeCode: 'FIRING', equipmentCode: 'ACQ-01' }]);
+  await tx.insert(substitutions).values([
+    {
+      testTypeCode: 'FORMULATION', resourceId: rid.get('LAB67-ANA')!, conditions: 'Inert formulations only, under 50 g of material per trial.', codexRef: 'NT-RD-0142',
+      technicalReferent: 'Hélène Marchal', hazardous: true, status: 'validated', proposedByName: 'Antoine Leroy',
+      hostValidatedByName: 'Sandrine Roux', hostValidatedAt: parisInstant('2026-10-15', '10:00'), safetyValidatedByName: 'Nathalie Brun', safetyValidatedAt: parisInstant('2026-10-16', '11:00'),
+    },
+    {
+      testTypeCode: 'TENSILE', resourceId: rid.get('PDE-ATM')!, conditions: 'Portable tensile rig, samples up to 20 kN.', codexRef: 'NT-RD-0157',
+      technicalReferent: 'Hélène Marchal', hazardous: false, status: 'proposed', proposedByName: 'Damien Petit',
+    },
+  ]);
+  await tx.insert(priorityRuleSets).values({ version: 1, criteria: [...PRIORITY_CRITERIA], note: 'Starting order (A-2)', publishedByName: 'Hélène Marchal', publishedAt: parisInstant('2026-10-20', '09:00') });
+  // The confirmed firing tests of 27 Oct already have their pyrotechnicians and camera.
+  const [b11] = await tx.select({ id: bookings.id }).from(bookings).where(eq(bookings.ref, 'B-2026-0011'));
+  const ops = await tx.select({ id: people.id, name: people.name }).from(people);
+  const op = (name: string) => ops.find((x) => x.name === name)!.id;
+  await tx.insert(bookingStaff).values([{ bookingId: b11.id, personId: op('Julien Masson'), skillCode: 'PYRO' }, { bookingId: b11.id, personId: op('Karim Benali'), skillCode: 'PYRO' }]);
+  await tx.insert(bookingEquipment).values([{ bookingId: b11.id, equipmentCode: 'CAM-01' }, { bookingId: b11.id, equipmentCode: 'ACQ-01' }]);
+  await runEngine(tx, { trigger: 'manual', by: { name: 'Antoine Leroy', userId: idOf.get(byKey.get('coordinator')!.email)!, role: 'coordinator' }, today: DEMO_TODAY_ISO, now: parisInstant(DEMO_TODAY_ISO, '08:00') });
 }
