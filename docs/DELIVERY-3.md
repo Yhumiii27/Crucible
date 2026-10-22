@@ -53,7 +53,7 @@ Jeu de démonstration : jalons des quatre projets, cinq types d’essai, six bes
 - Jalons saisis dans Crucible : la lecture de `keystone.pub_jalons` attend que Keystone traite la demande K-2 (transmise le
   22/10, Yhumiii27/Keystone#22). L’écran des connecteurs montrera la vue dès qu’elle sera publiée et accordée.
 - Matrix doit recopier `pub_moyens` et `pub_reservations` dans `partage/80-crucible.sql` (règle P-02 de Matrix) : demande
-  M-7, à transmettre après validation ([`DEMANDES-MATRIX.md`](DEMANDES-MATRIX.md)). Les droits des lecteurs sont déjà posés.
+  M-7, validée et transmise le 22/10 (Yhumiii27/Matrix#17, [`DEMANDES-MATRIX.md`](DEMANDES-MATRIX.md)). Les droits des lecteurs sont déjà posés.
 - `pub_occupation_hebdo` (S-5) est reportée à la livraison 5, avec les instantanés hebdomadaires (X-4) qui l’alimenteront.
 - Le plan de charge compte les heures, pas encore les personnes (F-7, livraison 4) ; les substitutions de moyen arrivent
   avec le moteur (livraison 4).

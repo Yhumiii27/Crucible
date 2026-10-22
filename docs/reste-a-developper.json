@@ -22,6 +22,10 @@
   {
    "date": "2026-10-22",
    "text": "Livraison 3 : jalons, types d’essai, besoins (prévisions et demandes), prévenance F-5 pour toutes les entités, plan de charge sur 26 semaines et enveloppes à 12 mois (goulot du PDE signalé 8 semaines avant), références Codex des protocoles et rapports, vues pub_moyens et pub_reservations, écran des connecteurs."
+  },
+  {
+   "date": "2026-10-22",
+   "text": "Sécurité : Next.js 16.4.0 → 16.4.2 (avis critiques GHSA-2464-fhr4-w9xw, GHSA-673q-mjm6-r5xr et GHSA-p3m5-59mp-jv5r) ; npm audit de production sans vulnérabilité. Demande M-7 transmise à Matrix (Yhumiii27/Matrix#17)."
   }
  ],
  "items": [

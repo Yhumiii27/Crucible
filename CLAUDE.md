@@ -50,8 +50,8 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
   as `url`).
 - **Requests sent to other repos** (22 Oct 2026, validated by the owner): Keystone K-2 `pub_jalons` (Keystone#22, merged),
-  Cursus CU-1 `pub_absences` (Cursus#15, merged), Vigie V-1 `pub_controles` (Vigie#12). Drafted, not sent: Matrix M-7 (copy
-  `pub_moyens`, `pub_reservations` into `partage/80-crucible.sql`) — present the note and wait for « validé ».
+  Cursus CU-1 `pub_absences` (Cursus#15, merged), Vigie V-1 `pub_controles` (Vigie#12), Matrix M-7 (copy `pub_moyens`,
+  `pub_reservations` into `partage/80-crucible.sql`, Matrix#17).
 - Next: delivery 4 (people and skills, validated substitutions, proposal engine, conflicts and arbitration), see
   `docs/PLAN.md`.
 

@@ -3,7 +3,7 @@
 > 22 oct. 2026. Même démarche que pour Arche (décision M-07 de Matrix). Crucible ne modifie jamais le dépôt Matrix : ces
 > demandes sont à transmettre au chat Matrix par le responsable produit. Relevé du dépôt `Yhumiii27/Matrix` au commit
 > `7698799`. **État au 22/10/2026** (`REQUESTS.md` de Matrix) : M-1 à M-5 faites, M-6 ouverte (localisation des sites
-> attendue, P-1) ; M-7 rédigée avec la livraison 3, **à transmettre après validation** du responsable produit. Proposition (T-1) : **PostgreSQL uniquement**, schéma `crucible`, rôle `crucible_app`, tables déclarées dans
+> attendue, P-1) ; M-7 rédigée avec la livraison 3, validée et **transmise** le 22/10/2026 (Yhumiii27/Matrix#17), statut OUVERTE. Proposition (T-1) : **PostgreSQL uniquement**, schéma `crucible`, rôle `crucible_app`, tables déclarées dans
 > le schéma (`crucible.table(…)`), verrous `hashtext('crucible.migrations')` et `hashtext('crucible.ecritures')`, journal
 > `crucible.__drizzle_migrations`.
 
