@@ -3,8 +3,16 @@
 Crucible is the group's application for **planning and arbitrating the shared R&D test resources**: laboratoire 67 (shared
 with EPC France), PDE, laboratoire PDE, atelier mécanique, then the other test means. Sibling apps: Keystone (projects,
 `Yhumiii27/Keystone`), Arche (subsidiaries' CAPEX — the model to follow), Codex (documents), Vigie (QHSE), Cursus (HR),
-Matrix (shared PostgreSQL server). Their repositories can be added read-only to a session (never modified); requests to them
-go in `docs/DEMANDES-<APP>.md`.
+Matrix (shared PostgreSQL server). Their repositories can be added read-only to a session (never modified).
+
+## Inter-repo rules (owner, 22 Oct 2026)
+
+- This chat's own repository is `Yhumiii27/Crucible`; say so in the first reply of a session. Write, commit and push only here.
+- `REQUESTS.md` (root) is Crucible's inbox: the other applications file their requests to Crucible there. At the start of each
+  session, read it and report the OPEN entries to the owner; handle one only after the owner agrees.
+- The only write allowed in another repository is adding an entry to its `REQUESTS.md` (or changing the status of an entry
+  Crucible created there), and only after presenting the owner a detailed note (target repo, exact ask, why, what happens
+  without it) and receiving an explicit « validé ». `docs/DEMANDES-<APP>.md` are Crucible's drafts of those requests.
 
 ## Where the project stands
 
