@@ -39,7 +39,7 @@ schéma et ne lit les autres outils que par leurs vues `pub_`.
 |---|---|
 | **Installation** | ensemble physique sous une même responsabilité : laboratoire 67, PDE, laboratoire PDE, atelier mécanique |
 | **Moyen d’essai** | ce qui se réserve : banc, cellule, enceinte, machine, salle ; appartient à une installation |
-| **PDE** | *définition à fournir* (P-2) |
+| **PDE** | bâtiment unique découpé en **zones** : l’atelier mécanique, le pilote et les pièces laboratoire (« laboratoire PDE ») ; on ne travaille qu’à **une zone à la fois** (pas de coactivité pyrotechnique) — réponse P-2 du 22 oct. 2026 |
 | **Laboratoire 67** | *localisation et statut à préciser* : propriété, exploitant, part d’EPC France (P-1) |
 | **Entité** | organisation demandeuse : EPC2i, EPC France, autre filiale ou partenaire |
 | **Type d’essai** | catégorie d’essai du catalogue R&D (durée type, compétences, moyen nominal) |
