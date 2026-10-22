@@ -10,14 +10,25 @@ go in `docs/DEMANDES-<APP>.md`.
 
 - **Delivery 0 (framing) is done** (22 Oct 2026): `docs/ANALYSE.md` (need analysis, feasibility, survey of the sibling
   repos, data needed, risks), `docs/spec/00`–`05`, `docs/DECISIONS.md`, `docs/PLAN.md`, `docs/ATELIER-CADRAGE.md` (first
-  workshop with the teams), `docs/DEMANDES-*.md`. Nothing is coded before the owner's answers.
+  workshop with the teams), `docs/DEMANDES-*.md`.
+- **Delivery 1 (platform) is done** (`docs/DELIVERY-1.md`, `docs/SOCLE.md`): platform copied from Arche `18c4686` (itself
+  from Keystone `63f43ad`), PostgreSQL only, 9 profiles with global / entity / facility / project scopes, visibility filtered in
+  SQL (`src/domain/rights.ts`, `src/server/dal/visibility.ts`: a partner sees the facilities shared with its entity and its own
+  projects; a confidential project stays with its team and the R&D director), administration of accounts, roles, entities,
+  sites, facilities and projects, demo data set (laboratoire 67 shared with EPC France, PDE).
+- **PDE (owner's answer P-2)**: one building split into zones — mechanical workshop, pilot, laboratory rooms — where only one
+  zone works at a time (no pyrotechnic co-activity). The zones become bookable resources linked by one exclusion rule (L2).
 - **Owner's answers**: questionnaire "Décisions Crucible", https://claude.ai/artifact/EaWUrHKrsdaWGB1UHtL1Ym — read its
   database (ArtifactData, collection `answers`, one document per question id: `choice` = default | altN | other | discuss,
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in
-  step with it and rebuild the page with `npm run questionnaire:page`.
-- Next: delivery 1 (platform), see `docs/PLAN.md`.
+  step with it and rebuild the page with `npm run questionnaire:page`. 22 Oct 2026: 56 defaults confirmed, P-2 answered
+  (above); the data D-1 to D-11 are still to come.
+- **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
+  run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
+  and republish the HTML with the Artifact tool to the same page (URL in `docs/RESTE-A-DEVELOPPER.md`'s header once published).
+- Next: delivery 2 (resources, rules, bookings, utilisation), see `docs/PLAN.md`.
 
-## Rules (proposed, same as Arche — confirm with the owner's answers)
+## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 
 - Reply in **French**. Code, identifiers and commit messages in English. UI strings are English source strings translated
   through `src/i18n`; French is the default language.
@@ -35,3 +46,11 @@ go in `docs/DEMANDES-<APP>.md`.
 - Every verified lot goes to `main` through a PR merged once CI is green.
 - Ports on the owner's Mac (T-2 proposal): **3500** (Crucible) and **3510** (tests). Never use or kill 3000, 3100, 3110,
   3200, 3210, 3217, 3310, 3400, 3410, 5173.
+
+## Setup and checks
+
+```bash
+npm ci && npm run db:local && npm run db:migrate   # .env.local: see .env.example (PostgreSQL only)
+npx next typegen && npm run typecheck && npm run lint && npm test
+npm run dev                                         # http://localhost:3500
+```

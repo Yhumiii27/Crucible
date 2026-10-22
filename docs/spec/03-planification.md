@@ -26,7 +26,7 @@ d’essais par trimestre) : il ne demande ni gros calcul ni IA pour être résol
 |---|---|---|
 | Moyens d’essai, leurs capacités, calendriers | référentiel Crucible (spec 02 §1) | PDE : 1 essai à la fois, lun–ven 7h–17h |
 | Indisponibilités | maintenance (Crucible), contrôles périodiques (Vigie, à demander), aléas | PDE indisponible du 3 au 5 nov. (VGP) |
-| Règles d’exclusion et de cohabitation | référentiel des règles, validées par la sécurité | « PDE, labo PDE et atelier méca : jamais plus d’un actif » (à confirmer, R-2) |
+| Règles d’exclusion et de cohabitation | référentiel des règles, validées par la sécurité | « PDE : une seule zone active à la fois (atelier mécanique, pilote, pièces laboratoire) » (P-2, R-2) |
 | Substitutions validées | matrice type d’essai × moyen | « essai de traction T-12 : labo 67 ou atelier méca » |
 | Besoins des projets | demandes d’essais (spec 02 §3), dérivées des échéances | campagne de 6 tirs avant le jalon J3 du projet X |
 | Personnes, qualifications, absences | Cursus (à demander), sinon saisie locale | 2 pyrotechniciens habilités, congés |
@@ -38,7 +38,7 @@ d’essais par trimestre) : il ne demande ni gros calcul ni IA pour être résol
 ### 3.1 Contraintes dures (jamais violées par une proposition)
 
 1. **Capacité** d’un moyen (en général 1 essai à la fois ; certaines salles : N postes).
-2. **Exclusions mutuelles** entre moyens (R-2) : un ensemble de moyens dont au plus *k* peuvent être actifs au même
+2. **Exclusions mutuelles** entre moyens (R-2 ; au PDE, une seule zone active à la fois, P-2) : un ensemble de moyens dont au plus *k* peuvent être actifs au même
    instant, éventuellement **conditionné** au type d’activité (ex. « tir pyrotechnique au PDE interdit pendant une activité
    avec présence humaine à l’atelier »). Forme générale : `ExclusionRule { moyens[], activités[]?, max_simultanés, motif,
    validée_par, référence_Codex }`.

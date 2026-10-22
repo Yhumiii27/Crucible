@@ -1,0 +1,16 @@
+# Left out of the image: local dependencies and builds, secrets, test outputs and what the server never reads.
+.git
+node_modules
+.next
+.next-ci
+.data
+.env
+.env.*
+!.env.example
+.artifacts
+test-results
+playwright-report
+.claude
+docs
+tsconfig.tsbuildinfo
+*.log

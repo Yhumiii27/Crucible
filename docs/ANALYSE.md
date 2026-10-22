@@ -62,7 +62,7 @@ aujourd’hui. Chacune appelle une réponse différente :
 
 | Cause possible | Signe dans les données | Réponse de Crucible |
 |---|---|---|
-| Le PDE est **bloqué** par l’exclusion avec le laboratoire PDE ou l’atelier | heures libres mais bloquées | taux de blocage ; regroupement des activités exclusives ; règle d’exclusion affinée (par type d’activité plutôt que totale) |
+| Le PDE est **bloqué** par l’exclusion entre ses zones (atelier mécanique, pilote, pièces laboratoire : une seule active à la fois, P-2) | heures libres mais bloquées | taux de blocage ; regroupement des activités exclusives ; règle d’exclusion affinée (par type d’activité plutôt que totale) |
 | **Personnel** : peu de personnes habilitées pour le PDE | créneaux libres sans opérateur | planification conjointe moyen + personnes ; besoin de formation visible |
 | **Réservations non tenues** ou surréservations « de précaution » | réservé ≫ réalisé | statut `no_show`, délai de libération, quota de réservation |
 | **Temps de préparation** non comptés (montage, sécurisation, remise en état) | réalisé court, occupation réelle plus haute | occupation « réalisé + préparation » |

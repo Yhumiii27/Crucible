@@ -8,8 +8,8 @@
 
 | Table | Contenu | Remarques |
 |---|---|---|
-| `facilities` | **installation** : laboratoire 67, PDE, laboratoire PDE, atelier mécanique… ; site (Matrix `pub_sites`), entité exploitante, responsable, coût d’acquisition (pour la valeur de l’occupation), horaires | une installation regroupe des moyens |
-| `resources` | **moyen d’essai** réservable : banc, cellule, enceinte, machine d’atelier, salle ; capacité simultanée (1 par défaut), granularité (demi-journée / heure), temps de préparation et de remise en état par défaut, état (en service, en maintenance, hors service, retiré) | le PDE peut être un moyen unique ou plusieurs (R-1) |
+| `facilities` | **installation** : laboratoire 67, PDE (bâtiment unique, P-2)… ; site (Matrix `pub_sites`), entité exploitante, responsable, coût d’acquisition (pour la valeur de l’occupation), horaires | une installation regroupe des moyens |
+| `resources` | **moyen d’essai** réservable : banc, cellule, enceinte, machine d’atelier, salle, **zone** (les zones du PDE : atelier mécanique, pilote, pièces laboratoire) ; capacité simultanée (1 par défaut), granularité (demi-journée / heure), temps de préparation et de remise en état par défaut, état (en service, en maintenance, hors service, retiré) | P-2 : les zones du PDE sont des moyens, liés par une règle d’exclusion |
 | `resource_capabilities` | ce qu’un moyen sait faire : types d’essai, plages (charge, pression, température, masse de matière active…) | sert aux substitutions |
 | `test_types` | **types d’essai** du catalogue R&D (tir, traction, vieillissement, mesure de vitesse de détonation…) : durée type, compétences requises, moyen nominal | à construire avec les équipes (D-3) |
 | `substitutions` | matrice **type d’essai × moyen** : nominal / substitut validé / interdit ; conditions ; **validé par**, date, référence Codex de la justification technique | une substitution non validée n’est jamais proposée (R-4) |

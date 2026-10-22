@@ -1,0 +1,103 @@
+# Crucible on Coolify — a "Docker Compose" resource (derived from Keystone's kit). Runbook in French: docs/EXPLOITATION.md.
+#
+#   db       PostgreSQL 16 (named volume crucible-db); postgres-init/ creates the database epc2i, the role crucible_app and the
+#            schema `crucible` on an empty volume. To use the shared EPC2I server instead (decision M-01), drop this service and
+#            set DATABASE_URL to postgres://crucible_app:…@<host>:5432/epc2i (Matrix creates the role and the schema).
+#   migrate  one-shot `npm run db:migrate` before every start (migrations, then the seed of an EMPTY schema: CRUCIBLE_SEED must
+#            be set — demo for the beta, production for reference data only); left out of Coolify's health status
+#   app      the web server (port 3500, behind Coolify's proxy and TLS); starts once the migration has succeeded
+#   worker   `npm run worker`: backups of the schema into the crucible-backups volume (replicate it off the host), daily
+#            declaration to Matrix
+#
+# The demo beta (CRUCIBLE_AUTH=demo: "View as" any profile, the CEO included) ONLY behind Coolify's basic authentication —
+# nothing in Crucible enforces it. The key `exclude_from_hc` is Coolify's: remove it to run this file with plain `docker compose`.
+
+x-crucible-env: &crucible-env
+  NODE_ENV: production
+  DATABASE_URL: postgresql://crucible_app:${CRUCIBLE_APP_PASSWORD:?CRUCIBLE_APP_PASSWORD is required}@db:5432/epc2i
+  DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-}
+  CRUCIBLE_SEED: ${CRUCIBLE_SEED:?CRUCIBLE_SEED is required (demo or production)}
+  CRUCIBLE_AUTH: ${CRUCIBLE_AUTH:-}
+  CRUCIBLE_SESSION_SECRET: ${CRUCIBLE_SESSION_SECRET:-}
+  CRUCIBLE_SESSION_HOURS: ${CRUCIBLE_SESSION_HOURS:-}
+  CRUCIBLE_ADMIN_EMAILS: ${CRUCIBLE_ADMIN_EMAILS:-}
+  CRUCIBLE_CLOCK: ${CRUCIBLE_CLOCK:-}
+  ENTRA_TENANT_ID: ${ENTRA_TENANT_ID:-}
+  ENTRA_ISSUER: ${ENTRA_ISSUER:-}
+  ENTRA_CLIENT_ID: ${ENTRA_CLIENT_ID:-}
+  ENTRA_CLIENT_SECRET: ${ENTRA_CLIENT_SECRET:-}
+  ENTRA_REDIRECT_URI: ${ENTRA_REDIRECT_URI:-}
+  ENTRA_POST_LOGOUT_REDIRECT_URI: ${ENTRA_POST_LOGOUT_REDIRECT_URI:-}
+  NEXT_PUBLIC_KEYSTONE_URL: ${NEXT_PUBLIC_KEYSTONE_URL:-}
+  NEXT_PUBLIC_CODEX_URL: ${NEXT_PUBLIC_CODEX_URL:-}
+  NEXT_PUBLIC_VIGIE_URL: ${NEXT_PUBLIC_VIGIE_URL:-}
+  LOG_LEVEL: ${LOG_LEVEL:-}
+  MATRIX_URL: ${MATRIX_URL:-}
+  MATRIX_TOKEN: ${MATRIX_TOKEN:-}
+  CRUCIBLE_BACKUP_EVERY_MIN: ${CRUCIBLE_BACKUP_EVERY_MIN:-}
+  CRUCIBLE_BACKUP_RETENTION_DAYS: ${CRUCIBLE_BACKUP_RETENTION_DAYS:-}
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      CRUCIBLE_APP_PASSWORD: ${CRUCIBLE_APP_PASSWORD:?CRUCIBLE_APP_PASSWORD is required}
+    volumes:
+      - crucible-db:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d epc2i"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  migrate:
+    image: crucible:local
+    pull_policy: never
+    command: ["npm", "run", "db:migrate"]
+    environment: *crucible-env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    exclude_from_hc: true
+
+  app:
+    image: crucible:local
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_KEYSTONE_URL: ${NEXT_PUBLIC_KEYSTONE_URL:-}
+        NEXT_PUBLIC_CODEX_URL: ${NEXT_PUBLIC_CODEX_URL:-}
+        NEXT_PUBLIC_VIGIE_URL: ${NEXT_PUBLIC_VIGIE_URL:-}
+    restart: unless-stopped
+    environment: *crucible-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    expose:
+      - "3500"
+
+  worker:
+    image: crucible:local
+    pull_policy: never
+    command: ["npm", "run", "worker"]
+    environment:
+      <<: *crucible-env
+      CRUCIBLE_BACKUP_DIR: /backups
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    volumes:
+      - crucible-backups:/backups
+    exclude_from_hc: true
+
+volumes:
+  crucible-db:
+  crucible-backups:

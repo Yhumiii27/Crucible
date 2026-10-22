@@ -1,0 +1,321 @@
+{
+ "generated": "2026-10-22",
+ "updated": "2026-10-22",
+ "branch": "claude/lucid-dirac-7bdq6x",
+ "history": [
+  {
+   "date": "2026-10-22",
+   "text": "Livraison 0 (cadrage) : inventaire initial aligné sur docs/PLAN.md."
+  },
+  {
+   "date": "2026-10-22",
+   "text": "Livraison 1 (socle) : socle d’Arche sur PostgreSQL seul, 9 profils et visibilité par entité, installation et projet (U-3), administration, jeu de démonstration (laboratoire 67, PDE), CI ; réponses du questionnaire appliquées."
+  }
+ ],
+ "items": [
+  {
+   "id": "CR-001",
+   "title": "Cadrage (livraison 0)",
+   "description": "Analyse du besoin, état des lieux des outils du groupe, spécification docs/spec/00–05, décisions, plan, guide d’atelier, demandes aux autres dépôts, questionnaire.",
+   "category": "cadrage_decisions",
+   "kind": "cadrage",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "M",
+   "sources": [
+    "docs/ANALYSE.md",
+    "docs/spec/",
+    "docs/DECISIONS.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "fait",
+    "delivery": "Livraison 0",
+    "note": "Branche claude/lucid-dirac-7bdq6x, 22 oct. 2026."
+   }
+  },
+  {
+   "id": "CR-002",
+   "title": "Réponses du responsable produit",
+   "description": "57 questions du questionnaire « Décisions Crucible ».",
+   "category": "cadrage_decisions",
+   "kind": "decision",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "S",
+   "sources": [
+    "docs/DECISIONS.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "fait",
+    "delivery": "Livraison 1",
+    "note": "22 oct. 2026 : 56 réponses par défaut confirmées ; P-2 précisée (le PDE est un bâtiment unique en zones, une zone active à la fois)."
+   }
+  },
+  {
+   "id": "CR-003",
+   "title": "Données à fournir D-1 à D-11",
+   "description": "Moyens, règles d’exclusion, types d’essai, substitutions, projets et besoins, personnes, accord EPC France, historique, origine des 30 %, contrôles, participants à l’atelier.",
+   "category": "cadrage_decisions",
+   "kind": "donnees",
+   "priority": "prochaine_etape",
+   "status": "bloque_attente_proprietaire",
+   "waiting_on": "Responsable produit et équipes R&D",
+   "effort": "M",
+   "sources": [
+    "docs/DECISIONS.md §11",
+    "docs/ATELIER-CADRAGE.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire",
+    "note": "À collecter lors de l’atelier avec les équipes."
+   }
+  },
+  {
+   "id": "CR-004",
+   "title": "Socle repris (connexion, droits, audit, i18n, PostgreSQL, worker, sauvegardes, CI)",
+   "description": "Socle d’Arche (lui-même repris de Keystone), PostgreSQL seul, schéma crucible.",
+   "category": "plateforme_production",
+   "kind": "technique",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "M",
+   "sources": [
+    "docs/SOCLE.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "fait",
+    "delivery": "Livraison 1",
+    "note": "132 tests, build et 19 contrôles de fumée HTTP."
+   }
+  },
+  {
+   "id": "CR-005",
+   "title": "Profils, portées et visibilité (U-3)",
+   "description": "9 profils, portées global / entité / installation / projet, filtres SQL ; un partenaire ne voit que les installations partagées et ses projets ; projets confidentiels réservés à leur équipe.",
+   "category": "droits_acces",
+   "kind": "fonction",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "M",
+   "sources": [
+    "docs/spec/01-profils-droits.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "fait",
+    "delivery": "Livraison 1",
+    "note": "src/domain/rights.ts, src/server/dal/visibility.ts."
+   }
+  },
+  {
+   "id": "CR-006",
+   "title": "Administration : comptes, rôles, entités, sites, installations, projets",
+   "description": "Écritures validées côté serveur et auditées ; projets et classe de priorité par la direction R&D.",
+   "category": "droits_acces",
+   "kind": "fonction",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "S",
+   "sources": [
+    "docs/spec/05-ecrans.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "fait",
+    "delivery": "Livraison 1",
+    "note": "src/features/admin/."
+   }
+  },
+  {
+   "id": "CR-007",
+   "title": "Mise en production : hébergement, Entra réel, serveur commun",
+   "description": "Hébergeur (T-6), inscription Entra, rôle et schéma créés par Matrix (M-1 à M-5).",
+   "category": "plateforme_production",
+   "kind": "exploitation",
+   "priority": "bloquant_production",
+   "status": "bloque_systeme_externe",
+   "waiting_on": "Matrix, DSI",
+   "effort": "M",
+   "sources": [
+    "docs/DEMANDES-MATRIX.md",
+    "docs/EXPLOITATION.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  },
+  {
+   "id": "CR-010",
+   "title": "Moyens d’essais, zones du PDE, calendriers, indisponibilités, contrôles",
+   "description": "Installations, moyens réservables (zones du PDE : atelier mécanique, pilote, pièces laboratoire), horaires, maintenances, contrôles échus bloquants (R-6).",
+   "category": "moyens_regles",
+   "kind": "fonction",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "L",
+   "sources": [
+    "docs/spec/02-objets.md §1–2"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  },
+  {
+   "id": "CR-011",
+   "title": "Règles d’exclusion validées par la sécurité",
+   "description": "Une zone du PDE active à la fois (P-2, R-2) ; validation par le référent sécurité (R-3), versions, référence Codex.",
+   "category": "moyens_regles",
+   "kind": "fonction",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "M",
+   "sources": [
+    "docs/spec/03-planification.md §3"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  },
+  {
+   "id": "CR-012",
+   "title": "Réservations manuelles et contrôle des contraintes dures",
+   "description": "Réservation refusée avec la règle citée ; planning des moyens ; « Mon planning » (démarrer, terminer) ; réservations non tenues (A-7).",
+   "category": "moyens_regles",
+   "kind": "fonction",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "L",
+   "sources": [
+    "docs/spec/03-planification.md",
+    "docs/spec/05-ecrans.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  },
+  {
+   "id": "CR-013",
+   "title": "Pilotage de l’occupation et import de l’historique",
+   "description": "Occupation réservée / réalisée / avec préparation / blocage (P-5), attente par entité, mesure de référence (X-2, F-9).",
+   "category": "aleas_pilotage",
+   "kind": "fonction",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "M",
+   "sources": [
+    "docs/spec/02-objets.md §6"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  },
+  {
+   "id": "CR-020",
+   "title": "Besoins des projets, jalons et plan de charge",
+   "description": "Prévisions, demandes, délai de prévenance (F-5), plan de charge 26 semaines (F-6), goulots et creux.",
+   "category": "besoins_anticipation",
+   "kind": "fonction",
+   "priority": "plus_tard",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "M",
+   "sources": [
+    "docs/spec/03-planification.md §6"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  },
+  {
+   "id": "CR-030",
+   "title": "Moteur de proposition, conflits et arbitrages",
+   "description": "Personnes et compétences, substitutions validées, heuristique déterministe (T-3), fiches de conflit, règles de priorité versionnées (A-1, A-2).",
+   "category": "proposition_arbitrage",
+   "kind": "fonction",
+   "priority": "plus_tard",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "L",
+   "sources": [
+    "docs/spec/03-planification.md §4–5"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  },
+  {
+   "id": "CR-040",
+   "title": "Aléas, replanification, scénarios et notifications",
+   "description": "Scénario de reprise, avant / après par projet, urgences (A-8), cloche et e-mail (F-8).",
+   "category": "aleas_pilotage",
+   "kind": "fonction",
+   "priority": "plus_tard",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "M",
+   "sources": [
+    "docs/spec/03-planification.md §7"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  },
+  {
+   "id": "CR-050",
+   "title": "Assistant IA",
+   "description": "Assistant adossé au moteur, sans écriture seule (I-1 à I-4) ; fournisseur à valider.",
+   "category": "assistant_ia",
+   "kind": "fonction",
+   "priority": "plus_tard",
+   "status": "bloque_attente_proprietaire",
+   "waiting_on": "DSI (fournisseur, I-3)",
+   "effort": "M",
+   "sources": [
+    "docs/spec/04-assistant-ia.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  },
+  {
+   "id": "CR-060",
+   "title": "Connecteurs Keystone, Cursus, Vigie, Codex",
+   "description": "Jalons Keystone (K-2), habilitations et absences Cursus (CU-1, CU-2), contrôles et coactivité Vigie (V-1, V-2), documents Codex (CX-1, CX-2) ; vues pub_ publiées.",
+   "category": "liens_outils",
+   "kind": "integration",
+   "priority": "plus_tard",
+   "status": "bloque_systeme_externe",
+   "waiting_on": "Keystone, Cursus, Vigie, Codex",
+   "effort": "L",
+   "sources": [
+    "docs/DEMANDES-*.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "a_faire"
+   }
+  }
+ ]
+}
