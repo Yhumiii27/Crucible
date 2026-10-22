@@ -6,7 +6,7 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-10-22 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 8 faits, 1 en cours, 7 à faire, sur 16 points.
+**Avancement** : 8 faits, 2 en cours, 6 à faire, sur 16 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
@@ -41,7 +41,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 
 Les points « Bloquant production » restants, par domaine. Sans eux, Crucible reste une démonstration.
 
-- **Plateforme et mise en production** : CR-007 Mise en production : hébergement, Entra réel, serveur commun.
+- **Plateforme et mise en production** : CR-007 Mise en production : hébergement, Entra réel, serveur commun *(en cours, Livraison 1)*.
 
 ### 1.2 Ce qui attend le responsable produit
 
@@ -60,9 +60,9 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 
 ### 2.1 Plateforme et mise en production (1 restants, 1 faits)
 
-**CR-007 · Mise en production : hébergement, Entra réel, serveur commun** — *Bloquant production · attend un système externe · effort M*  
+**CR-007 · Mise en production : hébergement, Entra réel, serveur commun** — *Bloquant production · attend un système externe · effort M* · **en cours (Livraison 1)**  
 Hébergeur (T-6), inscription Entra, rôle et schéma créés par Matrix (M-1 à M-5).  
-*Attend : Matrix, DSI · Sources : docs/DEMANDES-MATRIX.md, docs/EXPLOITATION.md*
+*Avancement : Kit Coolify du serveur commun (deploy/compose.shared.yaml, EXPLOITATION.md § 4.1) essayé en local contre le socle de Matrix (rôle crucible_app posé à la main) : migrations, jeu de démonstration, santé, sauvegarde, authentification HTTP. Reste : rôle et partage côté Matrix (M-1 à M-5), mise en service dans Coolify, Entra réel. · Attend : Matrix, DSI · Sources : docs/DEMANDES-MATRIX.md, docs/EXPLOITATION.md*
 
 **~~CR-004 · Socle repris (connexion, droits, audit, i18n, PostgreSQL, worker, sauvegardes, CI)~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 1)**  
 Socle d’Arche (lui-même repris de Keystone), PostgreSQL seul, schéma crucible.  
@@ -142,6 +142,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-22 — Kit Coolify du serveur commun : deploy/compose.shared.yaml (migrate, app, worker sur le réseau coolify, base epc2i-postgres), authentification HTTP de la bêta par un middleware Traefik dans les étiquettes, runbook EXPLOITATION.md § 4 (ressource, variables, contrôles, partage 80/90/95).
 - 2026-10-22 — Livraison 2 : moyens et calendriers, règles d’exclusion validées par la sécurité (PDE : une zone à la fois), accords, réservations sous contraintes dures, planning, Mon planning, pilotage de l’occupation, import de l’historique.
 - 2026-10-22 — Livraison 1 (socle) : socle d’Arche sur PostgreSQL seul, 9 profils et visibilité par entité, installation et projet (U-3), administration, jeu de démonstration (laboratoire 67, PDE), CI ; réponses du questionnaire appliquées.
 - 2026-10-22 — Livraison 0 (cadrage) : inventaire initial aligné sur docs/PLAN.md.
