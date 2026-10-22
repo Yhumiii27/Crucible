@@ -215,7 +215,7 @@ export async function usageFacts(viewer: Viewer, fromIso: string, toIso: string,
       ? db.select({
         resourceId: bookings.resourceId, start: bookings.startsAt, end: bookings.endsAt, status: bookings.status, actualStart: bookings.actualStartAt, actualEnd: bookings.actualEndAt,
         setupMinutes: bookings.setupMinutes, teardownMinutes: bookings.teardownMinutes, entityCode: bookings.entityCode, projectCode: bookings.projectCode,
-        requestedAt: bookings.requestedAt, facilityCode: resources.facilityCode,
+        requestedAt: bookings.requestedAt, facilityCode: resources.facilityCode, source: bookings.source,
       }).from(bookings).innerJoin(resources, eq(resources.id, bookings.resourceId))
         .where(and(inArray(bookings.resourceId, ids), lt(bookings.startsAt, to), gte(bookings.endsAt, from), ne(bookings.status, 'cancelled')))
       : [],

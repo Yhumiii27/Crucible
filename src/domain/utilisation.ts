@@ -83,18 +83,23 @@ export function resourceUsage(input: {
 /** Rate of `hours` over the net open hours, in %, one decimal; null without open hours. */
 export const rateOf = (hours: number, netOpenHours: number) => (netOpenHours > 0 ? Math.round((1000 * hours) / netOpenHours) / 10 : null);
 
-/** Average and maximum wait (calendar days) between the request and the start of the test, per entity. */
-export function waitingByEntity(bookings: readonly { entityCode: string; requestedAt: number; start: number; status: BookingStatus }[]): {
-  entityCode: string; count: number; averageDays: number; maxDays: number;
+/**
+ * Average and maximum wait (calendar days) between the request and the start of the test, per entity, and how many of these
+ * requests were late (made with less notice than agreed, F-5: accepted, flagged and counted).
+ */
+export function waitingByEntity(bookings: readonly { entityCode: string; requestedAt: number; start: number; status: BookingStatus; late?: boolean }[]): {
+  entityCode: string; count: number; averageDays: number; maxDays: number; late: number;
 }[] {
-  const by = new Map<string, number[]>();
+  const by = new Map<string, { days: number[]; late: number }>();
   for (const b of bookings) {
     if (!['confirmed', 'in_progress', 'done'].includes(b.status)) continue;
-    const days = Math.max(0, (b.start - b.requestedAt) / 86_400_000);
-    by.set(b.entityCode, [...(by.get(b.entityCode) ?? []), days]);
+    const x = by.get(b.entityCode) ?? { days: [], late: 0 };
+    x.days.push(Math.max(0, (b.start - b.requestedAt) / 86_400_000));
+    if (b.late) x.late++;
+    by.set(b.entityCode, x);
   }
-  return [...by.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([entityCode, xs]) => ({
-    entityCode, count: xs.length, averageDays: Math.round((10 * xs.reduce((s, x) => s + x, 0)) / xs.length) / 10, maxDays: Math.round(10 * Math.max(...xs)) / 10,
+  return [...by.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([entityCode, { days: xs, late }]) => ({
+    entityCode, count: xs.length, averageDays: Math.round((10 * xs.reduce((s, x) => s + x, 0)) / xs.length) / 10, maxDays: Math.round(10 * Math.max(...xs)) / 10, late,
   }));
 }
 

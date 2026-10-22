@@ -1,0 +1,101 @@
+/* Load forecast grid: a row per resource or rule, a cell per week holding the load rate. The level is written in the cell and
+   encoded by fill and border so that it reads without colour: over capacity = accent fill and solid border, high = accent
+   fill, gap = dashed outline, no capacity = flat dim. */
+.scroll {
+  overflow-x: auto;
+}
+
+.grid {
+  border-collapse: separate;
+  border-spacing: 2px;
+  font-size: 11px;
+  min-width: 980px;
+  width: 100%;
+}
+
+.grid th {
+  font-weight: 500;
+  color: var(--color-neutral-400);
+  text-align: left;
+  padding: 2px 3px;
+  white-space: nowrap;
+}
+
+.grid th.week {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.name {
+  white-space: nowrap;
+  padding-right: 8px;
+}
+
+.name small {
+  display: block;
+  color: var(--color-neutral-500);
+}
+
+.rule .name {
+  color: var(--color-neutral-100);
+  font-weight: 500;
+}
+
+.facility th {
+  padding-top: 10px;
+  color: var(--color-neutral-200);
+}
+
+.cell {
+  min-width: 34px;
+  height: 28px;
+  text-align: center;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-300);
+  border: 1px solid transparent;
+}
+
+.none {
+  color: var(--color-neutral-600);
+}
+
+.high {
+  background: var(--color-accent-900);
+  color: var(--color-accent-100);
+}
+
+.over {
+  background: var(--color-accent-700);
+  color: #fff;
+  border-color: var(--color-accent-300);
+  font-weight: 600;
+}
+
+.gap {
+  border: 1px dashed var(--color-neutral-500);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--color-neutral-400);
+}
+
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.signals {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}

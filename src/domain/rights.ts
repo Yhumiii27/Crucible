@@ -139,3 +139,17 @@ export function canSeeBookingDetail(role: RoleKey, assignments: readonly RoleAss
   if (canSeeProject(projectVisibility(role, assignments), project)) return true;
   return role === 'technician' && !project.confidential && operatedFacilities(role, assignments).includes(facilityCode);
 }
+
+/**
+ * Who enters a project's milestones and test needs (S-1, F-13): the R&D director and the coordinator for every project they
+ * see, a project lead for their projects, a partner contact for their entity's projects (non-confidential ones, U-3).
+ */
+export function canManageNeeds(role: RoleKey, assignments: readonly RoleAssignment[], project: ProjectScopeFacts): boolean {
+  if (role === 'rd_director' || role === 'coordinator') return canSeeProject(projectVisibility(role, assignments), project);
+  if (role === 'project_lead') return refsOf(mineOf(role, assignments)).includes(project.code);
+  if (role === 'partner') return !project.confidential && refsOf(mineOf(role, assignments)).includes(project.entityCode);
+  return false;
+}
+
+/** Who keeps the test type catalogue (D-3): the coordinator and the R&D director. */
+export const canEditTestTypes = (role: RoleKey) => role === 'coordinator' || role === 'rd_director';

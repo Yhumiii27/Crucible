@@ -1,9 +1,10 @@
 // Test resources, calendars, rules and bookings (docs/spec/02 §1–3, §5; delivery 2). Indicators are computed from these rows,
 // never stored (spec 02 §6).
-import { boolean, date, index, integer, primaryKey, smallint, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { boolean, date, index, integer, primaryKey, smallint, text, timestamp, unique, uuid, type AnyPgColumn } from 'drizzle-orm/pg-core';
 import type { BookingStatus, Granularity, ResourceKind, ResourceStatus, RuleReason, RuleStatus, UnavailabilityKind } from '@/domain/resources';
 import { crucible } from './_schema';
 import { id, timestamps } from './_common';
+import { testNeeds } from './needs';
 import { entities, facilities, projects, users } from './organisation';
 
 export const resources = crucible.table('resources', {
@@ -134,4 +135,8 @@ export const bookings = crucible.table('bookings', {
   /** `crucible` or `import` (history, F-9). */
   source: text('source').notNull().default('crucible'),
   ...timestamps,
+  /** The need the booking serves (delivery 3): its coverage and the load it leaves are computed from these links. */
+  needId: uuid('need_id').references((): AnyPgColumn => testNeeds.id),
+  /** Codex reference of the test report (P-4, S-6): Crucible keeps the reference, never the file. */
+  codexRef: text('codex_ref'),
 }, (t) => [index('bookings_resource_idx').on(t.resourceId, t.startsAt), index('bookings_project_idx').on(t.projectCode)]);

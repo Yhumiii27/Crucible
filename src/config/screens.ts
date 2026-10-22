@@ -6,7 +6,7 @@ import type { RoleKey } from './roles';
 export type ScreenId =
   | 'home' | 'my-schedule' | 'my-needs'
   | 'planning' | 'load' | 'propose' | 'conflicts' | 'incidents'
-  | 'facilities' | 'facility' | 'projects' | 'rules'
+  | 'facilities' | 'facility' | 'projects' | 'project' | 'rules'
   | 'dashboard'
   | 'admin-org' | 'admin-users' | 'admin-connectors';
 
@@ -42,6 +42,7 @@ export const SCREENS: readonly ScreenDef[] = [
   { id: 'facilities', path: '/facilities', title: 'Facilities', section: 'reference', roles: BUSINESS, delivery: 'L1' },
   { id: 'facility', path: '/facilities/[code]', title: 'Facility', section: 'reference', roles: BUSINESS, delivery: 'L2' },
   { id: 'projects', path: '/projects', title: 'Projects', section: 'reference', roles: ['rd_director', 'coordinator', 'safety', 'facility_manager', 'project_lead', 'partner', 'viewer'], delivery: 'L1' },
+  { id: 'project', path: '/projects/[code]', title: 'Project', section: 'reference', roles: ['rd_director', 'coordinator', 'safety', 'facility_manager', 'project_lead', 'partner', 'viewer'], delivery: 'L3' },
   { id: 'rules', path: '/rules', title: 'Rules', section: 'reference', roles: PLANNERS, delivery: 'L2' },
   { id: 'dashboard', path: '/dashboard', title: 'Utilisation dashboard', section: 'steering', roles: [...PLANNERS, 'partner'], delivery: 'L2' },
   { id: 'admin-org', path: '/admin/organisation', title: 'Entities, sites, facilities, projects', section: 'admin', roles: ['admin', 'rd_director'], delivery: 'L1' },
@@ -60,7 +61,7 @@ export const SECTION_LABEL: Record<Exclude<Section, 'fixed'>, string> = {
 };
 
 /** Screens built so far (the others open the "coming soon" page). */
-export const BUILT: ReadonlySet<ScreenId> = new Set(SCREENS.filter((s) => s.delivery === 'L1' || s.delivery === 'L2').map((s) => s.id));
+export const BUILT: ReadonlySet<ScreenId> = new Set(SCREENS.filter((s) => s.delivery === 'L1' || s.delivery === 'L2' || s.delivery === 'L3').map((s) => s.id));
 
 /** True when the profile has the screen in its workspace. */
 export function canSee(role: RoleKey, id: ScreenId): boolean {

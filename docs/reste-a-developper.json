@@ -18,6 +18,10 @@
   {
    "date": "2026-10-22",
    "text": "Kit Coolify du serveur commun : deploy/compose.shared.yaml (migrate, app, worker sur le réseau coolify, base epc2i-postgres), authentification HTTP de la bêta par un middleware Traefik dans les étiquettes, runbook EXPLOITATION.md § 4 (ressource, variables, contrôles, partage 80/90/95)."
+  },
+  {
+   "date": "2026-10-22",
+   "text": "Livraison 3 : jalons, types d’essai, besoins (prévisions et demandes), prévenance F-5 pour toutes les entités, plan de charge sur 26 semaines et enveloppes à 12 mois (goulot du PDE signalé 8 semaines avant), références Codex des protocoles et rapports, vues pub_moyens et pub_reservations, écran des connecteurs."
   }
  ],
  "items": [
@@ -59,7 +63,7 @@
    "evidence": [],
    "progress": {
     "state": "en_cours",
-    "note": "22 oct. 2026 : 56 réponses par défaut, P-2 précisée. Nouvelles questions de la livraison 2 : F-10, R-10, P-7 (défaut appliqué)."
+    "note": "22 oct. 2026 : 56 réponses par défaut, P-2 précisée. Nouvelles questions à confirmer : F-10, R-10, P-7 (livraison 2), F-11, F-12, F-13, S-7 (livraison 3), défaut appliqué."
    }
   },
   {
@@ -259,7 +263,9 @@
    ],
    "evidence": [],
    "progress": {
-    "state": "a_faire"
+    "state": "fait",
+    "delivery": "Livraison 3",
+    "note": "Jalons, catalogue des types d’essai, besoins (prévision / demande, rétro-planification sur le jalon), prévenance de 10 jours ouvrés (F-5), plan de charge sur 26 semaines puis par trimestre (goulots, creux, règle du PDE), références Codex ; goulot du PDE signalé 8 semaines avant sur la démo. Choix à confirmer : F-11, F-12, F-13, S-7."
    }
   },
   {
@@ -331,7 +337,9 @@
    ],
    "evidence": [],
    "progress": {
-    "state": "a_faire"
+    "state": "en_cours",
+    "delivery": "Livraison 3",
+    "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées."
    }
   }
  ]

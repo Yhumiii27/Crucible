@@ -548,6 +548,18 @@
     "blocks": "L3"
   },
   {
+    "id": "S-7",
+    "group": "integrations",
+    "title": "Contenu de pub_reservations",
+    "context": "Keystone (planning des projets) et Vigie (coactivité, R-7) lisent les réservations. U-3 réserve le projet et l’objet de l’essai à l’entité demandeuse, aux responsables et à la direction R&D.",
+    "proposal": "Publier les réservations qui tiennent un moyen (confirmées, en cours, terminées) avec l’entité, le moyen et les dates ; le projet, le projet Keystone et l’objet sont publiés sauf pour un projet confidentiel (alors nuls).",
+    "alts": [
+      "Ne publier ni le projet ni l’objet (seulement « occupé par telle entité »)",
+      "Tout publier, y compris les projets confidentiels"
+    ],
+    "blocks": "L3"
+  },
+  {
     "id": "T-1",
     "group": "technique",
     "title": "Base de données",
@@ -780,6 +792,42 @@
       "Une demande bloque le créneau pendant 48 h, puis expire si elle n’est pas confirmée"
     ],
     "blocks": "L2"
+  },
+  {
+    "id": "F-11",
+    "group": "planif",
+    "title": "Répartition d’une prévision dans le plan de charge",
+    "context": "Livraison 3 : une prévision (« ~6 jours de pilote entre le 7 et le 18 décembre ») n’a pas encore de créneau. Pour la compter dans la charge, il faut la répartir sur sa fenêtre.",
+    "proposal": "La répartir au prorata des heures ouvertes nettes de sa fenêtre (de sa date au plus tôt, ou d’aujourd’hui, à son échéance) ; la part déjà réservée par les réservations liées au besoin est retirée ; une échéance passée met le reste dans la semaine en cours, signalé « échu ».",
+    "alts": [
+      "Tout mettre dans la semaine de l’échéance (vue pessimiste)",
+      "Tout mettre au plus tôt (vue optimiste)"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "F-12",
+    "group": "planif",
+    "title": "Seuils du goulot et du creux",
+    "context": "Le plan de charge signale les semaines à surveiller.",
+    "proposal": "Goulot : charge supérieure à 100 % de la capacité nette, sur 26 semaines ; creux : moins de 30 % sur les 12 prochaines semaines (créneaux à proposer) ; les zones du PDE sont jugées ensemble, par leur règle « une zone à la fois ».",
+    "alts": [
+      "Goulot dès 90 %",
+      "Creux sous 50 %"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "F-13",
+    "group": "planif",
+    "title": "Qui saisit les jalons et les besoins d’un projet ?",
+    "context": "S-1 dit que les projets et leurs jalons sont saisis dans Crucible, sans dire par qui.",
+    "proposal": "Le chef de projet pour ses projets, le contact partenaire pour les projets de son entité (non confidentiels), le coordinateur pour les projets qu’il voit, la direction R&D pour tous ; les responsables d’installation et les techniciens consultent. Le catalogue des types d’essai est tenu par le coordinateur et la direction R&D.",
+    "alts": [
+      "Seul le chef de projet",
+      "Seuls le coordinateur et la direction R&D"
+    ],
+    "blocks": "L3"
   },
   {
     "id": "R-10",

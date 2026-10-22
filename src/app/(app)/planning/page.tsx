@@ -21,6 +21,7 @@ import { addDaysIso } from '@/lib/dates';
 import { fmtDate, fmtSlot, fmtTime } from '@/lib/format';
 import { businessToday } from '@/server/clock';
 import { bookingChoices, planningWeek, type PlanBooking } from '@/server/dal/resources';
+import { openNeedsOf } from '@/server/dal/needs';
 import { visibleProjects } from '@/server/dal/visibility';
 import { getI18n, getViewer } from '@/server/session';
 import s from './planning.module.css';
@@ -40,6 +41,7 @@ export default async function PlanningPage({ searchParams }: PageProps<'/plannin
   const mine = managedFacilities(viewer.role, viewer.assignments);
   const choices = bookingChoices(viewer, await visibleProjects(viewer), week.facilities);
   const bookable = week.resources.filter((r) => choices.facilityCodes.includes(r.facilityCode) && r.status === 'in_service');
+  const needs = await openNeedsOf(choices.projects.map((p) => p.code));
   const what = (b: PlanBooking) => (b.projectCode ? `${b.projectCode} · ${dataText(b.title ?? '', lang)}` : b.confidential ? t('Booked (confidential)') : `${t('Booked')} · ${b.entityCode}`);
   const short = (b: PlanBooking) => b.projectCode ?? (b.confidential ? t('Confidential') : b.entityCode);
   const dayLabel = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', { weekday: 'short', day: '2-digit', month: '2-digit' });
@@ -165,7 +167,8 @@ export default async function PlanningPage({ searchParams }: PageProps<'/plannin
 
       {bookable.length > 0 && choices.projects.length > 0 && (
         <SectionCard title={t('Request a slot')} subtitle={t('Every hard constraint is checked: opening hours, unavailabilities, inspections, capacity, validated exclusion rules. A manager of the facility then confirms.')}>
-          <RequestBookingForm resources={bookable.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang), granularity: r.granularity }))} projects={choices.projects.map((p) => ({ code: p.code, name: dataText(p.name, lang) }))} today={today} />
+          <RequestBookingForm resources={bookable.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang), granularity: r.granularity }))} projects={choices.projects.map((p) => ({ code: p.code, name: dataText(p.name, lang) }))} today={today}
+            needs={needs.map((n) => ({ ...n, title: dataText(n.title, lang) }))} />
         </SectionCard>
       )}
 

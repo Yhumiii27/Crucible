@@ -1,6 +1,6 @@
 // Rules (docs/spec/05): exclusion rules — proposed by the coordinator or a facility manager, validated or retired by the safety
 // officer (R-3), applied to every booking once validated — and the sharing agreements of the facilities with partner entities,
-// set by the R&D director (A-3).
+// set by the R&D director (A-3) — and the test type catalogue (D-3, delivery 3), kept by the coordinator and the R&D director.
 import { notFound } from 'next/navigation';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
@@ -9,17 +9,20 @@ import { Tag } from '@/components/ds/Tag';
 import { Table, Td, Th } from '@/components/ds/Table';
 import { canSee } from '@/config/screens';
 import { RULE_REASON_LABEL, RULE_STATUS_LABEL, type RuleReason } from '@/domain/resources';
-import { managedFacilities } from '@/domain/rights';
+import { canEditTestTypes, managedFacilities } from '@/domain/rights';
+import { TestTypeActiveButton, TestTypeForm } from '@/features/needs/forms';
 import { AgreementForm, ProposeRuleForm, RetireRuleForm, ValidateRuleButton } from '@/features/resources/forms';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate } from '@/lib/format';
+import { testTypeCatalogue } from '@/server/dal/needs';
 import { rulesScreen } from '@/server/dal/resources';
 import { getI18n, getViewer } from '@/server/session';
 
 export default async function RulesPage() {
   const [{ t, lang }, viewer] = await Promise.all([getI18n(), getViewer()]);
   if (!canSee(viewer.role, 'rules')) notFound();
-  const data = await rulesScreen(viewer);
+  const [data, types] = await Promise.all([rulesScreen(viewer), testTypeCatalogue()]);
+  const editTypes = canEditTestTypes(viewer.role);
   const safety = viewer.role === 'safety';
   const mine = managedFacilities(viewer.role, viewer.assignments);
   const proposable = safety ? data.resources : data.resources.filter((r) => mine.includes(r.facilityCode));
@@ -105,6 +108,41 @@ export default async function RulesPage() {
           <EmptyState>{t('No sharing agreement.')}</EmptyState>
         )}
         {viewer.role === 'rd_director' && pairs.length > 0 && <AgreementForm pairs={pairs} />}
+      </SectionCard>
+
+      <SectionCard title={t('Test types')} hint={String(types.length)} subtitle={t('The catalogue of the tests practised: nominal resource, usual length, skills required. Choosing a type in a need proposes them.')} scroll>
+        {types.length ? (
+          <Table>
+            <thead>
+              <tr>
+                <Th>{t('Code')}</Th>
+                <Th>{t('Name')}</Th>
+                <Th>{t('Nominal resource')}</Th>
+                <Th align="right">{t('Usual length (half-days)')}</Th>
+                <Th>{t('Skills required')}</Th>
+                <Th>{t('Status')}</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {types.map(({ t: x, resourceCode }) => (
+                <tr key={x.code}>
+                  <Td>{x.code}</Td>
+                  <Td>{dataText(x.name, lang)}</Td>
+                  <Td>{resourceCode ?? '—'}</Td>
+                  <Td align="right" numeric>{x.typicalHalfDays}</Td>
+                  <Td tone="secondary">{x.skills ? dataText(x.skills, lang) : '—'}</Td>
+                  <Td>
+                    {x.active ? t('In the catalogue') : t('Withdrawn from the catalogue')}
+                    {editTypes && <> <TestTypeActiveButton code={x.code} active={x.active} /></>}
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          <EmptyState>{t('No test type yet.')}</EmptyState>
+        )}
+        {editTypes && <TestTypeForm resources={data.resources.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang) }))} />}
       </SectionCard>
     </>
   );

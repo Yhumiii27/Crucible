@@ -1,6 +1,10 @@
 # Demandes de Crucible à Vigie
 
 > 22 oct. 2026. Crucible ne modifie jamais le dépôt Vigie : ces demandes sont à transmettre par le responsable produit.
+>
+> **Transmise** (validée par le responsable produit le 22/10/2026) : V-1, entrée du `REQUESTS.md` de Vigie
+> (Yhumiii27/Vigie#12, en attente de fusion), statut OUVERTE. Livraison 3 : `crucible.pub_reservations` et `pub_moyens` sont
+> publiées (V-3 côté Crucible fait ; droits de Vigie déjà posés par Matrix).
 
 | # | Demande | Pourquoi | Bloque | Décision liée |
 |---|---|---|---|---|

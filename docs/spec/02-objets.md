@@ -72,7 +72,11 @@ Calculés à l’affichage à partir des réservations et des calendriers, comme
 
 Des instantanés hebdomadaires (tâche planifiée) gardent l’historique des indicateurs.
 
-## 7. Vues `pub_` publiées (proposition, contrats)
+## 7. Vues `pub_` publiées (contrats)
+
+> Livraison 3 : `pub_moyens` et `pub_reservations` sont créées par `drizzle/0005_share_resources.sql` (colonnes : voir la
+> migration ; projet et objet nuls pour un projet confidentiel, S-7) ; `pub_journal` par `0002_share_journal.sql`.
+> `pub_occupation_hebdo` viendra avec les instantanés hebdomadaires (livraison 5).
 
 | Vue | Contenu | Lecteurs possibles |
 |---|---|---|

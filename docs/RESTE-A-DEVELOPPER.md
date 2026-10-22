@@ -6,21 +6,21 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-10-22 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 8 faits, 2 en cours, 6 à faire, sur 16 points.
+**Avancement** : 9 faits, 3 en cours, 4 à faire, sur 16 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 1 | ≈ 4 |
 | À décider | 1 | ≈ 2 |
-| Plus tard | 5 | ≈ 36 |
-| **Total** | **8** | **≈ 46** |
+| Plus tard | 4 | ≈ 32 |
+| **Total** | **7** | **≈ 42** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 4 |
+| Non commencé | 3 |
 | Partiel | 0 |
 | Attend le responsable produit | 2 |
 | Attend un système externe | 2 |
@@ -30,7 +30,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 | Plateforme et mise en production | 1 | 0 | 0 | 0 | 1 | 1 |
 | Connexion, profils et visibilité | 0 | 0 | 0 | 0 | 0 | 2 |
 | Moyens d’essais, règles et réservations | 0 | 0 | 0 | 0 | 0 | 3 |
-| Besoins des projets et anticipation | 0 | 0 | 0 | 1 | 1 | 0 |
+| Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 1 | 1 | 0 |
 | Aléas, scénarios et pilotage | 0 | 0 | 0 | 1 | 1 | 1 |
 | Assistant IA | 0 | 0 | 0 | 1 | 1 | 0 |
@@ -92,11 +92,11 @@ Une zone du PDE active à la fois (P-2, R-2) ; validation par le référent séc
 Réservation refusée avec la règle citée ; planning des moyens ; « Mon planning » (démarrer, terminer) ; réservations non tenues (A-7).  
 *Avancement : Demande, confirmation, annulation, démarrer / terminer, non-tenue (A-7) ; planning des moyens ; Mon planning. · Sources : docs/spec/03-planification.md, docs/spec/05-ecrans.md*
 
-### 2.4 Besoins des projets et anticipation (1 restants)
+### 2.4 Besoins des projets et anticipation (0 restants, 1 faits)
 
-**CR-020 · Besoins des projets, jalons et plan de charge** — *Plus tard · non commencé · effort M*  
+**~~CR-020 · Besoins des projets, jalons et plan de charge~~** — *Plus tard · non commencé · effort M* · **fait (Livraison 3)**  
 Prévisions, demandes, délai de prévenance (F-5), plan de charge 26 semaines (F-6), goulots et creux.  
-*Sources : docs/spec/03-planification.md §6*
+*Avancement : Jalons, catalogue des types d’essai, besoins (prévision / demande, rétro-planification sur le jalon), prévenance de 10 jours ouvrés (F-5), plan de charge sur 26 semaines puis par trimestre (goulots, creux, règle du PDE), références Codex ; goulot du PDE signalé 8 semaines avant sur la démo. Choix à confirmer : F-11, F-12, F-13, S-7. · Sources : docs/spec/03-planification.md §6*
 
 ### 2.5 Proposition de créneaux et arbitrages (1 restants)
 
@@ -122,9 +122,9 @@ Assistant adossé au moteur, sans écriture seule (I-1 à I-4) ; fournisseur à 
 
 ### 2.8 Liens avec les autres outils (1 restants)
 
-**CR-060 · Connecteurs Keystone, Cursus, Vigie, Codex** — *Plus tard · attend un système externe · effort L*  
+**CR-060 · Connecteurs Keystone, Cursus, Vigie, Codex** — *Plus tard · attend un système externe · effort L* · **en cours (Livraison 3)**  
 Jalons Keystone (K-2), habilitations et absences Cursus (CU-1, CU-2), contrôles et coactivité Vigie (V-1, V-2), documents Codex (CX-1, CX-2) ; vues pub_ publiées.  
-*Attend : Keystone, Cursus, Vigie, Codex · Sources : docs/DEMANDES-\*.md*
+*Avancement : Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. · Attend : Keystone, Cursus, Vigie, Codex · Sources : docs/DEMANDES-\*.md*
 
 ### 2.9 Cadrage, décisions et données attendues (2 restants, 1 faits)
 
@@ -134,7 +134,7 @@ Moyens, règles d’exclusion, types d’essai, substitutions, projets et besoin
 
 **CR-002 · Réponses du responsable produit** — *À décider · non commencé · effort S* · **en cours**  
 57 questions du questionnaire « Décisions Crucible ».  
-*Avancement : 22 oct. 2026 : 56 réponses par défaut, P-2 précisée. Nouvelles questions de la livraison 2 : F-10, R-10, P-7 (défaut appliqué). · Sources : docs/DECISIONS.md*
+*Avancement : 22 oct. 2026 : 56 réponses par défaut, P-2 précisée. Nouvelles questions à confirmer : F-10, R-10, P-7 (livraison 2), F-11, F-12, F-13, S-7 (livraison 3), défaut appliqué. · Sources : docs/DECISIONS.md*
 
 **~~CR-001 · Cadrage (livraison 0)~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 0)**  
 Analyse du besoin, état des lieux des outils du groupe, spécification docs/spec/00–05, décisions, plan, guide d’atelier, demandes aux autres dépôts, questionnaire.  
@@ -142,6 +142,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-22 — Livraison 3 : jalons, types d’essai, besoins (prévisions et demandes), prévenance F-5 pour toutes les entités, plan de charge sur 26 semaines et enveloppes à 12 mois (goulot du PDE signalé 8 semaines avant), références Codex des protocoles et rapports, vues pub_moyens et pub_reservations, écran des connecteurs.
 - 2026-10-22 — Kit Coolify du serveur commun : deploy/compose.shared.yaml (migrate, app, worker sur le réseau coolify, base epc2i-postgres), authentification HTTP de la bêta par un middleware Traefik dans les étiquettes, runbook EXPLOITATION.md § 4 (ressource, variables, contrôles, partage 80/90/95).
 - 2026-10-22 — Livraison 2 : moyens et calendriers, règles d’exclusion validées par la sécurité (PDE : une zone à la fois), accords, réservations sous contraintes dures, planning, Mon planning, pilotage de l’occupation, import de l’historique.
 - 2026-10-22 — Livraison 1 (socle) : socle d’Arche sur PostgreSQL seul, 9 profils et visibilité par entité, installation et projet (U-3), administration, jeu de démonstration (laboratoire 67, PDE), CI ; réponses du questionnaire appliquées.
