@@ -33,6 +33,8 @@ export interface SidebarProps {
   personas: SidebarPersona[];
   /** Entra mode: the signed-in user. */
   account: SidebarAccount | null;
+  /** Counts shown next to an entry (the unread notifications of the bell). */
+  badges?: Partial<Record<string, number>>;
 }
 
 /** Closes a popover on an outside click and on Escape. */
@@ -54,7 +56,7 @@ function useDismiss(open: boolean, setOpen: (v: boolean) => void) {
   return ref;
 }
 
-export function Sidebar({ role, personas, account }: SidebarProps) {
+export function Sidebar({ role, personas, account, badges = {} }: SidebarProps) {
   const { t, lang } = useI18n();
   const pathname = usePathname();
   const nav = buildNav(role, pathname);
@@ -66,6 +68,7 @@ export function Sidebar({ role, personas, account }: SidebarProps) {
       <Link key={n.id} href={n.href} className={cx(styles.entry, item && styles.item, n.active && styles.active)} aria-current={n.active ? 'page' : undefined}>
         <Icon size={16} className={styles.icon} />
         <span className={styles.label}>{t(n.label)}</span>
+        {!!badges[n.id] && <span className={styles.badge} aria-label={`${badges[n.id]} ${t('unread')}`}>{badges[n.id]}</span>}
       </Link>
     );
   };

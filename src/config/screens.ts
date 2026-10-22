@@ -4,7 +4,7 @@
 import type { RoleKey } from './roles';
 
 export type ScreenId =
-  | 'home' | 'my-schedule' | 'my-needs'
+  | 'home' | 'notifications' | 'my-schedule' | 'my-needs'
   | 'planning' | 'load' | 'propose' | 'conflicts' | 'incidents'
   | 'facilities' | 'facility' | 'projects' | 'project' | 'people' | 'rules'
   | 'dashboard'
@@ -32,6 +32,7 @@ const PLANNERS: readonly RoleKey[] = ['rd_director', 'coordinator', 'facility_ma
 
 export const SCREENS: readonly ScreenDef[] = [
   { id: 'home', path: '/', title: 'Home', section: 'fixed', roles: 'all', delivery: 'L1' },
+  { id: 'notifications', path: '/notifications', title: 'Notifications', section: 'fixed', roles: BUSINESS, delivery: 'L5' },
   { id: 'my-schedule', path: '/my/schedule', title: 'My schedule', section: 'fixed', roles: ['coordinator', 'facility_manager', 'technician'], delivery: 'L2' },
   { id: 'my-needs', path: '/my/needs', title: 'My test needs', section: 'fixed', roles: ['project_lead', 'partner'], delivery: 'L3' },
   { id: 'planning', path: '/planning', title: 'Resource planning', section: 'planning', roles: BUSINESS, delivery: 'L2' },
@@ -62,7 +63,7 @@ export const SECTION_LABEL: Record<Exclude<Section, 'fixed'>, string> = {
 };
 
 /** Screens built so far (the others open the "coming soon" page). */
-export const BUILT: ReadonlySet<ScreenId> = new Set(SCREENS.filter((s) => s.delivery === 'L1' || s.delivery === 'L2' || s.delivery === 'L3' || s.delivery === 'L4').map((s) => s.id));
+export const BUILT: ReadonlySet<ScreenId> = new Set(SCREENS.filter((s) => s.delivery !== 'L6').map((s) => s.id));
 
 /** True when the profile has the screen in its workspace. */
 export function canSee(role: RoleKey, id: ScreenId): boolean {

@@ -48,8 +48,6 @@ async function main(): Promise<void> {
   const org = await get('/admin/organisation', 'rd_director');
   check(org.status === 200 && org.body.includes('Classe de priorité'), 'the R&D director records projects and their priority class');
   check((await get('/facilities', 'admin')).status === 404, 'the administrator sees no business screen');
-  const soon = await get('/incidents', 'coordinator');
-  check(soon.status === 200 && soon.body.includes('Prévu pour la livraison 5'), 'a screen of a later delivery says when it comes');
 
   // Delivery 2: resources, rules, bookings, utilisation.
   const plan = await get('/planning?week=2026-10-26', 'coordinator');
@@ -89,6 +87,16 @@ async function main(): Promise<void> {
   check(peoplePage.status === 200 && peoplePage.body.includes('Karim Benali') && peoplePage.body.includes('PYRO'), 'people and skills of the PDE');
   const rulesPage = await get('/rules', 'rd_director');
   check(rulesPage.status === 200 && rulesPage.body.includes('NT-RD-0142') && rulesPage.body.includes('Règles de priorité'), 'rules: the validated substitution and the priority rules');
+  // Delivery 5: incidents and scenarios, notifications, steering complements.
+  const inc = await get('/incidents', 'coordinator');
+  check(inc.status === 200 && inc.body.includes('Déclarer un aléa') && inc.body.includes('Et si ?') && inc.body.includes('Déclarer une urgence'), 'incidents: declare, what-if and urgency for the coordinator');
+  const techInc = await get('/incidents', 'technician');
+  check(techInc.status === 200 && techInc.body.includes('Déclarer un aléa') && !techInc.body.includes('Déclarer une urgence'), 'incidents: the technician declares, never an urgency');
+  const bellPage = await get('/notifications', 'coordinator');
+  check(bellPage.status === 200 && bellPage.body.includes('Aucune notification.'), 'notifications: the coordinator’s bell (the demo run was the coordinator’s own: nothing to notify)');
+  check((await get('/notifications', 'admin')).status === 404, 'the administrator has no bell');
+  const steer = await get('/dashboard?from=2026-09-28&to=2026-10-22', 'rd_director');
+  check(steer.status === 200 && steer.body.includes('Tendance hebdomadaire') && steer.body.includes('Valeur de la capacité inoccupée') && steer.body.includes('Retards imputables aux moyens'), 'dashboard: weekly trend, value of the unused capacity, delays due to the resources');
   check((await get('/propose', 'partner')).status === 404, 'a screen outside the profile’s workspace is not found');
   check((await get('/nowhere', 'rd_director')).status === 404, 'an unknown path is not found');
 

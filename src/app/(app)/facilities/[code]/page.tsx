@@ -12,7 +12,7 @@ import { canSee } from '@/config/screens';
 import { GRANULARITY_LABEL, RESOURCE_KIND_LABEL, RESOURCE_STATUS_LABEL, RULE_STATUS_LABEL, UNAVAILABILITY_KIND_LABEL } from '@/domain/resources';
 import { managedFacilities } from '@/domain/rights';
 import {
-  ClosureForm, HoursForm, InspectionForm, NewResourceForm, RemoveUnavailabilityButton, ResourceStatusSelect, UnavailabilityForm,
+  AcquisitionForm, ClosureForm, HoursForm, InspectionForm, NewResourceForm, RemoveUnavailabilityButton, ResourceStatusSelect, UnavailabilityForm,
 } from '@/features/resources/forms';
 import { EquipmentForm } from '@/features/planning/forms';
 import { dataText } from '@/i18n/data-text';
@@ -96,6 +96,13 @@ export default async function FacilityPage({ params }: PageProps<'/facilities/[c
         {manager && <HoursForm facilityCode={facility.code} hours={sheet.hours} />}
         {manager && <ClosureForm facilityCode={facility.code} />}
       </SectionCard>
+
+      {(viewer.role === 'rd_director' || manager) && (
+        <SectionCard title={t('Acquisition cost')} subtitle={t('Base of the value of the unused capacity in the steering (P-8).')}>
+          <span className="text-muted">{facility.acquisitionKeur == null ? t('Not entered') : `${facility.acquisitionKeur.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')} k€`}</span>
+          {viewer.role === 'rd_director' && <AcquisitionForm facilityCode={facility.code} value={facility.acquisitionKeur} />}
+        </SectionCard>
+      )}
 
       <SectionCard title={t('Unavailabilities')} scroll>
         {sheet.unavailabilities.length ? (

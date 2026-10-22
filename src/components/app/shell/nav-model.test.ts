@@ -4,7 +4,7 @@ import { buildNav } from './nav-model';
 describe('sidebar model', () => {
   it('a project lead: Home and their needs, planning, reference; no administration', () => {
     const home = buildNav('project_lead', '/');
-    expect(home.fixed.map((e) => e.id)).toEqual(['home', 'my-needs']);
+    expect(home.fixed.map((e) => e.id)).toEqual(['home', 'notifications', 'my-needs']);
     expect(home.fixed[0].active).toBe(true);
     expect(home.sections.map((s) => s.key)).toEqual(['planning', 'reference']);
     const projects = buildNav('project_lead', '/projects');

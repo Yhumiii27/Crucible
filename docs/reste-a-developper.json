@@ -30,6 +30,10 @@
   {
    "date": "2026-10-22",
    "text": "Livraison 4 : personnes et compétences, substitutions validées, règles de priorité versionnées, moteur de proposition déterministe, acceptation des propositions, fiches de conflit, arbitrages et veto sécurité, équipements mobiles."
+  },
+  {
+   "date": "2026-10-22",
+   "text": "Livraison 5 : aléas et scénarios de reprise (avant / après par projet), simulations « et si ? », urgences, notifications (cloche, e-mail, relances, récapitulatif), instantanés hebdomadaires, valeur de la capacité inoccupée, retards imputables, vue pub_occupation_hebdo."
   }
  ],
  "items": [
@@ -311,7 +315,9 @@
    ],
    "evidence": [],
    "progress": {
-    "state": "a_faire"
+    "state": "fait",
+    "delivery": "Livraison 5",
+    "note": "Aléas (panne, absence) et scénario de reprise avant / après par projet décidé par le coordinateur ou la direction R&D ; simulations « et si ? » ; urgences (A-8) ; cloche et e-mail, relances d’arbitrage, récapitulatif hebdomadaire ; instantanés hebdomadaires, valeur inoccupée, retards imputables ; vue pub_occupation_hebdo."
    }
   },
   {

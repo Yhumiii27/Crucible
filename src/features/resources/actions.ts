@@ -24,6 +24,7 @@ import {
 } from '@/server/db/schema';
 import type { Tx } from '@/server/db/types';
 import { calendarsOf, rulesOf } from '@/server/dal/resources';
+import { notify } from '@/server/notify';
 import { getViewer, type Viewer } from '@/server/session';
 
 export type ActionResult = { ok: true; warnings?: string[] } | { ok: false; error: string };
@@ -105,6 +106,29 @@ export async function setFacilityHoursAction(_prev: ActionResult | null, fd: For
     return { ok: true };
   });
   if (r.ok) revalidate(`/facilities/${facilityCode}`, '/planning');
+  return r;
+}
+
+/**
+ * Acquisition cost of a facility, in k€ (delivery 5, P-8): the base of the value of the unused capacity in the steering. Set by the
+ * R&D director; empty = unknown (no value shown).
+ */
+export async function setAcquisitionAction(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const v = await getViewer();
+  if (v.role !== 'rd_director') return REFUSED;
+  const facilityCode = String(fd.get('facilityCode') ?? '');
+  const raw = String(fd.get('acquisitionKeur') ?? '').trim();
+  const value = raw === '' ? null : Number(raw);
+  if (value !== null && (!Number.isInteger(value) || value < 0 || value > 1_000_000)) return { ok: false, error: 'Enter the acquisition cost in k€ (a whole number)' };
+  const db = await getDb();
+  const r = await db.transaction(async (tx): Promise<ActionResult> => {
+    const [f] = await tx.select().from(facilities).where(eq(facilities.code, facilityCode));
+    if (!f) return REFUSED;
+    await tx.update(facilities).set({ acquisitionKeur: value }).where(eq(facilities.code, facilityCode));
+    await writeAudit(tx, audit(v, 'Facilities', `Facility ${facilityCode}`, `acquisition cost: ${f.acquisitionKeur ?? '—'} → ${value ?? '—'} k€`, { before: { acquisitionKeur: f.acquisitionKeur }, after: { acquisitionKeur: value } }));
+    return { ok: true };
+  });
+  if (r.ok) revalidate(`/facilities/${facilityCode}`, '/dashboard');
   return r;
 }
 
@@ -387,6 +411,7 @@ export async function confirmBookingAction(id: string): Promise<ActionResult> {
     if (check.errors.length) return { ok: false, error: check.errors.map(issueText).join(' — ') };
     await tx.update(bookings).set({ status: 'confirmed', confirmedByName: v.name, confirmedAt: now, updatedAt: new Date() }).where(eq(bookings.id, id));
     await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, 'status: requested → confirmed', { entityType: 'booking', entityId: id, projectCode: row.b.projectCode }));
+    await notify(tx, [row.b.requestedByUserId], { kind: 'booking_confirmed', title: `Booking confirmed · ${row.b.ref}`, href: `/projects/${encodeURIComponent(row.b.projectCode)}` }, { except: v.userId, at: now });
     return { ok: true, warnings: check.warnings.map(issueText) };
   });
   if (r.ok) revalidate('/planning', '/my/schedule', '/');
@@ -408,6 +433,7 @@ export async function cancelBookingAction(_prev: ActionResult | null, fd: FormDa
     if (!canTransition(row.b.status, 'cancelled')) return { ok: false, error: 'This booking can no longer be cancelled' };
     await tx.update(bookings).set({ status: 'cancelled', cancelReason: reason, updatedAt: new Date() }).where(eq(bookings.id, id));
     await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, `status: ${row.b.status} → cancelled`, { entityType: 'booking', entityId: id, projectCode: row.b.projectCode, reason }));
+    await notify(tx, [row.b.requestedByUserId], { kind: 'booking_cancelled', title: `Booking cancelled · ${row.b.ref}`, href: `/projects/${encodeURIComponent(row.b.projectCode)}` }, { except: v.userId });
     return { ok: true };
   });
   if (r.ok) revalidate('/planning', '/my/schedule', '/');
