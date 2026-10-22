@@ -1,7 +1,7 @@
 // Visibility rules (docs/spec/01 §2, U-3): facilities and projects, profile by profile.
 import { describe, expect, it } from 'vitest';
 import {
-  canSeeFacility, canSeeProject, facilityVisibility, isValidAssignment, managedFacilities, projectVisibility,
+  canRequestBooking, canSeeBookingDetail, canSeeFacility, canSeeProject, facilityVisibility, operatedFacilities, isValidAssignment, managedFacilities, projectVisibility,
   type FacilityScopeFacts, type ProjectScopeFacts, type RoleAssignment,
 } from './rights';
 import type { RoleKey } from '@/config/roles';
@@ -65,5 +65,29 @@ describe('project visibility', () => {
     const a: RoleAssignment[] = [{ role: 'facility_manager', scopeKind: 'facility', scopeRef: 'PDE' }, { role: 'technician', scopeKind: 'facility', scopeRef: 'LAB67' }];
     expect(managedFacilities('facility_manager', a)).toEqual(['PDE']);
     expect(managedFacilities('technician', a)).toEqual([]);
+  });
+});
+
+
+describe('booking rights', () => {
+  const lab = (role: RoleKey, ref: string | null, scopeKind: RoleAssignment['scopeKind']): RoleAssignment[] => [{ role, scopeKind, scopeRef: ref }];
+  it('who may request a slot', () => {
+    expect(canRequestBooking('facility_manager', lab('facility_manager', 'PDE', 'facility'), pde, orion)).toBe(true);
+    expect(canRequestBooking('facility_manager', lab('facility_manager', 'PDE', 'facility'), lab67, orion)).toBe(false);
+    expect(canRequestBooking('coordinator', lab('coordinator', 'PDE', 'facility'), pde, cassiopee)).toBe(false);
+    expect(canRequestBooking('project_lead', lab('project_lead', 'RD-CASSIOPEE', 'project'), pde, cassiopee)).toBe(true);
+    expect(canRequestBooking('project_lead', lab('project_lead', 'RD-CASSIOPEE', 'project'), pde, orion)).toBe(false);
+    expect(canRequestBooking('partner', lab('partner', 'EPCFR', 'entity'), lab67, lyra)).toBe(true);
+    expect(canRequestBooking('partner', lab('partner', 'EPCFR', 'entity'), pde, lyra)).toBe(false);
+    expect(canRequestBooking('rd_director', lab('rd_director', null, 'global'), pde, orion)).toBe(false);
+  });
+
+  it('what a booking shows (U-3): the project to those who see it, "booked" to the others', () => {
+    expect(canSeeBookingDetail('partner', lab('partner', 'EPCFR', 'entity'), 'LAB67', orion)).toBe(false);
+    expect(canSeeBookingDetail('partner', lab('partner', 'EPCFR', 'entity'), 'LAB67', lyra)).toBe(true);
+    expect(canSeeBookingDetail('technician', lab('technician', 'PDE', 'facility'), 'PDE', orion)).toBe(true);
+    expect(canSeeBookingDetail('technician', lab('technician', 'PDE', 'facility'), 'PDE', cassiopee)).toBe(false);
+    expect(canSeeBookingDetail('technician', lab('technician', 'PDE', 'facility'), 'LAB67', orion)).toBe(false);
+    expect(operatedFacilities('technician', lab('technician', 'PDE', 'facility'))).toEqual(['PDE']);
   });
 });

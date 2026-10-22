@@ -27,6 +27,13 @@
 .done {
   font-size: 12px;
   color: var(--color-neutral-400);
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.warning {
+  color: var(--color-accent-200);
 }
 
 .details {

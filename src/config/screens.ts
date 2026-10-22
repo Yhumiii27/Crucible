@@ -6,7 +6,7 @@ import type { RoleKey } from './roles';
 export type ScreenId =
   | 'home' | 'my-schedule' | 'my-needs'
   | 'planning' | 'load' | 'propose' | 'conflicts' | 'incidents'
-  | 'facilities' | 'projects' | 'rules'
+  | 'facilities' | 'facility' | 'projects' | 'rules'
   | 'dashboard'
   | 'admin-org' | 'admin-users' | 'admin-connectors';
 
@@ -40,6 +40,7 @@ export const SCREENS: readonly ScreenDef[] = [
   { id: 'conflicts', path: '/conflicts', title: 'Conflicts & arbitration', section: 'planning', roles: ['rd_director', 'coordinator', 'safety'], delivery: 'L4' },
   { id: 'incidents', path: '/incidents', title: 'Incidents & scenarios', section: 'planning', roles: BUSINESS, delivery: 'L5' },
   { id: 'facilities', path: '/facilities', title: 'Facilities', section: 'reference', roles: BUSINESS, delivery: 'L1' },
+  { id: 'facility', path: '/facilities/[code]', title: 'Facility', section: 'reference', roles: BUSINESS, delivery: 'L2' },
   { id: 'projects', path: '/projects', title: 'Projects', section: 'reference', roles: ['rd_director', 'coordinator', 'safety', 'facility_manager', 'project_lead', 'partner', 'viewer'], delivery: 'L1' },
   { id: 'rules', path: '/rules', title: 'Rules', section: 'reference', roles: PLANNERS, delivery: 'L2' },
   { id: 'dashboard', path: '/dashboard', title: 'Utilisation dashboard', section: 'steering', roles: [...PLANNERS, 'partner'], delivery: 'L2' },
@@ -59,7 +60,7 @@ export const SECTION_LABEL: Record<Exclude<Section, 'fixed'>, string> = {
 };
 
 /** Screens built so far (the others open the "coming soon" page). */
-export const BUILT: ReadonlySet<ScreenId> = new Set(SCREENS.filter((s) => s.delivery === 'L1').map((s) => s.id));
+export const BUILT: ReadonlySet<ScreenId> = new Set(SCREENS.filter((s) => s.delivery === 'L1' || s.delivery === 'L2').map((s) => s.id));
 
 /** True when the profile has the screen in its workspace. */
 export function canSee(role: RoleKey, id: ScreenId): boolean {

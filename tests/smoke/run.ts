@@ -48,8 +48,24 @@ async function main(): Promise<void> {
   const org = await get('/admin/organisation', 'rd_director');
   check(org.status === 200 && org.body.includes('Classe de priorité'), 'the R&D director records projects and their priority class');
   check((await get('/facilities', 'admin')).status === 404, 'the administrator sees no business screen');
-  const soon = await get('/planning', 'coordinator');
-  check(soon.status === 200 && soon.body.includes('Prévu pour la livraison 2'), 'a screen of a later delivery says when it comes');
+  const soon = await get('/load', 'coordinator');
+  check(soon.status === 200 && soon.body.includes('Prévu pour la livraison 3'), 'a screen of a later delivery says when it comes');
+
+  // Delivery 2: resources, rules, bookings, utilisation.
+  const plan = await get('/planning?week=2026-10-26', 'coordinator');
+  check(plan.status === 200 && plan.body.includes('PDE-ONE-ZONE · PDE-PIL') && plan.body.includes('B-2026-0011'), 'planning: the PDE zones blocked by the pilot (P-2), the bookings of the week');
+  const partnerPlan = await get('/planning?week=2026-10-26', 'partner');
+  check(partnerPlan.status === 200 && partnerPlan.body.includes('Réservé · EPC2I') && !partnerPlan.body.includes('RD-ORION') && !partnerPlan.body.includes('PDE-PIL'), 'planning of EPC France: laboratoire 67 only, other entities’ tests masked (U-3)');
+  check((await get('/facilities/LAB67', 'partner')).status === 200 && (await get('/facilities/PDE', 'partner')).status === 404, 'facility sheet: laboratoire 67 for the partner, the PDE does not exist for it');
+  const sheet = await get('/facilities/PDE', 'facility_manager');
+  check(sheet.status === 200 && sheet.body.includes('Vérification périodique des installations électriques'), 'facility sheet of the PDE: zones, rule, inspections');
+  const rules = await get('/rules', 'safety');
+  check(rules.status === 200 && rules.body.includes('PDE-ONE-ZONE') && rules.body.includes('Validée'), 'rules: the validated PDE rule for the safety officer');
+  check((await get('/rules', 'partner')).status === 404, 'rules are not in the partner’s workspace');
+  const dash = await get('/dashboard?from=2026-09-28&to=2026-10-22', 'rd_director');
+  check(dash.status === 200 && dash.body.includes('Occupation par moyen') && dash.body.includes('Bloqué par une règle'), 'utilisation dashboard: rates per resource, blocked by a rule');
+  const mine = await get('/my/schedule', 'technician');
+  check(mine.status === 200 && mine.body.includes('B-2026-0010'), 'my schedule: today’s test of the PDE for its technician');
   check((await get('/propose', 'partner')).status === 404, 'a screen outside the profile’s workspace is not found');
   check((await get('/nowhere', 'rd_director')).status === 404, 'an unknown path is not found');
 

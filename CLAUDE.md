@@ -16,18 +16,23 @@ go in `docs/DEMANDES-<APP>.md`.
   SQL (`src/domain/rights.ts`, `src/server/dal/visibility.ts`: a partner sees the facilities shared with its entity and its own
   projects; a confidential project stays with its team and the R&D director), administration of accounts, roles, entities,
   sites, facilities and projects, demo data set (laboratoire 67 shared with EPC France, PDE).
+- **Delivery 2 (resources, rules, bookings, utilisation) is done** (`docs/DELIVERY-2.md`): resources and calendars
+  (`src/domain/calendar.ts`, `resources.ts`), exclusion rules validated by the safety officer, agreements, bookings checked
+  against every hard constraint (`src/domain/booking.ts` `checkBooking`, Server Functions `src/features/resources/actions.ts`
+  re-check inside their transaction under the write lock), week grid (`planning-grid.ts`), utilisation computed, never stored
+  (`utilisation.ts`), history import. Screens `/planning`, `/facilities/[code]`, `/rules`, `/my/schedule`, `/dashboard`.
 - **PDE (owner's answer P-2)**: one building split into zones — mechanical workshop, pilot, laboratory rooms — where only one
-  zone works at a time (no pyrotechnic co-activity). The zones become bookable resources linked by one exclusion rule (L2).
+  zone works at a time (no pyrotechnic co-activity): three resources linked by the validated rule `PDE-ONE-ZONE`.
 - **Owner's answers**: questionnaire "Décisions Crucible", https://claude.ai/artifact/EaWUrHKrsdaWGB1UHtL1Ym — read its
   database (ArtifactData, collection `answers`, one document per question id: `choice` = default | altN | other | discuss,
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in
   step with it and rebuild the page with `npm run questionnaire:page`. 22 Oct 2026: 56 defaults confirmed, P-2 answered
-  (above); the data D-1 to D-11 are still to come.
+  (above); the data D-1 to D-11 are still to come. Delivery 2 added F-10, R-10, P-7 (defaults applied).
 - **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
   run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
   and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
   as `url`).
-- Next: delivery 2 (resources, rules, bookings, utilisation), see `docs/PLAN.md`.
+- Next: delivery 3 (needs, milestones, load forecast, `pub_` views), see `docs/PLAN.md`.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

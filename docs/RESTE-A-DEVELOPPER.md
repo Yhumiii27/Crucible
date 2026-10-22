@@ -6,21 +6,21 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-10-22 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 5 faits, 0 en cours, 11 à faire, sur 16 points.
+**Avancement** : 8 faits, 1 en cours, 7 à faire, sur 16 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
-| Prochaine étape | 5 | ≈ 36 |
-| À décider | 0 | ≈ 0 |
+| Prochaine étape | 1 | ≈ 4 |
+| À décider | 1 | ≈ 2 |
 | Plus tard | 5 | ≈ 36 |
-| **Total** | **11** | **≈ 76** |
+| **Total** | **8** | **≈ 46** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 7 |
+| Non commencé | 4 |
 | Partiel | 0 |
 | Attend le responsable produit | 2 |
 | Attend un système externe | 2 |
@@ -29,13 +29,13 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 |---|---:|---:|---:|---:|---:|---:|
 | Plateforme et mise en production | 1 | 0 | 0 | 0 | 1 | 1 |
 | Connexion, profils et visibilité | 0 | 0 | 0 | 0 | 0 | 2 |
-| Moyens d’essais, règles et réservations | 0 | 3 | 0 | 0 | 3 | 0 |
+| Moyens d’essais, règles et réservations | 0 | 0 | 0 | 0 | 0 | 3 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 1 | 1 | 0 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 1 | 1 | 0 |
-| Aléas, scénarios et pilotage | 0 | 1 | 0 | 1 | 2 | 0 |
+| Aléas, scénarios et pilotage | 0 | 0 | 0 | 1 | 1 | 1 |
 | Assistant IA | 0 | 0 | 0 | 1 | 1 | 0 |
 | Liens avec les autres outils | 0 | 0 | 0 | 1 | 1 | 0 |
-| Cadrage, décisions et données attendues | 0 | 1 | 0 | 0 | 1 | 2 |
+| Cadrage, décisions et données attendues | 0 | 1 | 1 | 0 | 2 | 1 |
 
 ### 1.1 Chemin critique vers la production
 
@@ -47,6 +47,7 @@ Les points « Bloquant production » restants, par domaine. Sans eux, Crucible r
 
 Décisions à prendre et données à fournir avant de pouvoir développer (`docs/DECISIONS.md`).
 
+- **CR-002** Réponses du responsable produit — —
 - **CR-003** Données à fournir D-1 à D-11 — Responsable produit et équipes R&D
 - **CR-050** Assistant IA — DSI (fournisseur, I-3)
 
@@ -77,19 +78,19 @@ Socle d’Arche (lui-même repris de Keystone), PostgreSQL seul, schéma crucibl
 Écritures validées côté serveur et auditées ; projets et classe de priorité par la direction R&D.  
 *Avancement : src/features/admin/. · Sources : docs/spec/05-ecrans.md*
 
-### 2.3 Moyens d’essais, règles et réservations (3 restants)
+### 2.3 Moyens d’essais, règles et réservations (0 restants, 3 faits)
 
-**CR-010 · Moyens d’essais, zones du PDE, calendriers, indisponibilités, contrôles** — *Prochaine étape · non commencé · effort L*  
+**~~CR-010 · Moyens d’essais, zones du PDE, calendriers, indisponibilités, contrôles~~** — *Prochaine étape · non commencé · effort L* · **fait (Livraison 2)**  
 Installations, moyens réservables (zones du PDE : atelier mécanique, pilote, pièces laboratoire), horaires, maintenances, contrôles échus bloquants (R-6).  
-*Sources : docs/spec/02-objets.md §1–2*
+*Avancement : Moyens, zones du PDE, horaires, fermetures, indisponibilités, contrôles (R-6) ; fiche /facilities/[code]. · Sources : docs/spec/02-objets.md §1–2*
 
-**CR-011 · Règles d’exclusion validées par la sécurité** — *Prochaine étape · non commencé · effort M*  
+**~~CR-011 · Règles d’exclusion validées par la sécurité~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 2)**  
 Une zone du PDE active à la fois (P-2, R-2) ; validation par le référent sécurité (R-3), versions, référence Codex.  
-*Sources : docs/spec/03-planification.md §3*
+*Avancement : Règles proposées, validées ou retirées par le référent sécurité ; PDE-ONE-ZONE appliquée à chaque réservation. · Sources : docs/spec/03-planification.md §3*
 
-**CR-012 · Réservations manuelles et contrôle des contraintes dures** — *Prochaine étape · non commencé · effort L*  
+**~~CR-012 · Réservations manuelles et contrôle des contraintes dures~~** — *Prochaine étape · non commencé · effort L* · **fait (Livraison 2)**  
 Réservation refusée avec la règle citée ; planning des moyens ; « Mon planning » (démarrer, terminer) ; réservations non tenues (A-7).  
-*Sources : docs/spec/03-planification.md, docs/spec/05-ecrans.md*
+*Avancement : Demande, confirmation, annulation, démarrer / terminer, non-tenue (A-7) ; planning des moyens ; Mon planning. · Sources : docs/spec/03-planification.md, docs/spec/05-ecrans.md*
 
 ### 2.4 Besoins des projets et anticipation (1 restants)
 
@@ -103,15 +104,15 @@ Prévisions, demandes, délai de prévenance (F-5), plan de charge 26 semaines (
 Personnes et compétences, substitutions validées, heuristique déterministe (T-3), fiches de conflit, règles de priorité versionnées (A-1, A-2).  
 *Sources : docs/spec/03-planification.md §4–5*
 
-### 2.6 Aléas, scénarios et pilotage (2 restants)
-
-**CR-013 · Pilotage de l’occupation et import de l’historique** — *Prochaine étape · non commencé · effort M*  
-Occupation réservée / réalisée / avec préparation / blocage (P-5), attente par entité, mesure de référence (X-2, F-9).  
-*Sources : docs/spec/02-objets.md §6*
+### 2.6 Aléas, scénarios et pilotage (1 restants, 1 faits)
 
 **CR-040 · Aléas, replanification, scénarios et notifications** — *Plus tard · non commencé · effort M*  
 Scénario de reprise, avant / après par projet, urgences (A-8), cloche et e-mail (F-8).  
 *Sources : docs/spec/03-planification.md §7*
+
+**~~CR-013 · Pilotage de l’occupation et import de l’historique~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 2)**  
+Occupation réservée / réalisée / avec préparation / blocage (P-5), attente par entité, mesure de référence (X-2, F-9).  
+*Avancement : Pilotage /dashboard (réservé, réalisé, avec préparation, blocage, attente par entité, quotas) ; import de l’historique (F-9). · Sources : docs/spec/02-objets.md §6*
 
 ### 2.7 Assistant IA (1 restants)
 
@@ -125,21 +126,22 @@ Assistant adossé au moteur, sans écriture seule (I-1 à I-4) ; fournisseur à 
 Jalons Keystone (K-2), habilitations et absences Cursus (CU-1, CU-2), contrôles et coactivité Vigie (V-1, V-2), documents Codex (CX-1, CX-2) ; vues pub_ publiées.  
 *Attend : Keystone, Cursus, Vigie, Codex · Sources : docs/DEMANDES-\*.md*
 
-### 2.9 Cadrage, décisions et données attendues (1 restants, 2 faits)
+### 2.9 Cadrage, décisions et données attendues (2 restants, 1 faits)
 
 **CR-003 · Données à fournir D-1 à D-11** — *Prochaine étape · attend le responsable produit · effort M*  
 Moyens, règles d’exclusion, types d’essai, substitutions, projets et besoins, personnes, accord EPC France, historique, origine des 30 %, contrôles, participants à l’atelier.  
-*Avancement : À collecter lors de l’atelier avec les équipes. · Attend : Responsable produit et équipes R&D · Sources : docs/DECISIONS.md §11, docs/ATELIER-CADRAGE.md*
+*Avancement : Indispensables pour remplacer le jeu de démonstration : moyens réels (D-1), règles (D-2), accord EPC France (D-7), historique (D-8), origine des 30 % (D-9), contrôles (D-10). · Attend : Responsable produit et équipes R&D · Sources : docs/DECISIONS.md §11, docs/ATELIER-CADRAGE.md*
+
+**CR-002 · Réponses du responsable produit** — *À décider · non commencé · effort S* · **en cours**  
+57 questions du questionnaire « Décisions Crucible ».  
+*Avancement : 22 oct. 2026 : 56 réponses par défaut, P-2 précisée. Nouvelles questions de la livraison 2 : F-10, R-10, P-7 (défaut appliqué). · Sources : docs/DECISIONS.md*
 
 **~~CR-001 · Cadrage (livraison 0)~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 0)**  
 Analyse du besoin, état des lieux des outils du groupe, spécification docs/spec/00–05, décisions, plan, guide d’atelier, demandes aux autres dépôts, questionnaire.  
 *Avancement : Branche claude/lucid-dirac-7bdq6x, 22 oct. 2026. · Sources : docs/ANALYSE.md, docs/spec/, docs/DECISIONS.md*
 
-**~~CR-002 · Réponses du responsable produit~~** — *À décider · non commencé · effort S* · **fait (Livraison 1)**  
-57 questions du questionnaire « Décisions Crucible ».  
-*Avancement : 22 oct. 2026 : 56 réponses par défaut confirmées ; P-2 précisée (le PDE est un bâtiment unique en zones, une zone active à la fois). · Sources : docs/DECISIONS.md*
-
 ## 3. Mises à jour
 
+- 2026-10-22 — Livraison 2 : moyens et calendriers, règles d’exclusion validées par la sécurité (PDE : une zone à la fois), accords, réservations sous contraintes dures, planning, Mon planning, pilotage de l’occupation, import de l’historique.
 - 2026-10-22 — Livraison 1 (socle) : socle d’Arche sur PostgreSQL seul, 9 profils et visibilité par entité, installation et projet (U-3), administration, jeu de démonstration (laboratoire 67, PDE), CI ; réponses du questionnaire appliquées.
 - 2026-10-22 — Livraison 0 (cadrage) : inventaire initial aligné sur docs/PLAN.md.
