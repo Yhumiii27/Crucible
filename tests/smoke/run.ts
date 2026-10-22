@@ -48,8 +48,8 @@ async function main(): Promise<void> {
   const org = await get('/admin/organisation', 'rd_director');
   check(org.status === 200 && org.body.includes('Classe de priorité'), 'the R&D director records projects and their priority class');
   check((await get('/facilities', 'admin')).status === 404, 'the administrator sees no business screen');
-  const soon = await get('/propose', 'coordinator');
-  check(soon.status === 200 && soon.body.includes('Prévu pour la livraison 4'), 'a screen of a later delivery says when it comes');
+  const soon = await get('/incidents', 'coordinator');
+  check(soon.status === 200 && soon.body.includes('Prévu pour la livraison 5'), 'a screen of a later delivery says when it comes');
 
   // Delivery 2: resources, rules, bookings, utilisation.
   const plan = await get('/planning?week=2026-10-26', 'coordinator');
@@ -79,6 +79,16 @@ async function main(): Promise<void> {
   check((await get('/projects/RD-ORION', 'partner')).status === 404 && (await get('/projects/RD-CASSIOPEE', 'coordinator')).status === 404, 'project sheet: outside the visibility, the project does not exist (U-3)');
   const conn = await get('/admin/connectors', 'admin');
   check(conn.status === 200 && conn.body.includes('crucible.pub_reservations') && conn.body.includes('Pas encore publiée'), 'connectors: published views and the views not published yet');
+  // Delivery 4: people, engine, conflicts, substitutions, priority rules.
+  const propose = await get('/propose', 'coordinator');
+  check(propose.status === 200 && propose.body.includes('R-2026-0001') && propose.body.includes('Lancer le moteur') && propose.body.includes('Un contrôle réglementaire arrive à échéance'), 'proposals: the demo run, its proposals and the need blocked by the inspection');
+  const conflictsPage = await get('/conflicts', 'coordinator');
+  check(conflictsPage.status === 200 && conflictsPage.body.includes('C-2026-0001') && conflictsPage.body.includes('Recommandée') && conflictsPage.body.includes('Essai de sécurité ou réglementaire'), 'conflicts: the PDE sheet, its recommendation and the rule cited');
+  check((await get('/conflicts', 'project_lead')).status === 404, 'conflicts are not in a project lead’s workspace');
+  const peoplePage = await get('/people', 'facility_manager');
+  check(peoplePage.status === 200 && peoplePage.body.includes('Karim Benali') && peoplePage.body.includes('PYRO'), 'people and skills of the PDE');
+  const rulesPage = await get('/rules', 'rd_director');
+  check(rulesPage.status === 200 && rulesPage.body.includes('NT-RD-0142') && rulesPage.body.includes('Règles de priorité'), 'rules: the validated substitution and the priority rules');
   check((await get('/propose', 'partner')).status === 404, 'a screen outside the profile’s workspace is not found');
   check((await get('/nowhere', 'rd_director')).status === 404, 'an unknown path is not found');
 

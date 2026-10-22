@@ -292,6 +292,18 @@
     "blocks": "L5"
   },
   {
+    "id": "A-9",
+    "group": "arbitrage",
+    "title": "Options d’une fiche de conflit et recommandation",
+    "context": "Le moteur doit proposer 2 à 4 options avec leurs conséquences (spec 03 §5).",
+    "proposal": "Options : « comme proposé » et, pour chaque besoin servi avant celui qui est en retard (3 au plus), « ce besoin d’abord » (le moteur refait le plan avec cet ordre, substitutions validées comprises) ; recommandation : la meilleure option selon l’ordre des objectifs (F-2) — retard des besoins critiques, retard pondéré par la classe, nombre de substitutions. Une décision fixe l’ordre de service des passages suivants ; un veto de la sécurité l’annule.",
+    "alts": [
+      "Options découpage et heures étendues dès la livraison 4",
+      "La recommandation ne compte que le retard"
+    ],
+    "blocks": "L4"
+  },
+  {
     "id": "F-1",
     "group": "planif",
     "title": "Granularité de planification",
@@ -830,6 +842,18 @@
     "blocks": "L3"
   },
   {
+    "id": "F-14",
+    "group": "planif",
+    "title": "Placement d’un besoin par le moteur",
+    "context": "Une prévision ou une demande de N demi-journées doit trouver un créneau.",
+    "proposal": "Un seul bloc de N demi-journées ouvertes consécutives (un week-end peut être dedans, pas une fermeture), au plus tôt : d’abord sur le moyen demandé avant l’échéance, puis sur une substitution validée, sinon en retard sur le bloc qui finit le plus tôt. Personnes affectées par ordre alphabétique parmi les habilitées, présentes et libres. Le moteur tourne à la demande et une fois par jour (F-3).",
+    "alts": [
+      "Découper un besoin en plusieurs créneaux",
+      "Répartir la charge entre les personnes habilitées"
+    ],
+    "blocks": "L4"
+  },
+  {
     "id": "R-10",
     "group": "regles",
     "title": "Contrôle réglementaire : échu « à la date du créneau »",
@@ -840,6 +864,18 @@
       "Avertir seulement (la réservation reste possible)"
     ],
     "blocks": "L2"
+  },
+  {
+    "id": "R-11",
+    "group": "regles",
+    "title": "Le référent technique d’une substitution",
+    "context": "R-4 : la substitution est validée par le responsable de l’installation d’accueil « et le référent technique du type d’essai ». Crucible n’a pas de profil « référent technique ».",
+    "proposal": "Le référent technique est nommé sur la substitution (avec la référence Codex de la justification) ; la validation dans Crucible est faite par le responsable de l’installation d’accueil (et par le référent sécurité pour les matières dangereuses).",
+    "alts": [
+      "Créer un profil « référent technique » qui valide dans Crucible",
+      "La direction R&D valide comme référent technique"
+    ],
+    "blocks": "L4"
   },
   {
     "id": "P-7",

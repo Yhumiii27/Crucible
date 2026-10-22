@@ -37,14 +37,20 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   Codex references of protocols and reports, views `pub_moyens` and `pub_reservations` (`drizzle/0005_share_resources.sql`;
   confidential projects masked, S-7), connectors screen (`src/config/connectors.ts`). Screens `/my/needs`, `/projects/[code]`,
   `/load`, `/admin/connectors`.
+- **Delivery 4 (proposal and arbitration) is done** (`docs/DELIVERY-4.md`): people, skills (read from Cursus when granted) and
+  absences (`src/domain/people.ts`, `/people`), test type requirements, mobile equipment, substitutions validated by the host
+  facility and safety (R-4, R-11), versioned priority rules (`src/domain/priority.ts`), deterministic engine that only proposes
+  (`src/domain/engine.ts`, run and storage `src/server/planning/engine-run.ts`, daily job `plan-nightly`), proposals accepted by
+  a facility manager after every check again, conflict sheets with options, rule cited and recommendation
+  (`src/domain/conflicts.ts`), append-only arbitrations, safety veto. Screens `/propose`, `/conflicts`, `/people`.
 - **PDE (owner's answer P-2)**: one building split into zones — mechanical workshop, pilot, laboratory rooms — where only one
   zone works at a time (no pyrotechnic co-activity): three resources linked by the validated rule `PDE-ONE-ZONE`.
 - **Owner's answers**: questionnaire "Décisions Crucible", https://claude.ai/artifact/EaWUrHKrsdaWGB1UHtL1Ym — read its
   database (ArtifactData, collection `answers`, one document per question id: `choice` = default | altN | other | discuss,
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in
   step with it and rebuild the page with `npm run questionnaire:page`. 22 Oct 2026: 56 defaults confirmed, P-2 answered
-  (above); the data D-1 to D-11 are still to come. Delivery 2 added F-10, R-10, P-7, delivery 3 F-11, F-12, F-13, S-7
-  (defaults applied).
+  (above); the data D-1 to D-11 are still to come. Delivery 2 added F-10, R-10, P-7, delivery 3 F-11, F-12, F-13, S-7,
+  delivery 4 R-11, A-9, F-14 (defaults applied).
 - **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
   run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
   and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
@@ -52,8 +58,8 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - **Requests sent to other repos** (22 Oct 2026, validated by the owner): Keystone K-2 `pub_jalons` (Keystone#22, merged),
   Cursus CU-1 `pub_absences` (Cursus#15, merged), Vigie V-1 `pub_controles` (Vigie#12), Matrix M-7 (copy `pub_moyens`,
   `pub_reservations` into `partage/80-crucible.sql`, Matrix#17).
-- Next: delivery 4 (people and skills, validated substitutions, proposal engine, conflicts and arbitration), see
-  `docs/PLAN.md`.
+- Next: delivery 5 (incidents and recovery scenarios, before / after per project, what-if simulations, urgencies, notifications,
+  weekly snapshots), see `docs/PLAN.md`.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

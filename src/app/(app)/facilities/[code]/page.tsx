@@ -1,5 +1,5 @@
 // Facility sheet (docs/spec/05 "Fiche moyen"): its resources, opening hours and closures, unavailabilities, periodic
-// inspections (R-6), the exclusion rules that concern it and its sharing agreements. A facility outside the viewer's
+// inspections (R-6), the exclusion rules that concern it, its mobile equipment (R-8) and its sharing agreements. A facility outside the viewer's
 // visibility does not exist (404). The facility's managers (coordinator, facility manager) edit it here.
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -14,9 +14,11 @@ import { managedFacilities } from '@/domain/rights';
 import {
   ClosureForm, HoursForm, InspectionForm, NewResourceForm, RemoveUnavailabilityButton, ResourceStatusSelect, UnavailabilityForm,
 } from '@/features/resources/forms';
+import { EquipmentForm } from '@/features/planning/forms';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate } from '@/lib/format';
 import { businessToday } from '@/server/clock';
+import { facilityEquipment } from '@/server/dal/planning';
 import { facilitySheet } from '@/server/dal/resources';
 import { getI18n, getViewer } from '@/server/session';
 
@@ -29,6 +31,7 @@ export default async function FacilityPage({ params }: PageProps<'/facilities/[c
   const sheet = await facilitySheet(viewer, decodeURIComponent(code), today);
   if (!sheet) notFound();
   const { facility } = sheet;
+  const equipment = await facilityEquipment(viewer, facility.code);
   const manager = managedFacilities(viewer.role, viewer.assignments).includes(facility.code);
   const resRefs = sheet.resources.filter((r) => r.status !== 'retired').map((r) => ({ id: r.id, code: r.code }));
   return (
@@ -155,6 +158,15 @@ export default async function FacilityPage({ params }: PageProps<'/facilities/[c
           <EmptyState>{t('No inspection recorded.')}</EmptyState>
         )}
         {manager && resRefs.length > 0 && <InspectionForm resources={resRefs} today={today} />}
+      </SectionCard>
+
+      <SectionCard title={t('Mobile equipment')} hint={String(equipment.length)} subtitle={t('Shared movable equipment kept by the facility: booked with the test that needs it (R-8).')}>
+        {equipment.length ? (
+          <span className="text-muted">{equipment.map((e) => `${e.code} · ${dataText(e.name, lang)}`).join(' — ')}</span>
+        ) : (
+          <EmptyState>{t('No mobile equipment.')}</EmptyState>
+        )}
+        {manager && <EquipmentForm facilityCode={facility.code} />}
       </SectionCard>
 
       {sheet.agreements.length > 0 && (
