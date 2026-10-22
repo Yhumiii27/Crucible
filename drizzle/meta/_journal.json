@@ -22,6 +22,13 @@
       "when": 1792679808491,
       "tag": "0002_share_journal",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792681876476,
+      "tag": "0003_resources_bookings",
+      "breakpoints": true
     }
   ]
 }

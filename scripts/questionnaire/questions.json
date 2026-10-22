@@ -768,5 +768,40 @@
     "context": "Qui inviter à l’atelier de cadrage (docs/ATELIER-CADRAGE.md) : responsables d’installation, référent sécurité, chefs de projet, représentant d’EPC France, coordinateur.",
     "placeholder": "Nom ; fonction ; entité",
     "blocks": "L0"
+  },
+  {
+    "id": "F-10",
+    "group": "planif",
+    "title": "Une demande réserve-t-elle déjà le créneau ?",
+    "context": "Livraison 2 : une demande est vérifiée contre toutes les contraintes dures, mais ne « tient » le moyen qu’une fois confirmée par un responsable de l’installation. Deux demandes sur le même créneau sont signalées l’une à l’autre (avertissement « une autre demande vise ce créneau ») et c’est la confirmation qui tranche ; l’arbitrage outillé vient en livraison 4.",
+    "proposal": "Une demande ne bloque rien ; seule la confirmation tient le moyen (et déclenche les règles d’exclusion). Premier confirmé, premier servi en attendant la livraison 4.",
+    "alts": [
+      "Une demande bloque le créneau dès sa saisie (premier demandeur servi)",
+      "Une demande bloque le créneau pendant 48 h, puis expire si elle n’est pas confirmée"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "R-10",
+    "group": "regles",
+    "title": "Contrôle réglementaire : échu « à la date du créneau »",
+    "context": "R-6 dit qu’un contrôle échu bloque le moyen. Livraison 2 : une réservation est refusée si un contrôle du moyen arrive à échéance avant la fin du créneau (ex. installations électriques du pilote dues le 16/11 : rien après le 16/11 tant que le nouveau contrôle n’est pas saisi). Cela empêche de réserver au-delà d’une échéance, même lointaine.",
+    "proposal": "Bloquer tout créneau qui finit après l’échéance d’un contrôle, jusqu’à la saisie du nouveau contrôle.",
+    "alts": [
+      "Bloquer seulement quand le contrôle est déjà échu aujourd’hui",
+      "Avertir seulement (la réservation reste possible)"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "P-7",
+    "group": "perimetre",
+    "title": "Une réservation non tenue compte-t-elle dans l’occupation ?",
+    "context": "Livraison 2 : une réservation confirmée non démarrée deux heures après son début peut être libérée « non tenue » (A-7). Dans le pilotage, son créneau compte comme « réservé » (le moyen était bloqué pour les autres) mais pas comme « réalisé », et elle est comptée à part. Elle bloque aussi les autres zones du PDE dans le taux de blocage.",
+    "proposal": "La compter comme réservée (et bloquante), jamais comme réalisée, et l’afficher à part.",
+    "alts": [
+      "Ne la compter nulle part (comme une annulation)"
+    ],
+    "blocks": "L2"
   }
 ]

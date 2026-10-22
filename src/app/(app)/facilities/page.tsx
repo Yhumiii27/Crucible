@@ -1,5 +1,6 @@
 // Facilities (docs/spec/05): the facilities the viewer sees — all of them for the people of the group, the shared ones for a
-// partner (U-3). Their resources, calendars and rules come with delivery 2.
+// partner (U-3). Each code opens the facility sheet (resources, calendars, inspections, rules).
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
@@ -33,7 +34,7 @@ export default async function FacilitiesPage() {
             <tbody>
               {rows.map((f) => (
                 <tr key={f.code}>
-                  <Td>{f.code}</Td>
+                  <Td><Link href={`/facilities/${encodeURIComponent(f.code)}`}>{f.code}</Link></Td>
                   <Td>{dataText(f.name, lang)}</Td>
                   <Td>{dataText(f.siteName, lang)}</Td>
                   <Td>{dataText(f.operatorName, lang)}</Td>

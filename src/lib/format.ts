@@ -15,3 +15,13 @@ export function fmtDate(v: string | Date | null | undefined, lang: Lang): string
 
 /** "22/10/2026 14:05". */
 export const fmtInstant = (d: Date, lang: Lang) => `${fmtDate(d, lang)} ${d.toLocaleTimeString(locale(lang), { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' })}`;
+
+/** "08:30" (Paris) of an instant. */
+export const fmtTime = (ms: number, lang: Lang) => new Date(ms).toLocaleTimeString(locale(lang), { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' });
+
+/** "27/10/2026 07:00 → 17:00", or "27/10/2026 07:00 → 28/10/2026 12:00" over several days (Paris). */
+export function fmtSlot(start: number, end: number, lang: Lang): string {
+  const d1 = fmtDate(new Date(start), lang);
+  const d2 = fmtDate(new Date(end - 1), lang);
+  return d1 === d2 ? `${d1} ${fmtTime(start, lang)} → ${fmtTime(end, lang)}` : `${d1} ${fmtTime(start, lang)} → ${d2} ${fmtTime(end, lang)}`;
+}

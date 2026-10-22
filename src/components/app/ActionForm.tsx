@@ -6,13 +6,22 @@ import { Button } from '@/components/ds/Button';
 import { useI18n } from '@/i18n/client';
 import s from './ActionForm.module.css';
 
-export type ActionResult = { ok: true } | { ok: false; error: string };
+/** `warnings`: what the Server Function accepted but wants the person to know (EN source strings, segments translated). */
+export type ActionResult = { ok: true; warnings?: string[] } | { ok: false; error: string };
 export type FormAction = (prev: ActionResult | null, fd: FormData) => Promise<ActionResult>;
 
 export function Result({ state, done }: { state: ActionResult | null; done: string }) {
   const { t } = useI18n();
   if (!state) return null;
-  return state.ok ? <span className={s.done} role="status">{t(done)}</span> : <span className={s.error} role="alert">{t(state.error)}</span>;
+  if (!state.ok) return <span className={s.error} role="alert">{t(state.error)}</span>;
+  return (
+    <span className={s.done} role="status">
+      {t(done)}
+      {state.warnings?.map((w) => (
+        <span key={w} className={s.warning}>{t(w)}</span>
+      ))}
+    </span>
+  );
 }
 
 /** A form submitted to its Server Function (React resets its uncontrolled fields after a submit). */
