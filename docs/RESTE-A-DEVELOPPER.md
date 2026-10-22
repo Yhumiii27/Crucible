@@ -6,21 +6,21 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-10-22 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 10 faits, 3 en cours, 3 à faire, sur 16 points.
+**Avancement** : 11 faits, 3 en cours, 2 à faire, sur 16 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 1 | ≈ 4 |
 | À décider | 1 | ≈ 2 |
-| Plus tard | 3 | ≈ 20 |
-| **Total** | **6** | **≈ 30** |
+| Plus tard | 2 | ≈ 16 |
+| **Total** | **5** | **≈ 26** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 2 |
+| Non commencé | 1 |
 | Partiel | 0 |
 | Attend le responsable produit | 2 |
 | Attend un système externe | 2 |
@@ -32,7 +32,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 | Moyens d’essais, règles et réservations | 0 | 0 | 0 | 0 | 0 | 3 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
-| Aléas, scénarios et pilotage | 0 | 0 | 0 | 1 | 1 | 1 |
+| Aléas, scénarios et pilotage | 0 | 0 | 0 | 0 | 0 | 2 |
 | Assistant IA | 0 | 0 | 0 | 1 | 1 | 0 |
 | Liens avec les autres outils | 0 | 0 | 0 | 1 | 1 | 0 |
 | Cadrage, décisions et données attendues | 0 | 1 | 1 | 0 | 2 | 1 |
@@ -104,15 +104,15 @@ Prévisions, demandes, délai de prévenance (F-5), plan de charge 26 semaines (
 Personnes et compétences, substitutions validées, heuristique déterministe (T-3), fiches de conflit, règles de priorité versionnées (A-1, A-2).  
 *Avancement : Personnes et compétences (lecture de Cursus quand la vue est accordée), exigences des types d’essai, équipements mobiles, substitutions validées (R-4), règles de priorité versionnées, moteur déterministe qui propose seulement (passage quotidien), acceptation par lot après un nouveau contrôle, fiches de conflit avec options, règle citée et recommandation, arbitrages en ajout seul, veto sécurité. Propriété vérifiée sur 60 scénarios aléatoires. Choix à confirmer : R-11, A-9, F-14. · Sources : docs/spec/03-planification.md §4–5*
 
-### 2.6 Aléas, scénarios et pilotage (1 restants, 1 faits)
-
-**CR-040 · Aléas, replanification, scénarios et notifications** — *Plus tard · non commencé · effort M*  
-Scénario de reprise, avant / après par projet, urgences (A-8), cloche et e-mail (F-8).  
-*Sources : docs/spec/03-planification.md §7*
+### 2.6 Aléas, scénarios et pilotage (0 restants, 2 faits)
 
 **~~CR-013 · Pilotage de l’occupation et import de l’historique~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 2)**  
 Occupation réservée / réalisée / avec préparation / blocage (P-5), attente par entité, mesure de référence (X-2, F-9).  
 *Avancement : Pilotage /dashboard (réservé, réalisé, avec préparation, blocage, attente par entité, quotas) ; import de l’historique (F-9). · Sources : docs/spec/02-objets.md §6*
+
+**~~CR-040 · Aléas, replanification, scénarios et notifications~~** — *Plus tard · non commencé · effort M* · **fait (Livraison 5)**  
+Scénario de reprise, avant / après par projet, urgences (A-8), cloche et e-mail (F-8).  
+*Avancement : Aléas (panne, absence) et scénario de reprise avant / après par projet décidé par le coordinateur ou la direction R&D ; simulations « et si ? » ; urgences (A-8) ; cloche et e-mail, relances d’arbitrage, récapitulatif hebdomadaire ; instantanés hebdomadaires, valeur inoccupée, retards imputables ; vue pub_occupation_hebdo. · Sources : docs/spec/03-planification.md §7*
 
 ### 2.7 Assistant IA (1 restants)
 
@@ -142,6 +142,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-22 — Livraison 5 : aléas et scénarios de reprise (avant / après par projet), simulations « et si ? », urgences, notifications (cloche, e-mail, relances, récapitulatif), instantanés hebdomadaires, valeur de la capacité inoccupée, retards imputables, vue pub_occupation_hebdo.
 - 2026-10-22 — Livraison 4 : personnes et compétences, substitutions validées, règles de priorité versionnées, moteur de proposition déterministe, acceptation des propositions, fiches de conflit, arbitrages et veto sécurité, équipements mobiles.
 - 2026-10-22 — Sécurité : Next.js 16.4.0 → 16.4.2 (avis critiques GHSA-2464-fhr4-w9xw, GHSA-673q-mjm6-r5xr et GHSA-p3m5-59mp-jv5r) ; npm audit de production sans vulnérabilité. Demande M-7 transmise à Matrix (Yhumiii27/Matrix#17).
 - 2026-10-22 — Livraison 3 : jalons, types d’essai, besoins (prévisions et demandes), prévenance F-5 pour toutes les entités, plan de charge sur 26 semaines et enveloppes à 12 mois (goulot du PDE signalé 8 semaines avant), références Codex des protocoles et rapports, vues pub_moyens et pub_reservations, écran des connecteurs.

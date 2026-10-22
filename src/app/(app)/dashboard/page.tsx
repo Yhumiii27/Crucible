@@ -1,6 +1,8 @@
 // Utilisation dashboard (docs/spec/02 §6, P-5): over a period, per resource and per facility, the net open hours and the
 // booked, realised, realised-with-preparation and blocked rates; waiting from request to test per entity; bookings not held;
-// days used against the quotas of the agreements this month (A-3); late requests per entity (F-5, delivery 3). Computed from the bookings and calendars, never stored.
+// days used against the quotas of the agreements this month (A-3); late requests per entity (F-5, delivery 3). Delivery 5:
+// urgencies declared (A-8), value of the unused capacity (acquisition cost × the share not realised), delays due to the
+// resources (needs whose tests end after their deadline) and the trend of the weekly snapshots (X-4). Computed from the bookings and calendars, never stored.
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { KpiGrid, KpiTile } from '@/components/app/Kpi';
@@ -17,6 +19,7 @@ import { dataText } from '@/i18n/data-text';
 import { addDaysIso, parisParts } from '@/lib/dates';
 import { fmtDate } from '@/lib/format';
 import { businessToday } from '@/server/clock';
+import { steeringFacts } from '@/server/dal/incidents';
 import { usageFacts } from '@/server/dal/resources';
 import { getI18n, getViewer } from '@/server/session';
 
@@ -37,7 +40,7 @@ export default async function DashboardPage({ searchParams }: PageProps<'/dashbo
   const to = typeof sp.to === 'string' && isIsoDate(sp.to) ? sp.to : today;
   const from = typeof sp.from === 'string' && isIsoDate(sp.from) && sp.from < to ? sp.from : addDaysIso(to, -28);
   const monthStart = `${today.slice(0, 8)}01`;
-  const f = await usageFacts(viewer, from, to, { fromIso: monthStart, toIso: addMonthsIso(monthStart, 1) });
+  const [f, steer] = await Promise.all([usageFacts(viewer, from, to, { fromIso: monthStart, toIso: addMonthsIso(monthStart, 1) }), steeringFacts(viewer, from, to, today)]);
   const usage = new Map(f.resources.map((r) => {
     const cal = f.calendars.get(r.facilityCode)!;
     return [r.id, resourceUsage({
@@ -66,6 +69,20 @@ export default async function DashboardPage({ searchParams }: PageProps<'/dashbo
           return (
             <KpiTile key={fac.code} label={dataText(fac.name, lang)} value={pct(rateOf(u.realisedWithPrepHours, u.netOpenHours), lang)}
               sub={`${t('realised with preparation')} · ${t('booked')} ${pct(rateOf(u.bookedHours, u.netOpenHours), lang)} · ${t('blocked')} ${pct(rateOf(u.blockedHours, u.netOpenHours), lang)}`} size="lg" />
+          );
+        })}
+      </KpiGrid>
+
+      <KpiGrid min={170}>
+        <KpiTile label={t('Urgencies declared')} value={steer.urgencies} sub={t('in the period (A-8)')} />
+        {f.facilities.map((fac) => {
+          const cost = steer.acquisition.get(fac.code);
+          if (cost == null) return null;
+          const u = sum(f.resources.filter((r) => r.facilityCode === fac.code).map((r) => usage.get(r.id)!));
+          const rate = rateOf(u.realisedWithPrepHours, u.netOpenHours);
+          return (
+            <KpiTile key={`v-${fac.code}`} label={`${t('Value of the unused capacity')} · ${fac.code}`} value={rate == null ? '—' : `${Math.round(cost * (1 - rate / 100)).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')} k€`}
+              sub={`${t('acquisition')} ${cost.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')} k€ × ${t('share not realised')}`} />
           );
         })}
       </KpiGrid>
@@ -132,6 +149,64 @@ export default async function DashboardPage({ searchParams }: PageProps<'/dashbo
           </Table>
         ) : (
           <EmptyState>{t('No booking in the period.')}</EmptyState>
+        )}
+      </SectionCard>
+
+      <SectionCard title={t('Weekly trend')} subtitle={t('Realised with preparation, in % of the net open hours, from the weekly snapshots (X-4).')} scroll>
+        {(() => {
+          const weeks = [...new Set(steer.snapshots.map((x) => x.monday))].sort();
+          if (!weeks.length) return <EmptyState>{t('No weekly snapshot yet.')}</EmptyState>;
+          return (
+            <Table>
+              <thead>
+                <tr>
+                  <Th>{t('Facility')}</Th>
+                  {weeks.map((w) => <Th key={w} align="right">{fmtDate(w, lang)}</Th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {steer.facilities.map((fac) => (
+                  <tr key={fac.code}>
+                    <Td>{dataText(fac.name, lang)}</Td>
+                    {weeks.map((w) => {
+                      const xs = steer.snapshots.filter((x) => x.monday === w && x.facilityCode === fac.code);
+                      const open = xs.reduce((a, x) => a + x.netOpenHours, 0);
+                      return <Td key={w} align="right" numeric>{pct(rateOf(xs.reduce((a, x) => a + x.realisedWithPrepHours, 0), open), lang)}</Td>;
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          );
+        })()}
+      </SectionCard>
+
+      <SectionCard title={t('Delays due to the resources')} hint={String(steer.late.length)} subtitle={t('Needs whose tests end after their deadline, in working days.')} scroll>
+        {steer.late.length ? (
+          <Table>
+            <thead>
+              <tr>
+                <Th>{t('Need')}</Th>
+                <Th>{t('Project')}</Th>
+                <Th>{t('Deadline')}</Th>
+                <Th>{t('Last test day')}</Th>
+                <Th align="right">{t('Working days late')}</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {steer.late.map((x) => (
+                <tr key={x.ref}>
+                  <Td>{x.ref}</Td>
+                  <Td>{x.projectCode ?? t('Project not visible')}</Td>
+                  <Td>{fmtDate(x.deadlineOn, lang)}</Td>
+                  <Td>{fmtDate(x.lastDay, lang)}</Td>
+                  <Td align="right" numeric>{x.lateDays}</Td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          <EmptyState>{t('No need delayed by the resources.')}</EmptyState>
         )}
       </SectionCard>
 

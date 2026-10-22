@@ -50,7 +50,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in
   step with it and rebuild the page with `npm run questionnaire:page`. 22 Oct 2026: 56 defaults confirmed, P-2 answered
   (above); the data D-1 to D-11 are still to come. Delivery 2 added F-10, R-10, P-7, delivery 3 F-11, F-12, F-13, S-7,
-  delivery 4 R-11, A-9, F-14 (defaults applied).
+  delivery 4 R-11, A-9, F-14, delivery 5 P-8, P-9, A-10, F-15 (defaults applied).
 - **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
   run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
   and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
@@ -58,8 +58,15 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - **Requests sent to other repos** (22 Oct 2026, validated by the owner): Keystone K-2 `pub_jalons` (Keystone#22, merged),
   Cursus CU-1 `pub_absences` (Cursus#15, merged), Vigie V-1 `pub_controles` (Vigie#12), Matrix M-7 (copy `pub_moyens`,
   `pub_reservations` into `partage/80-crucible.sql`, Matrix#17).
-- Next: delivery 5 (incidents and recovery scenarios, before / after per project, what-if simulations, urgencies, notifications,
-  weekly snapshots), see `docs/PLAN.md`.
+- **Delivery 5 (incidents, scenarios, full steering) is done** (`docs/DELIVERY-5.md`): incidents (breakdown → unavailability,
+  absence; `AL-AAAA-NNNN`) and their recovery scenario computed at once (`src/domain/recovery.ts`, `src/server/planning/scenarios.ts`:
+  only the confirmed bookings touched move; before / after per project), accepted by the coordinator of every facility touched or
+  the R&D director (every move checked again, A-10), what-if simulations (never applied), urgencies (A-8: displaced bookings go
+  after the urgent test), notifications — bell and e-mail by the worker (`src/server/notify/`, `CRUCIBLE_MAIL_TRANSPORT`, F-15),
+  arbitration reminders, weekly recap —, weekly snapshots kept once per completed week (`snapshots.ts`, view
+  `pub_occupation_hebdo`), value of the unused capacity (facility acquisition cost, P-8) and delays due to the resources (P-9) on
+  `/dashboard`. Screens `/incidents`, `/notifications`. Matrix M-8 (copy `pub_occupation_hebdo`) is a draft, not sent.
+- Next: delivery 6 (AI assistant, spec 04) once the provider is chosen (I-1 to I-4), see `docs/PLAN.md`.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

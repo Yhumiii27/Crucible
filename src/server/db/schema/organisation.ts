@@ -1,7 +1,7 @@
 // Organisation (docs/spec/02-objets.md §1, §3–4): entities (EPC2i, EPC France…), sites, facilities and the partner entities
 // they are shared with, R&D projects (minimal record of delivery 1; needs and milestones come with delivery 3), users and
 // their role assignments with a scope (docs/spec/01 §2).
-import { boolean, date, index, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, date, index, integer, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import type { RoleKey, ScopeKind } from '@/config/roles';
 import type { EntityKind, PriorityClass } from '@/domain/organisation';
 import { crucible } from './_schema';
@@ -36,6 +36,8 @@ export const facilities = crucible.table('facilities', {
   description: text('description'),
   active: boolean('active').notNull().default(true),
   ...timestamps,
+  /** Acquisition cost in k€, for the value of the unused capacity (spec 02 §6; the PDE: about 3 M€). */
+  acquisitionKeur: integer('acquisition_keur'),
 });
 
 /** Partner entities a facility is shared with (laboratoire 67 → EPC France). */

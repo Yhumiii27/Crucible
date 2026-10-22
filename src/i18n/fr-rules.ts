@@ -6,4 +6,7 @@ export const FR_RULES: [RegExp, string][] = [
   [/^(\d+) entries$/, '$1 entrée(s)'],
   [/^Line (\d+)$/, 'Ligne $1'],
   [/^(\d+) past bookings imported$/, '$1 réservations passées importées'],
+  [/^Incident (AL-\d{4}-\d+)$/, 'Aléa $1'],
+  [/^Scenario (S-\d{4}-\d+)$/, 'Scénario $1'],
+  [/^(\d+) bookings moved$/, '$1 réservation(s) déplacée(s)'],
 ];

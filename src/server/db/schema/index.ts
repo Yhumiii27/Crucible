@@ -3,3 +3,4 @@ export * from './resources';
 export * from './needs';
 export * from './platform';
 export * from './planning';
+export * from './incidents';

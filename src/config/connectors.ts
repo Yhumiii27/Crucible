@@ -33,5 +33,6 @@ export const READ_CONNECTORS: readonly ConnectorDef[] = [
 export const PUBLISHED_VIEWS: readonly (ConnectorDef & { readers: string })[] = [
   { view: 'crucible.pub_moyens', tool: 'Crucible', use: 'Test resources, facility, site, state', request: 'S-5', delivery: 'L3', readers: 'Keystone, Vigie, Matrix' },
   { view: 'crucible.pub_reservations', tool: 'Crucible', use: 'Bookings that hold a resource; confidential projects masked', request: 'S-5 · R-7 · S-7', delivery: 'L3', readers: 'Keystone, Vigie, Matrix' },
+  { view: 'crucible.pub_occupation_hebdo', tool: 'Crucible', use: 'Weekly utilisation of each resource (snapshots)', request: 'X-4 · M-8', delivery: 'L5', readers: 'Matrix' },
   { view: 'crucible.pub_journal', tool: 'Crucible', use: 'Audit trail for the unified journal', request: 'X-4', delivery: 'L1', readers: 'Matrix' },
 ];

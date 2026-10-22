@@ -8,7 +8,7 @@ import { Field, Input, Select, Textarea } from '@/components/ds/Field';
 import { RESOURCE_KINDS, RESOURCE_KIND_LABEL, RESOURCE_STATUSES, RESOURCE_STATUS_LABEL, RULE_REASONS, RULE_REASON_LABEL, UNAVAILABILITY_KINDS, UNAVAILABILITY_KIND_LABEL, GRANULARITIES, GRANULARITY_LABEL } from '@/domain/resources';
 import { useI18n } from '@/i18n/client';
 import {
-  addClosureAction, addUnavailabilityAction, cancelBookingAction, confirmBookingAction, createResourceAction, finishBookingAction, importHistoryAction,
+  addClosureAction, addUnavailabilityAction, setAcquisitionAction, cancelBookingAction, confirmBookingAction, createResourceAction, finishBookingAction, importHistoryAction,
   markNoShowAction, proposeRuleAction, recordInspectionAction, removeUnavailabilityAction, requestBookingAction, retireRuleAction, setAgreementAction,
   setFacilityHoursAction, setResourceStatusAction, startBookingAction, validateRuleAction,
 } from './actions';
@@ -77,6 +77,21 @@ export function ResourceStatusSelect({ resourceId, status }: { resourceId: strin
         onChange={(e) => { const v = e.target.value; start(async () => setState(await setResourceStatusAction(resourceId, v))); }} />
       <Result state={state} done="Saved" />
     </span>
+  );
+}
+
+export function AcquisitionForm({ facilityCode, value }: { facilityCode: string; value: number | null }) {
+  const { t } = useI18n();
+  return (
+    <details className={s.fold}>
+      <summary>{t('Change the acquisition cost')}</summary>
+      <ActionForm action={setAcquisitionAction} submit="Save" done="Acquisition cost saved">
+        <input type="hidden" name="facilityCode" value={facilityCode} />
+        <Field label={t('Acquisition cost (k€)')} htmlFor={`acq-${facilityCode}`}>
+          <Input id={`acq-${facilityCode}`} name="acquisitionKeur" type="number" min={0} step={1} defaultValue={value ?? ''} />
+        </Field>
+      </ActionForm>
+    </details>
   );
 }
 

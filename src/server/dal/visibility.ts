@@ -51,6 +51,8 @@ export interface FacilityRow {
   operatorEntityCode: string;
   operatorName: string;
   partnerEntityCodes: string[];
+  /** Acquisition cost in k€ (P-8), null when not entered. */
+  acquisitionKeur: number | null;
 }
 
 async function selectFacilities(viewer: Viewer, extra?: SQL): Promise<FacilityRow[]> {
@@ -59,7 +61,7 @@ async function selectFacilities(viewer: Viewer, extra?: SQL): Promise<FacilityRo
   const rows = await db
     .select({
       code: facilities.code, name: facilities.name, description: facilities.description, siteCode: facilities.siteCode, siteName: sites.name,
-      operatorEntityCode: facilities.operatorEntityCode, operatorName: entities.name,
+      operatorEntityCode: facilities.operatorEntityCode, operatorName: entities.name, acquisitionKeur: facilities.acquisitionKeur,
     })
     .from(facilities)
     .innerJoin(sites, eq(sites.code, facilities.siteCode))

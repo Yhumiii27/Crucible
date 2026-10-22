@@ -51,6 +51,8 @@ export interface CrucibleConfig {
   backup: { dir: string | null; everyMin: number; retentionDays: number };
   /** E-mails granted the administrator role at their first Entra sign-in (bootstrap of a new database, N-4). */
   adminEmails: string[];
+  /** E-mail of the notifications (F-8): `none` = the bell only; `file` = one .eml file per message in `dir`. */
+  mail: { transport: 'none' | 'file'; dir: string | null; from: string };
   /** Secret values present in the environment: the logger masks them wherever they appear. */
   secrets: string[];
 }
@@ -126,6 +128,11 @@ const VARS = {
   CRUCIBLE_BACKUP_RETENTION_DAYS: z.coerce.number().int().min(1, 'must be at least 1').max(3650, 'must be at most 3650').optional(),
   MATRIX_TOKEN: z.string().optional(),
   MATRIX_DECLARATIONS_DIR: z.string().optional(),
+  // E-mail of the notifications (F-8), sent by the job worker: "none" (default, the bell only) or "file" (one .eml per message
+  // in CRUCIBLE_MAIL_DIR, for tests and for a relay that picks the files up). SMTP / Microsoft Graph come with the production.
+  CRUCIBLE_MAIL_TRANSPORT: z.enum(['none', 'file'], { message: 'must be "none" or "file"' }).optional(),
+  CRUCIBLE_MAIL_DIR: z.string().optional(),
+  CRUCIBLE_MAIL_FROM: z.string().refine((v) => normaliseEmail(v) != null, 'must be an e-mail address').optional(),
 } as const;
 
 export type ConfigVariable = keyof typeof VARS;
@@ -213,6 +220,7 @@ export function parseConfig(env: Record<string, string | undefined>, opts: { cwd
   // A pinned date in production is a demonstration setting; real use needs the real clock.
   if (production && v.CRUCIBLE_CLOCK?.kind === 'fixed')
     warnings.push({ variable: 'CRUCIBLE_CLOCK', message: 'pins the business date in production: lateness, due dates and dated writes ignore the real date' });
+  if (v.CRUCIBLE_MAIL_TRANSPORT === 'file' && !v.CRUCIBLE_MAIL_DIR) errors.push({ variable: 'CRUCIBLE_MAIL_DIR', message: 'is required with CRUCIBLE_MAIL_TRANSPORT=file' });
   const secrets = [...SECRET_VARIABLES.map((n) => v[n] as string | undefined), urlPassword(v.DATABASE_URL), urlPassword(v.MATRIX_URL)].filter((s): s is string => !!s && s.length >= 4);
 
   return {
@@ -233,6 +241,11 @@ export function parseConfig(env: Record<string, string | undefined>, opts: { cwd
       clock: v.CRUCIBLE_CLOCK ?? null,
       log: { level: v.LOG_LEVEL ?? 'info', format: v.LOG_FORMAT ?? (production ? 'json' : 'pretty') },
       adminEmails: v.CRUCIBLE_AUTH === 'entra' ? (v.CRUCIBLE_ADMIN_EMAILS ?? []) : [],
+      mail: {
+        transport: v.CRUCIBLE_MAIL_TRANSPORT ?? 'none',
+        dir: v.CRUCIBLE_MAIL_DIR ? path.resolve(opts.cwd, v.CRUCIBLE_MAIL_DIR) : null,
+        from: v.CRUCIBLE_MAIL_FROM ?? 'crucible@epc2i.example',
+      },
       secrets: [...new Set(secrets)],
     },
   };

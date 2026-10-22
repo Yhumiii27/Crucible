@@ -6,10 +6,9 @@
 // hard constraint checked again), conflicts decided (A-4) or vetoed by the safety officer. Each checks the viewer's active role
 // and scope server-side, re-reads what it touches inside its transaction (writes are serialised by the write lock), writes,
 // audits and revalidates.
-import { and, desc, eq, gte, inArray, like, lt, ne, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, like, ne, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { checkBooking, ISSUE_LABEL, type Issue } from '@/domain/booking';
-import { DEFAULT_HOURS, inspectionDueOn } from '@/domain/calendar';
 import { canDecide, conflictDueOn } from '@/domain/conflicts';
 import { checkAbsence, checkEquipment, checkPerson, checkPersonSkill, checkSkill, checkSubstitution, staffAndEquipmentIssues } from '@/domain/people';
 import { isCriteriaOrder } from '@/domain/priority';
@@ -20,13 +19,13 @@ import { businessNow, businessToday } from '@/server/clock';
 import { getDb } from '@/server/db/client';
 import { writeAudit } from '@/server/db/helpers';
 import {
-  arbitrations, bookingEquipment, bookingStaff, bookings, conflicts, entities, inspections, mobileEquipment, people,
+  arbitrations, bookingEquipment, bookingStaff, bookings, conflicts, entities, mobileEquipment, people,
   personAbsences, personSkills, planRuns, priorityRuleSets, projects, proposals, resources, skills, substitutions, testNeeds, testTypeEquipment, testTypeSkills, testTypes,
-  unavailabilities,
 } from '@/server/db/schema';
 import type { Tx } from '@/server/db/types';
-import { calendarsOf, rulesOf } from '@/server/dal/resources';
 import { currentRuleSet, runEngine } from '@/server/planning/engine-run';
+import { slotFacts } from '@/server/planning/slot-facts';
+import { notify } from '@/server/notify';
 import { getViewer, type Viewer } from '@/server/session';
 
 export type ActionResult = { ok: true; warnings?: string[] } | { ok: false; error: string };
@@ -358,34 +357,6 @@ export async function runEngineAction(): Promise<ActionResult> {
   return { ok: true, warnings: [`Run ${r.ref}`, `${r.result.proposals.length} proposals`, `${r.conflicts} conflicts`] };
 }
 
-/** Facts of the hard constraints of a slot on a resource, inside the transaction (as a booking request). */
-async function slotFacts(tx: Tx, resourceId: string, slot: { start: number; end: number }) {
-  const [res] = await tx.select().from(resources).where(eq(resources.id, resourceId));
-  const cal = (await calendarsOf(tx, [res.facilityCode])).get(res.facilityCode)!;
-  const rules = (await rulesOf(tx)).filter((r) => r.resourceIds.includes(res.id));
-  const related = [...new Set([res.id, ...rules.flatMap((r) => r.resourceIds)])];
-  const from = new Date(slot.start - 86_400_000);
-  const to = new Date(slot.end + 86_400_000);
-  const [bk, unav, insp] = await Promise.all([
-    tx.select({ id: bookings.id, ref: bookings.ref, resourceId: bookings.resourceId, resourceCode: resources.code, start: bookings.startsAt, end: bookings.endsAt, status: bookings.status })
-      .from(bookings).innerJoin(resources, eq(resources.id, bookings.resourceId))
-      .where(and(inArray(bookings.resourceId, related), lt(bookings.startsAt, to), gte(bookings.endsAt, from), ne(bookings.status, 'cancelled'))),
-    tx.select().from(unavailabilities).where(and(eq(unavailabilities.resourceId, res.id), lt(unavailabilities.startsAt, to), gte(unavailabilities.endsAt, from))),
-    tx.select().from(inspections).where(and(eq(inspections.resourceId, res.id), eq(inspections.active, true))),
-  ]);
-  return {
-    res,
-    ctx: {
-      resource: { id: res.id, code: res.code, status: res.status, capacity: res.capacity, granularity: 'half_day' as const },
-      hours: cal.hours.length ? cal.hours : DEFAULT_HOURS, closures: cal.closures,
-      unavailabilities: unav.map((u) => ({ start: u.startsAt.getTime(), end: u.endsAt.getTime(), label: u.label })),
-      inspections: insp.map((i) => ({ label: i.label, dueOn: inspectionDueOn(i.lastOn, i.periodMonths) })),
-      bookings: bk.map((b) => ({ ...b, start: b.start.getTime(), end: b.end.getTime() })),
-      rules: rules.map((r) => ({ code: r.code, maxActive: r.maxActive, status: r.status, resourceIds: r.resourceIds })),
-    },
-  };
-}
-
 async function nextBookingRef(tx: Tx, year: string): Promise<string> {
   const [last] = await tx.select({ ref: bookings.ref }).from(bookings).where(like(bookings.ref, `B-${year}-%`)).orderBy(desc(bookings.ref)).limit(1);
   const n = last ? Number(last.ref.slice(7)) + 1 : 1;
@@ -462,6 +433,7 @@ export async function acceptProposalsAction(_prev: ActionResult | null, fd: Form
         entityType: 'booking', entityId: b.id, projectCode: row.n.projectCode,
         after: { need: row.n.ref, resource: res.code, start: p.startsAt.toISOString(), end: p.endsAt.toISOString(), staff: p.staff, equipment: p.equipment, explanation: p.explanation },
       }));
+      await notify(tx, [row.n.requestedByUserId], { kind: 'booking_confirmed', title: `Booking confirmed · ${ref} · ${row.n.ref}`, href: `/projects/${encodeURIComponent(row.n.projectCode)}` }, { except: v.userId, at: now });
       accepted++;
     }
     if (!accepted) return { ok: false, error: refused.join(' — ') || 'Choose the proposals to accept' };
