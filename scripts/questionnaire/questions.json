@@ -1,0 +1,772 @@
+[
+  {
+    "id": "P-2",
+    "group": "prio",
+    "title": "Que recouvrent le PDE et le laboratoire PDE ?",
+    "context": "La demande cite « le PDE » (≈ 3 M€, occupé à ≈ 30 %) et « le laboratoire PDE » sans les définir. Crucible doit savoir ce qui se réserve : l’installation entière, ou plusieurs cellules / bancs séparément.",
+    "proposal": "Le PDE et le laboratoire PDE sont deux installations distinctes ; chacune contient un ou plusieurs moyens réservables séparément, à lister avec leurs responsables (donnée D-1). Merci de donner en note la signification de « PDE » et ce qu’on y fait.",
+    "alts": [
+      "Le PDE est un moyen unique, réservé en bloc",
+      "Le laboratoire PDE fait partie du PDE (une seule installation)"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "R-2",
+    "group": "prio",
+    "title": "Règle « PDE, laboratoire PDE et atelier mécanique ne fonctionnent pas en parallèle »",
+    "context": "C’est la contrainte la plus structurante et elle est à confirmer. Selon sa nature, elle peut expliquer une partie des 30 % d’occupation du PDE. Est-ce une exclusion totale, ou seulement pour certaines activités (tir, pyrotechnie, présence humaine) ? Pour quelle raison (sécurité pyrotechnique, distances, personnel commun, énergie, nuisances) ?",
+    "proposal": "En attendant la règle écrite du référent sécurité : au plus une des trois installations active à la fois, quelle que soit l’activité. La règle sera ensuite affinée par type d’activité, avec son motif et la référence Codex de l’analyse de risque.",
+    "alts": [
+      "Exclusion seulement pour certaines activités (préciser en note)",
+      "Au plus deux des trois en même temps",
+      "C’est une contrainte de personnel commun, pas de sécurité"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "A-3",
+    "group": "prio",
+    "title": "Règle de partage avec EPC France sur le laboratoire 67",
+    "context": "Une priorité de fait semble donnée à EPC France. Crucible ne peut appliquer qu’une règle écrite. Existe-t-il un accord (contrat, convention, refacturation) ?",
+    "proposal": "Écrire un accord de partage : quota ou créneaux réservés à EPC France (par exemple X jours par mois), délai de prévenance identique pour tous ; au-delà du quota, mêmes règles de priorité que les projets EPC2i (classe, échéance, marge). Désaccord : comité mensuel commun.",
+    "alts": [
+      "Priorité égale sans quota : seules les règles de priorité comptent",
+      "EPC France reste prioritaire sur le laboratoire 67 (formaliser l’existant)",
+      "Les projets EPC2i sont prioritaires sur le laboratoire 67"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "S-1",
+    "group": "prio",
+    "title": "Où sont les projets R&D et leurs échéances ?",
+    "context": "Pour anticiper les besoins, Crucible doit connaître les projets et leurs jalons. Keystone ne connaît que des projets « client » ou « internal » (pas de nature R&D) et ne publie pas ses jalons. Codex connaît des « programmes de recherche ».",
+    "proposal": "Les projets R&D sont saisis dans Crucible (code, nom, entité, chef de projet, jalons portant des essais), avec un lien facultatif vers le projet Keystone ou le programme de recherche Codex correspondant. Bascule en lecture quand l’outil source publie ses jalons.",
+    "alts": [
+      "Les projets R&D sont dans Keystone (projets internes) : lire Keystone",
+      "Ce sont les programmes de recherche de Codex",
+      "Ils sont dans un autre outil (préciser en note)"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "P-5",
+    "group": "prio",
+    "title": "Définition du taux d’occupation",
+    "context": "« Le PDE serait occupé à environ 30 % » : 30 % de quoi ? Sans définition commune, impossible de mesurer le progrès. Comment ce chiffre a-t-il été obtenu (donnée D-9) ?",
+    "proposal": "Occupation = heures d’essai réalisées / heures ouvertes nettes (horaires d’ouverture moins maintenances et contrôles). Crucible affiche aussi l’occupation réservée, l’occupation avec préparation et le taux de blocage (moyen libre mais bloqué par une exclusion ou faute d’opérateur).",
+    "alts": [
+      "Jours occupés / jours ouvrés",
+      "Heures réservées / heures ouvrées",
+      "Heures réalisées / heures calendaires (24 h × 7 j)"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "A-1",
+    "group": "prio",
+    "title": "Qui fixe les règles de priorité et l’ordre des critères ?",
+    "context": "Le moteur classe les options selon un ordre de critères (sécurité, échéances critiques, retard pondéré, stabilité, utilisation, équité) et des règles de priorité. Ces règles doivent avoir un propriétaire légitime aux yeux des deux entités.",
+    "proposal": "La direction R&D fixe et publie les règles et l’ordre des critères ; elles sont versionnées dans Crucible et chaque proposition cite la version qui l’a produite. Les classes de priorité des projets sont fixées par la direction R&D, jamais par l’entité demandeuse.",
+    "alts": [
+      "Un comité commun EPC2i / EPC France",
+      "La direction générale",
+      "Le coordinateur des moyens d’essais"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "P-1",
+    "group": "prio",
+    "title": "Le laboratoire 67 : où, à qui, comment est-il partagé ?",
+    "context": "Matrix ne connaît que trois sites (Lyon, Le Havre, Marseille), aucun laboratoire. « 67 » est-il un numéro de bâtiment, un département ? Qui en est propriétaire et exploitant ?",
+    "proposal": "Le laboratoire 67 est une installation exploitée par EPC2i (ou le groupe), dont EPC France est utilisateur partenaire ; son site est à ajouter au référentiel de Matrix (demande M-6). Préciser en note la localisation.",
+    "alts": [
+      "EPC France est propriétaire et exploitant ; EPC2i est utilisateur",
+      "Copropriété ou exploitation commune"
+    ],
+    "blocks": "L1"
+  },
+  {
+    "id": "P-3",
+    "group": "perimetre",
+    "title": "Périmètre de la première version et du pilote",
+    "context": "La demande cite quatre installations. On peut commencer plus petit pour prouver la valeur, ou couvrir d’emblée tous les moyens R&D.",
+    "proposal": "Les quatre installations citées (laboratoire 67, PDE, laboratoire PDE, atelier mécanique) dès la livraison 2 ; les autres moyens R&D ensuite, par simple paramétrage.",
+    "alts": [
+      "Laboratoire 67 et PDE seulement pour le pilote",
+      "Tous les moyens d’essais R&D dès le départ"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "P-4",
+    "group": "perimetre",
+    "title": "Résultats d’essais et échantillons (LIMS) hors périmètre ?",
+    "context": "Un outil de planification peut glisser vers la gestion des échantillons et des résultats (LIMS). Ce n’est pas demandé.",
+    "proposal": "Hors périmètre v1 : Crucible planifie et trace l’exécution ; le rapport d’essai est dans Codex et Crucible en garde la référence.",
+    "alts": [
+      "Inclure un suivi simple des échantillons",
+      "Inclure la saisie des résultats d’essai"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "P-6",
+    "group": "perimetre",
+    "title": "Qui porte Crucible côté métier ?",
+    "context": "Il faut un responsable métier qui tranche les questions de règles et anime l’adoption. Matrix connaît un département RDI « Recherche & innovation ».",
+    "proposal": "La direction R&D (département RDI) porte Crucible ; un coordinateur des moyens d’essais en est le référent opérationnel au quotidien.",
+    "alts": [
+      "La direction industrielle",
+      "Chaque responsable d’installation pour son périmètre"
+    ],
+    "blocks": "L1"
+  },
+  {
+    "id": "R-1",
+    "group": "regles",
+    "title": "Capacité des installations",
+    "context": "Certains moyens n’acceptent qu’un essai à la fois ; un atelier peut accueillir plusieurs travaux sur des machines différentes.",
+    "proposal": "Chaque moyen accepte un essai à la fois ; l’atelier mécanique est décrit machine par machine (chaque machine réservable) ; une salle à plusieurs postes déclare son nombre de postes.",
+    "alts": [
+      "L’atelier mécanique se réserve en bloc",
+      "Préciser installation par installation (note)"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "R-3",
+    "group": "regles",
+    "title": "Qui valide les règles d’exclusion ?",
+    "context": "Les règles d’exclusion protègent les personnes. Leur création et leur modification doivent être validées par une personne compétente et justifiées.",
+    "proposal": "Le référent sécurité (pyrotechnique / QHSE du site) valide chaque règle et chaque modification, avec la référence Codex de l’analyse de risque ; la règle est versionnée et datée.",
+    "alts": [
+      "Le responsable de l’installation",
+      "La direction R&D après avis du référent sécurité"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "R-4",
+    "group": "regles",
+    "title": "Qui valide une substitution entre moyens ?",
+    "context": "Faire un essai sur un autre moyen que le moyen nominal n’est possible que si c’est techniquement équivalent. Crucible ne proposera jamais une substitution non validée.",
+    "proposal": "Le responsable de l’installation d’accueil et le référent technique du type d’essai valident ensemble, avec la référence Codex de la justification ; avis du référent sécurité si des matières dangereuses sont en jeu.",
+    "alts": [
+      "Le chef de projet demandeur, au cas par cas",
+      "La direction R&D"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "R-5",
+    "group": "regles",
+    "title": "Temps de préparation et de remise en état",
+    "context": "Montage, sécurisation, nettoyage, refroidissement occupent le moyen sans être « de l’essai ». Ils pèsent sur l’occupation et sur la planification.",
+    "proposal": "Ils font partie de la réservation (le moyen est bloqué), avec une durée type par type d’essai, et sont comptés à part dans les indicateurs.",
+    "alts": [
+      "Ils ne sont pas planifiés (marge implicite)",
+      "Ils sont réservés séparément par le responsable de l’installation"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "R-6",
+    "group": "regles",
+    "title": "Contrôle réglementaire échu ou maintenance",
+    "context": "Un moyen dont le contrôle périodique est dépassé (Vigie tient ces contrôles) ne devrait pas être utilisé.",
+    "proposal": "Un contrôle échu bloque le moyen (aucune réservation confirmable) jusqu’à la saisie du nouveau contrôle ; une maintenance planifiée est une indisponibilité.",
+    "alts": [
+      "Simple alerte, la réservation reste possible",
+      "Dérogation possible par le référent sécurité, motivée"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "R-7",
+    "group": "regles",
+    "title": "EPC France dans le laboratoire 67 : coactivité et plan de prévention",
+    "context": "Si EPC France est une autre personne morale, ses interventions relèvent de la coactivité (plan de prévention), que Vigie gère. Vigie suspend déjà les essais d’une zone « essais » pendant une intervention extérieure.",
+    "proposal": "Crucible publie ses réservations (vue pub_reservations) pour que Vigie détecte la coactivité ; le plan de prévention reste dans Vigie ; Crucible affiche son état sur les réservations d’EPC France quand Vigie le publie.",
+    "alts": [
+      "Pas de plan de prévention nécessaire (même entité ou personnel commun)",
+      "À voir avec le QHSE (note)"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "R-8",
+    "group": "regles",
+    "title": "Équipements mobiles partagés (instrumentation, caméras, acquisition)",
+    "context": "Un essai peut demander, en plus du moyen, un équipement partagé déplaçable. Le planifier évite un second goulot invisible.",
+    "proposal": "Oui, à partir de la livraison 4 : les équipements mobiles se réservent avec l’essai ; en livraison 2, une simple mention.",
+    "alts": [
+      "Dès la livraison 2",
+      "Non, pas de goulot sur ces équipements"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "R-9",
+    "group": "regles",
+    "title": "Horaires d’ouverture",
+    "context": "Le calendrier de chaque installation fixe sa capacité. Des horaires étendus (2 × 8) sont un levier contre la saturation.",
+    "proposal": "Jours ouvrés, 7 h–17 h par défaut, paramétrables par installation ; les horaires étendus sont un levier de simulation, pas un réglage par défaut.",
+    "alts": [
+      "Préciser les horaires de chaque installation (note)"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "A-2",
+    "group": "arbitrage",
+    "title": "Règles de priorité de départ",
+    "context": "Ordre proposé pour départager deux demandes : 1. sécurité et réglementaire ; 2. engagement client contractuel daté ; 3. jalon critique (marge ≤ 0) ; 4. classe de priorité du projet ; 5. marge la plus faible ; 6. ancienneté de la demande ; 7. à égalité, arbitrage humain.",
+    "proposal": "Retenir cet ordre comme amorce, modifiable par le propriétaire des règles (A-1).",
+    "alts": [
+      "Mettre la classe de priorité du projet avant les jalons critiques",
+      "Premier arrivé, premier servi, sauf urgence déclarée"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "A-4",
+    "group": "arbitrage",
+    "title": "Qui tranche un conflit ?",
+    "context": "Tous les conflits ne se valent pas. Un petit décalage sans conséquence n’a pas à remonter à la direction.",
+    "proposal": "Le coordinateur tranche si aucune option ne retarde un jalon critique ; sinon la direction R&D ; pour le laboratoire 67, un désaccord avec EPC France va au comité commun mensuel. Le référent sécurité a un droit de veto.",
+    "alts": [
+      "Toujours la direction R&D",
+      "Toujours le responsable de l’installation"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "A-5",
+    "group": "arbitrage",
+    "title": "Classes de priorité des projets",
+    "context": "Le moteur a besoin d’une priorité par projet, fixée hors des entités demandeuses.",
+    "proposal": "Trois classes (P1 stratégique, P2 standard, P3 exploratoire), fixées par la direction R&D et revues chaque trimestre.",
+    "alts": [
+      "Quatre classes avec une classe « client » au-dessus",
+      "Score multicritère (comme la priorisation du portefeuille de Keystone)"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "A-6",
+    "group": "arbitrage",
+    "title": "Délai d’arbitrage et silence",
+    "context": "Un conflit non tranché bloque les deux demandeurs.",
+    "proposal": "Décision attendue sous 2 jours ouvrés ; relance au décideur puis à son supérieur ; pas d’application tacite de la recommandation.",
+    "alts": [
+      "La recommandation s’applique sans réponse après le délai",
+      "Délai de 5 jours ouvrés"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "A-7",
+    "group": "arbitrage",
+    "title": "Réservations non tenues",
+    "context": "Les réservations « de précaution » non utilisées font perdre des créneaux et faussent l’occupation.",
+    "proposal": "Un essai non démarré deux heures après le début prévu est signalé ; le créneau est libéré par le responsable de l’installation ; un compteur de réservations non tenues par projet est visible dans le pilotage, sans pénalité automatique.",
+    "alts": [
+      "Libération automatique sans intervention",
+      "Pénalité de priorité pour les projets récidivistes"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "A-8",
+    "group": "arbitrage",
+    "title": "Urgences",
+    "context": "Un essai urgent (réclamation client, incident) peut devoir passer dans la fenêtre gelée.",
+    "proposal": "Seule la direction R&D (ou le coordinateur par délégation) déclare une urgence, motivée ; Crucible calcule l’impact et le décideur valide les déplacements ; les urgences sont comptées dans le pilotage.",
+    "alts": [
+      "Le responsable de l’installation peut déclarer une urgence",
+      "Pas de notion d’urgence : un conflit comme un autre"
+    ],
+    "blocks": "L5"
+  },
+  {
+    "id": "F-1",
+    "group": "planif",
+    "title": "Granularité de planification",
+    "context": "Plus la maille est fine, plus le planning est précis mais lourd à tenir.",
+    "proposal": "La demi-journée par défaut ; l’heure pour les moyens qui le demandent.",
+    "alts": [
+      "L’heure partout",
+      "La journée partout"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "F-2",
+    "group": "planif",
+    "title": "Ordre des objectifs du moteur",
+    "context": "Quand tout ne tient pas, il faut savoir ce qui compte d’abord.",
+    "proposal": "1. sécurité (toujours) ; 2. échéances critiques ; 3. retard pondéré par la priorité ; 4. stabilité du planning ; 5. utilisation des moyens coûteux (PDE d’abord) ; 6. équité entre entités.",
+    "alts": [
+      "Mettre l’utilisation des moyens avant la stabilité",
+      "Mettre l’équité entre entités avant le retard pondéré"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "F-3",
+    "group": "planif",
+    "title": "Le moteur écrit-il dans le planning ?",
+    "context": "Le moteur peut se contenter de proposer, ou confirmer seul ce qui ne pose aucun conflit.",
+    "proposal": "Il propose seulement : à la demande et chaque nuit (plan de charge) ; toute confirmation est humaine, par lot si besoin.",
+    "alts": [
+      "Il confirme seul les créneaux sans conflit hors fenêtre gelée",
+      "Il confirme seul tout ce qui respecte les règles"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "F-4",
+    "group": "planif",
+    "title": "Fenêtre gelée",
+    "context": "Période à venir où le planning confirmé ne bouge que sur décision humaine (stabilité pour les équipes).",
+    "proposal": "10 jours ouvrés.",
+    "alts": [
+      "5 jours ouvrés",
+      "20 jours ouvrés"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "F-5",
+    "group": "planif",
+    "title": "Délai de prévenance d’une demande",
+    "context": "Anticiper, c’est demander tôt. Une règle simple incite à déclarer les besoins.",
+    "proposal": "Une demande se fait au moins 10 jours ouvrés avant l’essai ; une demande tardive est acceptée s’il reste de la place, signalée comme tardive et comptée dans le pilotage.",
+    "alts": [
+      "Aucun délai imposé",
+      "Délai différent par installation (note)"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "F-6",
+    "group": "planif",
+    "title": "Horizon de planification",
+    "context": "Jusqu’où planifier en détail, et jusqu’où anticiper en enveloppe.",
+    "proposal": "26 semaines en détail (demandes et réservations) ; 12 mois en prévision (enveloppes par moyen et par trimestre).",
+    "alts": [
+      "13 semaines en détail, 6 mois en prévision",
+      "52 semaines en détail"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "F-7",
+    "group": "planif",
+    "title": "Planifier les personnes avec les moyens",
+    "context": "Un moyen libre sans opérateur habilité ne sert à rien ; c’est peut-être une cause des 30 %.",
+    "proposal": "Oui : chaque type d’essai déclare ses compétences requises ; le moteur affecte des personnes habilitées et disponibles (L4). En L2, les opérateurs sont notés sur la réservation.",
+    "alts": [
+      "Non : chaque installation gère ses opérateurs hors Crucible"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "F-8",
+    "group": "planif",
+    "title": "Notifications",
+    "context": "Les demandeurs doivent savoir quand un créneau est proposé, confirmé, déplacé ou touché par un aléa.",
+    "proposal": "Cloche dans Crucible et e-mail (même fonctionnement que Vigie), avec un récapitulatif hebdomadaire des réservations à venir.",
+    "alts": [
+      "Cloche seulement",
+      "Teams en plus de l’e-mail"
+    ],
+    "blocks": "L5"
+  },
+  {
+    "id": "F-9",
+    "group": "planif",
+    "title": "Outil actuel de réservation et reprise",
+    "context": "Comment les créneaux sont-ils réservés aujourd’hui (agendas Outlook de salle, Excel, oral) ? L’historique sert de mesure de référence.",
+    "proposal": "Reprise de l’historique (6 à 12 mois) par import d’un fichier ; pas de synchronisation avec Outlook en v1 ; Crucible devient la seule référence au démarrage du pilote.",
+    "alts": [
+      "Synchronisation avec les agendas Outlook (Microsoft Graph)",
+      "Pas de reprise : on part de zéro"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "U-1",
+    "group": "users",
+    "title": "Comptes des utilisateurs d’EPC France",
+    "context": "EPC France doit pouvoir demander et voir ses créneaux du laboratoire 67.",
+    "proposal": "Comptes Entra du même annuaire si EPC France y est, sinon invités B2B ; profil « partenaire » limité à son entité et aux installations partagées.",
+    "alts": [
+      "Pas de compte : EPC France passe par le coordinateur",
+      "Accès complet comme les équipes EPC2i"
+    ],
+    "blocks": "L1"
+  },
+  {
+    "id": "U-2",
+    "group": "users",
+    "title": "Un coordinateur des moyens d’essais",
+    "context": "Le moteur a besoin d’un interlocuteur qui instruit les conflits et confirme les propositions. Ce rôle existe-t-il aujourd’hui ?",
+    "proposal": "Nommer un coordinateur des moyens d’essais (rôle à part entière, éventuellement à temps partiel), avec une délégation d’arbitrage (A-4).",
+    "alts": [
+      "Chaque responsable d’installation coordonne la sienne",
+      "La direction R&D coordonne directement"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "U-3",
+    "group": "users",
+    "title": "Confidentialité entre entités et projets",
+    "context": "Sur une installation partagée, faut-il voir le projet des autres ?",
+    "proposal": "Chacun voit qu’un créneau est occupé et par quelle entité ; le projet et l’objet de l’essai ne sont visibles que de l’entité demandeuse, des responsables de l’installation, du coordinateur et de la direction R&D ; un projet confidentiel apparaît « Réservé (confidentiel) ».",
+    "alts": [
+      "Tout est visible de tous",
+      "Seul « occupé » est visible, sans l’entité"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "U-4",
+    "group": "users",
+    "title": "Profil Administrateur (hors demande)",
+    "context": "Quelqu’un doit tenir les comptes, les rôles, les référentiels et les paramètres. Ce profil ne voit aucune donnée métier.",
+    "proposal": "Créer le profil « Administrateur », tenu par la DSI.",
+    "alts": [
+      "Tenu par le coordinateur des moyens d’essais"
+    ],
+    "blocks": "L1"
+  },
+  {
+    "id": "I-1",
+    "group": "ia",
+    "title": "Assistant IA : quand ?",
+    "context": "L’assistant n’a de valeur que si le moteur et les données sont fiables. Il dialogue, explique, simule et prépare (spec 04).",
+    "proposal": "Livraison 6, après que le moteur a fait ses preuves pendant le pilote.",
+    "alts": [
+      "Dès la livraison 3 (saisie des besoins en langage naturel)",
+      "Pas d’assistant IA"
+    ],
+    "blocks": "L6"
+  },
+  {
+    "id": "I-2",
+    "group": "ia",
+    "title": "Pouvoir de l’IA",
+    "context": "Un agent qui décide seul serait inexplicable et difficile à accepter entre deux entités et avec des règles de sécurité.",
+    "proposal": "L’IA propose, explique et prépare ; elle n’écrit jamais rien sans validation humaine, ne touche jamais aux règles de sécurité, et ne voit que ce que voit l’utilisateur.",
+    "alts": [
+      "Elle peut confirmer seule les réservations sans conflit"
+    ],
+    "blocks": "L6"
+  },
+  {
+    "id": "I-3",
+    "group": "ia",
+    "title": "Fournisseur d’IA et hébergement des données",
+    "context": "Les données R&D et de sécurité pyrotechnique sont sensibles. Keystone utilise Claude (Anthropic) seulement si une clé est posée, avec un repli local.",
+    "proposal": "Claude (Anthropic), désactivé tant que la DSI n’a pas validé le fournisseur et la région d’hébergement ; Crucible fonctionne entièrement sans IA.",
+    "alts": [
+      "Claude via un hébergeur cloud en région UE (AWS Bedrock, Google Vertex)",
+      "Aucun fournisseur externe"
+    ],
+    "blocks": "L6"
+  },
+  {
+    "id": "I-4",
+    "group": "ia",
+    "title": "Données envoyées à l’IA",
+    "context": "Ce qui part vers le fournisseur doit être limité.",
+    "proposal": "Le strict nécessaire à la question posée ; les projets marqués confidentiels sont exclus ; aucune donnée personnelle autre que les noms des personnes planifiées.",
+    "alts": [
+      "Aucune donnée de projet, seulement des codes"
+    ],
+    "blocks": "L6"
+  },
+  {
+    "id": "S-2",
+    "group": "integrations",
+    "title": "Demander à Keystone de publier les jalons",
+    "context": "Keystone a des jalons (au mois) et des activités datées mais ne les publie pas. Sans eux, Crucible ne peut pas lire les échéances des projets qui sont dans Keystone.",
+    "proposal": "Demander une vue pub_jalons à Keystone (DEMANDES-KEYSTONE K-2) ; saisie dans Crucible en attendant.",
+    "alts": [
+      "Inutile : les échéances seront toujours saisies dans Crucible"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "S-3",
+    "group": "integrations",
+    "title": "Habilitations et absences des opérateurs",
+    "context": "Cursus publie les habilitations détenues (pub_titres_detenus) mais pas les absences.",
+    "proposal": "Lire les habilitations dans Cursus ; demander une vue des absences (CU-1) ; saisir les indisponibilités dans Crucible en attendant.",
+    "alts": [
+      "Tout saisir dans Crucible",
+      "Les opérateurs ne sont pas planifiés (F-7)"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "S-4",
+    "group": "integrations",
+    "title": "Contrôles réglementaires des moyens",
+    "context": "Vigie tient les contrôles périodiques (équipement en texte libre, prochaine échéance), sans les publier.",
+    "proposal": "Demander à Vigie une vue des contrôles par équipement (V-1) avec un code d’équipement commun ; saisie dans Crucible en attendant.",
+    "alts": [
+      "Les contrôles des moyens d’essai sont tenus dans Crucible seulement"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "S-5",
+    "group": "integrations",
+    "title": "Publier les réservations aux autres outils",
+    "context": "Keystone (planning des projets) et Vigie (coactivité, plans de prévention) ont intérêt à voir les réservations.",
+    "proposal": "Publier pub_moyens, pub_reservations, pub_occupation_hebdo et pub_journal ; les droits de lecture sont accordés par Matrix.",
+    "alts": [
+      "Ne rien publier en v1"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "S-6",
+    "group": "integrations",
+    "title": "Documents des essais dans Codex",
+    "context": "Codex héberge les documents (protocoles, cahiers de laboratoire, rapports d’essai) et connaît le rattachement « recherche ».",
+    "proposal": "Crucible ne stocke aucun fichier : il garde des références Codex (protocole de l’essai, rapport, justification d’une substitution, analyse de risque d’une règle) ; pas de nouveau rattachement demandé à Codex.",
+    "alts": [
+      "Crucible stocke les pièces jointes lui-même"
+    ],
+    "blocks": "L3"
+  },
+  {
+    "id": "T-1",
+    "group": "technique",
+    "title": "Base de données",
+    "context": "Arche a été décidée « PostgreSQL uniquement » le 22 oct. 2026, sur le serveur commun de Matrix.",
+    "proposal": "PostgreSQL uniquement, schéma crucible, rôle crucible_app, partout (développement, tests, CI, production).",
+    "alts": [
+      "PGlite pour le développement et la démonstration"
+    ],
+    "blocks": "L1"
+  },
+  {
+    "id": "T-2",
+    "group": "technique",
+    "title": "Ports sur le Mac du responsable produit",
+    "context": "Ports déjà pris : 3000, 3100, 3110, 3200, 3210, 3217, 3310, 3400, 3410, 5173.",
+    "proposal": "3500 pour Crucible, 3510 pour ses tests.",
+    "alts": [
+      "Autres ports (note)"
+    ],
+    "blocks": "L1"
+  },
+  {
+    "id": "T-3",
+    "group": "technique",
+    "title": "Solveur",
+    "context": "Une heuristique déterministe suffit à l’échelle d’EPC ; un solveur de contraintes (OR-Tools) n’est utile que pour optimiser un trimestre entier.",
+    "proposal": "Heuristique déterministe en TypeScript (L4) ; solveur de contraintes ajouté seulement si les mesures du pilote le justifient.",
+    "alts": [
+      "Solveur de contraintes dès la livraison 4"
+    ],
+    "blocks": "L4"
+  },
+  {
+    "id": "T-4",
+    "group": "technique",
+    "title": "D’où copier le socle ?",
+    "context": "Arche a copié le socle de Keystone et l’a déjà adapté à PostgreSQL seul. Le socle doit ensuite devenir un paquet partagé (R-194 de Keystone).",
+    "proposal": "Copier le socle tel qu’adapté par Arche (connexion Entra, droits, audit, i18n, PostgreSQL seul, worker, sauvegardes, CI), en notant les commits d’origine Keystone et Arche dans docs/SOCLE.md ; aucun module métier.",
+    "alts": [
+      "Copier directement depuis Keystone",
+      "Attendre le paquet partagé @epc2i/socle"
+    ],
+    "blocks": "L1"
+  },
+  {
+    "id": "T-5",
+    "group": "technique",
+    "title": "Langues et mobile",
+    "context": "Les techniciens démarrent et terminent les essais sur place.",
+    "proposal": "Français (par défaut) et anglais ; écrans adaptés au téléphone pour « Mon planning » (démarrer, terminer, déclarer un aléa).",
+    "alts": [
+      "Français seulement",
+      "Application mobile dédiée"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "T-6",
+    "group": "technique",
+    "title": "Hébergement",
+    "context": "Données de R&D et de sécurité.",
+    "proposal": "Même hébergeur que Keystone et Arche, données et sauvegardes en France.",
+    "alts": [
+      "Hébergement sur un serveur interne"
+    ],
+    "blocks": "Pilote"
+  },
+  {
+    "id": "T-7",
+    "group": "technique",
+    "title": "Jeu de démonstration",
+    "context": "Pour développer et montrer l’outil sans données réelles.",
+    "proposal": "Les quatre installations citées avec des moyens, des projets et des essais fictifs, deux entités (EPC2i, EPC France), une règle d’exclusion et des conflits ; aucune donnée réelle.",
+    "alts": [
+      "Utiliser des données réelles anonymisées"
+    ],
+    "blocks": "L1"
+  },
+  {
+    "id": "X-1",
+    "group": "extra",
+    "title": "Saisie du réel (démarrer / terminer un essai)",
+    "context": "Sans heures réelles, l’occupation mesurée n’est que l’occupation réservée.",
+    "proposal": "Retenir : un geste « démarrer » et « terminer » sur la réservation, rattrapable en fin de journée.",
+    "alts": [
+      "Non : seule l’occupation réservée est mesurée"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "X-2",
+    "group": "extra",
+    "title": "Mesure de référence avant / après",
+    "context": "Pour prouver la réduction des attentes et l’amélioration de l’occupation.",
+    "proposal": "Retenir : mesurer la situation de départ à partir de l’historique importé (F-9), puis comparer chaque trimestre.",
+    "alts": [
+      "Non"
+    ],
+    "blocks": "Pilote"
+  },
+  {
+    "id": "X-3",
+    "group": "extra",
+    "title": "Mode démonstration « Voir en tant que »",
+    "context": "Comme Keystone et Arche : changer de profil pour développer, tester et présenter, derrière authentification.",
+    "proposal": "Retenir.",
+    "alts": [
+      "Non"
+    ],
+    "blocks": "L1"
+  },
+  {
+    "id": "X-4",
+    "group": "extra",
+    "title": "Journal unifié et instantanés hebdomadaires",
+    "context": "Vue pub_journal pour le journal unifié de Matrix (convention commune) et historique des indicateurs.",
+    "proposal": "Retenir les deux.",
+    "alts": [
+      "Seulement le journal unifié"
+    ],
+    "blocks": "L2"
+  },
+  {
+    "id": "D-1",
+    "group": "data",
+    "kind": "data",
+    "title": "Installations et moyens d’essai",
+    "context": "Pour chaque installation (laboratoire 67, PDE, laboratoire PDE, atelier mécanique) : les moyens réservables, leurs caractéristiques utiles (capacité, plages), horaires, responsable, coût d’acquisition si connu.",
+    "placeholder": "Installation ; moyen ; caractéristiques ; horaires ; responsable ; coût (k€)",
+    "blocks": "L2"
+  },
+  {
+    "id": "D-2",
+    "group": "data",
+    "kind": "data",
+    "title": "Règles d’exclusion et de cohabitation",
+    "context": "Quelles installations ou activités ne peuvent pas fonctionner ensemble, pourquoi, qui l’a établi, référence de l’analyse de risque.",
+    "placeholder": "Moyens concernés ; activités ; maximum simultané ; motif ; référence",
+    "blocks": "L2"
+  },
+  {
+    "id": "D-3",
+    "group": "data",
+    "kind": "data",
+    "title": "Types d’essai",
+    "context": "Le catalogue des essais pratiqués : durée type, préparation et remise en état, compétences requises, moyen nominal.",
+    "placeholder": "Type d’essai ; durée ; préparation ; compétences ; moyen nominal",
+    "blocks": "L3"
+  },
+  {
+    "id": "D-4",
+    "group": "data",
+    "kind": "data",
+    "title": "Substitutions possibles",
+    "context": "Quels essais peuvent se faire sur quel autre moyen, à quelles conditions, validés par qui.",
+    "placeholder": "Type d’essai ; moyen nominal ; substitut ; conditions ; validé par",
+    "blocks": "L4"
+  },
+  {
+    "id": "D-5",
+    "group": "data",
+    "kind": "data",
+    "title": "Projets et besoins d’essais à 6–12 mois",
+    "context": "Les projets en cours, leur entité, leurs jalons et les essais prévus (même approximatifs : « ~15 jours de PDE avant mars »).",
+    "placeholder": "Projet ; entité ; jalon ; date ; essais prévus ; moyen",
+    "blocks": "L3"
+  },
+  {
+    "id": "D-6",
+    "group": "data",
+    "kind": "data",
+    "title": "Personnes qui réalisent les essais",
+    "context": "Opérateurs, techniciens, pyrotechniciens : installation, habilitations, contraintes horaires.",
+    "placeholder": "Nom ou fonction ; installation ; habilitations",
+    "blocks": "L4"
+  },
+  {
+    "id": "D-7",
+    "group": "data",
+    "kind": "data",
+    "title": "Accord avec EPC France",
+    "context": "S’il existe : quotas, créneaux réservés, priorités, refacturation, contact.",
+    "placeholder": "Résumé de l’accord ou « aucun accord écrit »",
+    "blocks": "L2"
+  },
+  {
+    "id": "D-8",
+    "group": "data",
+    "kind": "data",
+    "title": "Historique des réservations",
+    "context": "Où trouver 6 à 12 mois de réservations (agendas Outlook, fichiers, cahiers), pour la mesure de référence.",
+    "placeholder": "Source ; période ; contact",
+    "blocks": "Pilote"
+  },
+  {
+    "id": "D-9",
+    "group": "data",
+    "kind": "data",
+    "title": "Origine du chiffre « PDE à 30 % »",
+    "context": "Qui l’a calculé, sur quelle période, avec quelle formule.",
+    "placeholder": "Auteur ; période ; formule",
+    "blocks": "L2"
+  },
+  {
+    "id": "D-10",
+    "group": "data",
+    "kind": "data",
+    "title": "Maintenances et contrôles réglementaires",
+    "context": "Calendrier des maintenances et contrôles périodiques des moyens (ou la personne qui le tient).",
+    "placeholder": "Moyen ; contrôle ; périodicité ; prochaine échéance",
+    "blocks": "L2"
+  },
+  {
+    "id": "D-11",
+    "group": "data",
+    "kind": "data",
+    "title": "Participants au premier atelier",
+    "context": "Qui inviter à l’atelier de cadrage (docs/ATELIER-CADRAGE.md) : responsables d’installation, référent sécurité, chefs de projet, représentant d’EPC France, coordinateur.",
+    "placeholder": "Nom ; fonction ; entité",
+    "blocks": "L0"
+  }
+]

@@ -1,0 +1,19 @@
+# Crucible — plan de livraisons
+
+> 22 oct. 2026. Principe : **la visibilité avant l’intelligence**. Les livraisons 1 et 2 donnent un outil utile tout seul
+> (référentiel, règles écrites, réservations, occupation vraie) ; le pilote démarre dès la livraison 2 ; le moteur, les
+> arbitrages, la replanification et l’assistant viennent ensuite, sur des données fiables. Chaque livraison : tests
+> unitaires et de bout en bout, typecheck, lint, notes `docs/DELIVERY-<n>.md`, PR fusionnée dans `main` une fois la CI
+> verte. Tailles : S ≈ 1 semaine, M ≈ 2–3 semaines, L ≈ 1 mois (développement assisté, hors délais de décision).
+
+| Livraison | Contenu | Taille | Prérequis (décisions, données) | Terminé quand |
+|---|---|---|---|---|
+| **L0 — Cadrage** *(ce dépôt, 22 oct. 2026)* | analyse, spécification, décisions, demandes aux autres dépôts, questionnaire, guide d’atelier | — | — | réponses du responsable produit ; **atelier avec les équipes** ([`ATELIER-CADRAGE.md`](ATELIER-CADRAGE.md)) |
+| **L1 — Socle** | socle repris (T-4) : connexion Entra, mode démo, profils et portées (entité, installation, projet), audit append-only, i18n FR/EN, PostgreSQL seul (schéma `crucible`), santé, worker, sauvegardes, conteneur, CI ; administration des comptes ; référentiels entités et sites | M | P-1, P-6, U-1, U-4, T-1, T-2, T-4 ; M-1 à M-5 côté Matrix | un partenaire EPC France ne voit que ce que U-3 autorise (test par profil) ; CI verte |
+| **L2 — Moyens, règles, réservations, mesure** | installations, moyens, calendriers, indisponibilités, contrôles ; **règles d’exclusion validées par la sécurité** et leur contrôle à la réservation ; accords d’entités ; réservations manuelles avec contrôle des contraintes dures ; planning des moyens ; « Mon planning » mobile (démarrer, terminer) ; import de l’historique ; **pilotage de l’occupation** (réservé, réalisé, blocage, attente par entité) | L | P-2, P-3, P-5, R-1 à R-3, R-5, R-6, R-9, A-3, A-7, F-1, F-9, U-2, U-3 ; D-1, D-2, D-7, D-9, D-10 | une réservation qui viole une exclusion est refusée avec la règle citée ; l’occupation du PDE est mesurée sur l’historique |
+| **Pilote (début)** | laboratoire 67 et PDE (ou P-3) ; Crucible devient la référence des réservations ; mesure de référence | — | hébergement (T-6) | 4 semaines d’usage réel |
+| **L3 — Besoins et anticipation** | projets et jalons (saisie, puis Keystone K-2) ; types d’essai ; prévisions, demandes, délai de prévenance ; **plan de charge prévisionnel** 26 semaines, goulots et creux ; références Codex ; vues `pub_moyens`, `pub_reservations` | M | S-1, S-2, S-5, S-6, P-4, F-5, F-6, R-7 ; D-3, D-5 | un goulot du PDE est signalé 8 semaines avant sur le jeu de démo |
+| **L4 — Proposition et arbitrage** | personnes et compétences (Cursus) ; substitutions validées ; **moteur de proposition** (heuristique déterministe, T-3) ; fiches de conflit avec options et conséquences ; règles de priorité versionnées ; arbitrage tracé ; équipements mobiles | L | A-1, A-2, A-4 à A-6, F-2 à F-4, F-7, R-4, R-8, S-3, T-3 ; D-4, D-6 | sur le jeu de démo, chaque proposition respecte toutes les contraintes dures (tests par propriétés) et chaque conflit cite sa règle |
+| **L5 — Aléas, scénarios, pilotage complet** | aléas et scénario de reprise ; avant / après par projet ; simulations « et si ? » ; urgences ; notifications (cloche, e-mail, récapitulatif) ; retards imputables, valeur inoccupée, instantanés hebdomadaires | M | A-8, F-8 ; V-1, V-2 côté Vigie | une panne du PDE produit un scénario de reprise et les notifications en test de bout en bout |
+| **L6 — Assistant IA** | assistant conversationnel adossé au moteur (spec 04) ; repli sans IA | M | I-1 à I-4 (fournisseur validé) | l’assistant explique une proposition et prépare un arbitrage sans rien écrire seul |
+| **Déploiement général** | autres moyens R&D, autres sites ; socle partagé `@epc2i/socle` (R-194 de Keystone) | — | retours du pilote | — |
