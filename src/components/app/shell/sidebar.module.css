@@ -527,3 +527,68 @@
   line-height: 18px;
   text-align: center;
 }
+
+/* Themes of a section and the facility switcher (Keystone's project switcher, in the sidebar). */
+.groupBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.group[role='presentation'] {
+  cursor: default;
+}
+
+.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.facPick {
+  position: relative;
+  margin: 2px 0 4px 4px;
+}
+
+.facBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-neutral-800);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.facBtn:hover {
+  border-color: var(--color-neutral-600);
+}
+
+.facWho {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  line-height: 1.25;
+}
+
+.facCode {
+  font-weight: 500;
+}
+
+.facTitle {
+  font-size: 11px;
+  color: var(--color-neutral-400);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.facMenu {
+  z-index: 70;
+}

@@ -67,6 +67,13 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   arbitration reminders, weekly recap —, weekly snapshots kept once per completed week (`snapshots.ts`, view
   `pub_occupation_hebdo`), value of the unused capacity (facility acquisition cost, P-8) and delays due to the resources (P-9) on
   `/dashboard`. Screens `/incidents`, `/notifications`.
+- **Delivery 5b (interface faithful to Keystone) is done** (`docs/DELIVERY-5b.md`, mockups validated 23 Oct 2026,
+  https://claude.ai/artifact/NCPJzxcCPuXWFxPL36CvJS; X-5, X-6): menu by theme with ⌘K page search and counts, a Facility section
+  with the facility switcher and the sheet's tabs (`src/config/facility-tabs.ts`), Keystone's page header (`header-tools.tsx`:
+  global search `src/server/actions/search.ts` under U-3, bell, status date, FR/EN, CSV export `src/app/api/export/[screen]`),
+  every form in a side panel (`Folded` of `ActionForm.tsx`), "To decide" (`/my/decisions`, `src/server/dal/decisions.ts`), load
+  heat map (`src/features/load/`). New screens follow the same layout: page actions as `PageHeader primary`, filters and period
+  navigation as `toolbar` (`PeriodNav`, `Segmented` with `href`), no form shown open in a page.
 - Next: delivery 6 (AI assistant, spec 04) once the provider is chosen (I-1 to I-4), see `docs/PLAN.md`.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)

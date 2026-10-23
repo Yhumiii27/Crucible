@@ -1,16 +1,18 @@
-// Screen registry (docs/spec/05-ecrans.md): id, route, title (EN source string), section of the sidebar, the profiles that
-// see it, and the delivery that builds it (a screen not built yet opens the "coming soon" page). Pure: no component, no
-// server import, so server code, the proxy and scripts can load it. Icons are in ./screen-icons.ts.
+// Screen registry (docs/spec/05-ecrans.md): id, route, title (EN source string), section and theme of the sidebar, the
+// profiles that see it, and the delivery that builds it (a screen not built yet opens the "coming soon" page). Pure: no
+// component, no server import, so server code, the proxy and scripts can load it. Icons are in ./screen-icons.ts. Delivery
+// 5b (Keystone's shell): entries grouped by theme, an "Facility" section with the facility switcher (built by the nav model),
+// the bell in the page header instead of the menu.
 import type { RoleKey } from './roles';
 
 export type ScreenId =
-  | 'home' | 'notifications' | 'my-schedule' | 'my-needs'
+  | 'home' | 'notifications' | 'my-schedule' | 'my-needs' | 'decide'
   | 'planning' | 'load' | 'propose' | 'conflicts' | 'incidents'
   | 'facilities' | 'facility' | 'projects' | 'project' | 'people' | 'rules'
   | 'dashboard'
   | 'admin-org' | 'admin-users' | 'admin-connectors';
 
-export type Section = 'fixed' | 'planning' | 'reference' | 'steering' | 'admin';
+export type Section = 'fixed' | 'planning' | 'facility' | 'reference' | 'steering' | 'admin';
 
 export type Delivery = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6';
 
@@ -24,22 +26,31 @@ export interface ScreenDef {
   roles: readonly RoleKey[] | 'all';
   /** Delivery that builds it (docs/PLAN.md). */
   delivery: Delivery;
+  /** Theme of the section (EN source string) the entry is grouped under. */
+  group?: string;
+  /** False: reached from the page header or another screen, not listed in the menu. */
+  nav?: boolean;
 }
 
 /** Every business profile (all but the administrator, who sees no business data). */
 const BUSINESS: readonly RoleKey[] = ['rd_director', 'coordinator', 'safety', 'facility_manager', 'project_lead', 'technician', 'partner', 'viewer'];
 const PLANNERS: readonly RoleKey[] = ['rd_director', 'coordinator', 'facility_manager', 'safety'];
+/** Who has decisions to take: conflicts and scenarios to decide, proposals to accept (R&D director, coordinator), the safety veto. */
+export const DECIDERS: readonly RoleKey[] = ['rd_director', 'coordinator', 'safety'];
+const PLAN = 'Schedule & load';
+const ARBITRATION = 'Proposals & arbitration';
 
 export const SCREENS: readonly ScreenDef[] = [
   { id: 'home', path: '/', title: 'Home', section: 'fixed', roles: 'all', delivery: 'L1' },
-  { id: 'notifications', path: '/notifications', title: 'Notifications', section: 'fixed', roles: BUSINESS, delivery: 'L5' },
+  { id: 'notifications', path: '/notifications', title: 'Notifications', section: 'fixed', roles: BUSINESS, delivery: 'L5', nav: false },
   { id: 'my-schedule', path: '/my/schedule', title: 'My schedule', section: 'fixed', roles: ['coordinator', 'facility_manager', 'technician'], delivery: 'L2' },
   { id: 'my-needs', path: '/my/needs', title: 'My test needs', section: 'fixed', roles: ['project_lead', 'partner'], delivery: 'L3' },
-  { id: 'planning', path: '/planning', title: 'Resource planning', section: 'planning', roles: BUSINESS, delivery: 'L2' },
-  { id: 'load', path: '/load', title: 'Load forecast', section: 'planning', roles: PLANNERS, delivery: 'L3' },
-  { id: 'propose', path: '/propose', title: 'Slot proposals', section: 'planning', roles: ['rd_director', 'coordinator'], delivery: 'L4' },
-  { id: 'conflicts', path: '/conflicts', title: 'Conflicts & arbitration', section: 'planning', roles: ['rd_director', 'coordinator', 'safety'], delivery: 'L4' },
-  { id: 'incidents', path: '/incidents', title: 'Incidents & scenarios', section: 'planning', roles: BUSINESS, delivery: 'L5' },
+  { id: 'decide', path: '/my/decisions', title: 'To decide', section: 'fixed', roles: DECIDERS, delivery: 'L5' },
+  { id: 'planning', group: PLAN, path: '/planning', title: 'Resource planning', section: 'planning', roles: BUSINESS, delivery: 'L2' },
+  { id: 'load', group: PLAN, path: '/load', title: 'Load forecast', section: 'planning', roles: PLANNERS, delivery: 'L3' },
+  { id: 'propose', group: ARBITRATION, path: '/propose', title: 'Slot proposals', section: 'planning', roles: ['rd_director', 'coordinator'], delivery: 'L4' },
+  { id: 'conflicts', group: ARBITRATION, path: '/conflicts', title: 'Conflicts & arbitration', section: 'planning', roles: ['rd_director', 'coordinator', 'safety'], delivery: 'L4' },
+  { id: 'incidents', group: ARBITRATION, path: '/incidents', title: 'Incidents & scenarios', section: 'planning', roles: BUSINESS, delivery: 'L5' },
   { id: 'facilities', path: '/facilities', title: 'Facilities', section: 'reference', roles: BUSINESS, delivery: 'L1' },
   { id: 'facility', path: '/facilities/[code]', title: 'Facility', section: 'reference', roles: BUSINESS, delivery: 'L2' },
   { id: 'projects', path: '/projects', title: 'Projects', section: 'reference', roles: ['rd_director', 'coordinator', 'safety', 'facility_manager', 'project_lead', 'partner', 'viewer'], delivery: 'L1' },
@@ -57,6 +68,7 @@ export const SCREEN_BY_ID = Object.fromEntries(SCREENS.map((s) => [s.id, s])) as
 /** Section titles (EN source strings). */
 export const SECTION_LABEL: Record<Exclude<Section, 'fixed'>, string> = {
   planning: 'Planning',
+  facility: 'Facility',
   reference: 'Reference',
   steering: 'Steering',
   admin: 'Administration',

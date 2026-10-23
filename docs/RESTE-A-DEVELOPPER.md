@@ -1,12 +1,12 @@
 # Crucible — reste à développer
 
-Inventaire initial du 2026-10-22, mis à jour le 2026-10-22 (branche `claude/lucid-dirac-7bdq6x`). Il recense ce qu'il reste à développer, à brancher, à décider ou à mettre en production pour Crucible, aligné sur le plan de livraisons (`docs/PLAN.md`). Il est tenu à jour à chaque développement : un point passe « en cours » quand une livraison le prend, « fait » quand il est intégré et vérifié. Le détail est dans `docs/reste-a-developper.json` ; ce document et la page sont produits par `npm run remaining:page`.
+Inventaire initial du 2026-10-22, mis à jour le 2026-10-23 (branche `claude/lucid-dirac-7bdq6x`). Il recense ce qu'il reste à développer, à brancher, à décider ou à mettre en production pour Crucible, aligné sur le plan de livraisons (`docs/PLAN.md`). Il est tenu à jour à chaque développement : un point passe « en cours » quand une livraison le prend, « fait » quand il est intégré et vérifié. Le détail est dans `docs/reste-a-developper.json` ; ce document et la page sont produits par `npm run remaining:page`.
 
 **Lecture.** Priorité : Bloquant production, Prochaine étape, À décider (il faut d'abord trancher), Plus tard. Effort, pour un développeur qui connaît le code : S < 2 jours, M ≤ 1 semaine, L ≤ 3 semaines, XL > 3 semaines. Les identifiants entre parenthèses renvoient aux décisions (`docs/DECISIONS.md`) et aux demandes (`docs/DEMANDES-*.md`).
 
 ## 1. En bref
 
-**Avancement** : 11 faits, 3 en cours, 2 à faire, sur 16 points.
+**Avancement** : 12 faits, 3 en cours, 2 à faire, sur 17 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
@@ -32,7 +32,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 | Moyens d’essais, règles et réservations | 0 | 0 | 0 | 0 | 0 | 3 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
-| Aléas, scénarios et pilotage | 0 | 0 | 0 | 0 | 0 | 2 |
+| Aléas, scénarios et pilotage | 0 | 0 | 0 | 0 | 0 | 3 |
 | Assistant IA | 0 | 0 | 0 | 1 | 1 | 0 |
 | Liens avec les autres outils | 0 | 0 | 0 | 1 | 1 | 0 |
 | Cadrage, décisions et données attendues | 0 | 1 | 1 | 0 | 2 | 1 |
@@ -104,11 +104,15 @@ Prévisions, demandes, délai de prévenance (F-5), plan de charge 26 semaines (
 Personnes et compétences, substitutions validées, heuristique déterministe (T-3), fiches de conflit, règles de priorité versionnées (A-1, A-2).  
 *Avancement : Personnes et compétences (lecture de Cursus quand la vue est accordée), exigences des types d’essai, équipements mobiles, substitutions validées (R-4), règles de priorité versionnées, moteur déterministe qui propose seulement (passage quotidien), acceptation par lot après un nouveau contrôle, fiches de conflit avec options, règle citée et recommandation, arbitrages en ajout seul, veto sécurité. Propriété vérifiée sur 60 scénarios aléatoires. Choix à confirmer : R-11, A-9, F-14. · Sources : docs/spec/03-planification.md §4–5*
 
-### 2.6 Aléas, scénarios et pilotage (0 restants, 2 faits)
+### 2.6 Aléas, scénarios et pilotage (0 restants, 3 faits)
 
 **~~CR-013 · Pilotage de l’occupation et import de l’historique~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 2)**  
 Occupation réservée / réalisée / avec préparation / blocage (P-5), attente par entité, mesure de référence (X-2, F-9).  
 *Avancement : Pilotage /dashboard (réservé, réalisé, avec préparation, blocage, attente par entité, quotas) ; import de l’historique (F-9). · Sources : docs/spec/02-objets.md §6*
+
+**~~CR-041 · Interface fidèle à Keystone~~** — *Prochaine étape · non commencé · effort S* · **fait (Livraison 5b)**  
+Menu par thèmes, section Installation, en-tête de Keystone, panneaux latéraux, écrans refaits d’après les maquettes validées (X-5, X-6).  
+*Avancement : Menu par thèmes, ⌘K, sélecteur d’installation et onglets ; recherche globale, cloche, date d’état, FR / EN, export CSV ; formulaires en panneaux ; accueil, À trancher, planning, plan de charge, propositions, conflits, aléas, fiche d’installation. · Sources : docs/DELIVERY-5b.md, https://claude.ai/artifact/NCPJzxcCPuXWFxPL36CvJS*
 
 **~~CR-040 · Aléas, replanification, scénarios et notifications~~** — *Plus tard · non commencé · effort M* · **fait (Livraison 5)**  
 Scénario de reprise, avant / après par projet, urgences (A-8), cloche et e-mail (F-8).  
@@ -142,6 +146,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-23 — Livraison 5b : interface fidèle à Keystone d’après les maquettes validées — menu par thèmes, section Installation, en-tête (recherche, cloche, date d’état, langue, export CSV), panneaux latéraux, écran « À trancher », écrans principaux refaits.
 - 2026-10-22 — Livraison 5 : aléas et scénarios de reprise (avant / après par projet), simulations « et si ? », urgences, notifications (cloche, e-mail, relances, récapitulatif), instantanés hebdomadaires, valeur de la capacité inoccupée, retards imputables, vue pub_occupation_hebdo.
 - 2026-10-22 — Livraison 4 : personnes et compétences, substitutions validées, règles de priorité versionnées, moteur de proposition déterministe, acceptation des propositions, fiches de conflit, arbitrages et veto sécurité, équipements mobiles.
 - 2026-10-22 — Sécurité : Next.js 16.4.0 → 16.4.2 (avis critiques GHSA-2464-fhr4-w9xw, GHSA-673q-mjm6-r5xr et GHSA-p3m5-59mp-jv5r) ; npm audit de production sans vulnérabilité. Demande M-7 transmise à Matrix (Yhumiii27/Matrix#17).

@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-10-22",
+ "updated": "2026-10-23",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -34,6 +34,10 @@
   {
    "date": "2026-10-22",
    "text": "Livraison 5 : aléas et scénarios de reprise (avant / après par projet), simulations « et si ? », urgences, notifications (cloche, e-mail, relances, récapitulatif), instantanés hebdomadaires, valeur de la capacité inoccupée, retards imputables, vue pub_occupation_hebdo."
+  },
+  {
+   "date": "2026-10-23",
+   "text": "Livraison 5b : interface fidèle à Keystone d’après les maquettes validées — menu par thèmes, section Installation, en-tête (recherche, cloche, date d’état, langue, export CSV), panneaux latéraux, écran « À trancher », écrans principaux refaits."
   }
  ],
  "items": [
@@ -318,6 +322,27 @@
     "state": "fait",
     "delivery": "Livraison 5",
     "note": "Aléas (panne, absence) et scénario de reprise avant / après par projet décidé par le coordinateur ou la direction R&D ; simulations « et si ? » ; urgences (A-8) ; cloche et e-mail, relances d’arbitrage, récapitulatif hebdomadaire ; instantanés hebdomadaires, valeur inoccupée, retards imputables ; vue pub_occupation_hebdo."
+   }
+  },
+  {
+   "id": "CR-041",
+   "title": "Interface fidèle à Keystone",
+   "description": "Menu par thèmes, section Installation, en-tête de Keystone, panneaux latéraux, écrans refaits d’après les maquettes validées (X-5, X-6).",
+   "category": "aleas_pilotage",
+   "kind": "fonction",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "S",
+   "sources": [
+    "docs/DELIVERY-5b.md",
+    "https://claude.ai/artifact/NCPJzxcCPuXWFxPL36CvJS"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "fait",
+    "delivery": "Livraison 5b",
+    "note": "Menu par thèmes, ⌘K, sélecteur d’installation et onglets ; recherche globale, cloche, date d’état, FR / EN, export CSV ; formulaires en panneaux ; accueil, À trancher, planning, plan de charge, propositions, conflits, aléas, fiche d’installation."
    }
   },
   {

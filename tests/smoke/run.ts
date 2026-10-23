@@ -23,7 +23,7 @@ async function main(): Promise<void> {
   check(health.status === 200 && JSON.parse(health.body).status === 'ok', 'GET /api/health → 200 ok');
 
   const home = await get('/', 'rd_director');
-  check(home.status === 200 && home.body.includes('Bonjour Hélène'), 'Home in French for the R&D director');
+  check(home.status === 200 && home.body.includes('Bonjour, Hélène'), 'Home in French for the R&D director');
   check(!!home.headers.get('content-security-policy')?.includes("'nonce-"), 'per-request Content-Security-Policy with a nonce');
   check(home.headers.get('x-frame-options') === 'DENY', 'X-Frame-Options: DENY');
 
@@ -89,7 +89,7 @@ async function main(): Promise<void> {
   check(rulesPage.status === 200 && rulesPage.body.includes('NT-RD-0142') && rulesPage.body.includes('Règles de priorité'), 'rules: the validated substitution and the priority rules');
   // Delivery 5: incidents and scenarios, notifications, steering complements.
   const inc = await get('/incidents', 'coordinator');
-  check(inc.status === 200 && inc.body.includes('Déclarer un aléa') && inc.body.includes('Et si ?') && inc.body.includes('Déclarer une urgence'), 'incidents: declare, what-if and urgency for the coordinator');
+  check(inc.status === 200 && inc.body.includes('Déclarer un aléa') && inc.body.includes('Simuler « et si ? »') && inc.body.includes('Déclarer une urgence'), 'incidents: declare, what-if and urgency for the coordinator');
   const techInc = await get('/incidents', 'technician');
   check(techInc.status === 200 && techInc.body.includes('Déclarer un aléa') && !techInc.body.includes('Déclarer une urgence'), 'incidents: the technician declares, never an urgency');
   const bellPage = await get('/notifications', 'coordinator');
@@ -97,6 +97,18 @@ async function main(): Promise<void> {
   check((await get('/notifications', 'admin')).status === 404, 'the administrator has no bell');
   const steer = await get('/dashboard?from=2026-09-28&to=2026-10-22', 'rd_director');
   check(steer.status === 200 && steer.body.includes('Tendance hebdomadaire') && steer.body.includes('Valeur de la capacité inoccupée') && steer.body.includes('Retards imputables aux moyens'), 'dashboard: weekly trend, value of the unused capacity, delays due to the resources');
+  // Delivery 5b: Keystone's shell — page search, header tools, "To decide", facility tabs, CSV export.
+  const shell = await get('/load', 'coordinator');
+  check(shell.status === 200 && shell.body.includes('Aller à une page…') && shell.body.includes('Date d’état') && shell.body.includes('Planning et charge'), 'shell: page search, status date, menu themes');
+  const decide = await get('/my/decisions', 'coordinator');
+  check(decide.status === 200 && decide.body.includes('C-2026-0001') && decide.body.includes('R-2026-0001') && decide.body.includes('Arbitrer'), 'to decide: the conflict and the proposals of the coordinator');
+  check((await get('/my/decisions', 'project_lead')).status === 404, '"To decide" is not in a project lead’s workspace');
+  const tab = await get('/facilities/PDE?tab=inspections', 'facility_manager');
+  check(tab.status === 200 && tab.body.includes('Vérification périodique des installations électriques') && tab.body.includes('Prochaine étape'), 'facility sheet: inspections tab and next step');
+  check((await get('/load?from=8', 'coordinator')).status === 200 && (await get('/load?view=quarters', 'coordinator')).body.includes('Enveloppes par trimestre'), 'load forecast: window navigation and quarters');
+  const csv = await get('/api/export/propose', 'coordinator');
+  check(csv.status === 200 && (csv.headers.get('content-type') ?? '').startsWith('text/csv') && csv.body.includes('N-2026-0006'), 'export: CSV of the proposals');
+  check((await get('/api/export/propose', 'partner')).status === 404, 'export: refused outside the workspace');
   check((await get('/propose', 'partner')).status === 404, 'a screen outside the profile’s workspace is not found');
   check((await get('/nowhere', 'rd_director')).status === 404, 'an unknown path is not found');
 

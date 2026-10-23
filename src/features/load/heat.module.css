@@ -1,0 +1,132 @@
+/* Load heat map (delivery 5b): Keystone's assignment grid — tiles from free (surface) to over capacity (accent-300). */
+.heat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.head,
+.row {
+  display: grid;
+  gap: 6px;
+  align-items: center;
+}
+
+.head {
+  padding-bottom: 4px;
+  font-size: 11px;
+  color: var(--color-neutral-500);
+}
+
+.caps {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.right {
+  text-align: right;
+}
+
+.week {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.groupLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-neutral-300);
+  padding-top: 4px;
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.nameLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.code {
+  font-size: 13px;
+}
+
+.ruleCode {
+  color: var(--color-accent-200);
+}
+
+.sub {
+  font-size: 11px;
+  color: var(--color-neutral-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tile {
+  display: grid;
+  place-items: center;
+  height: 34px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.compact .tile {
+  height: 16px;
+  border-radius: 4px;
+}
+
+.compact .row {
+  gap: 3px 10px;
+}
+
+.l0 { background: var(--color-neutral-900); color: var(--color-neutral-400); }
+.l1 { background: var(--color-accent-900); color: var(--color-accent-100); }
+.l2 { background: var(--color-accent-800); color: var(--color-accent-100); }
+.l3 { background: var(--color-accent-700); color: var(--color-accent-100); }
+.l4 { background: var(--color-accent-600); color: var(--color-accent-100); }
+.l5 { background: var(--color-accent-400); color: var(--color-bg); font-weight: 600; }
+
+.marked {
+  outline: 1px dashed var(--color-neutral-500);
+  outline-offset: -3px;
+}
+
+.peak {
+  text-align: right;
+  font-size: 12.5px;
+  color: var(--color-neutral-300);
+}
+
+.peakOver {
+  color: var(--color-accent-200);
+  font-weight: 600;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--color-neutral-400);
+}
+
+.swatch {
+  width: 16px;
+  height: 10px;
+  border-radius: 3px;
+}

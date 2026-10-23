@@ -38,3 +38,13 @@
 .reconOn { background: var(--color-accent-900); box-shadow: inset 0 0 0 1px var(--color-accent-700); }
 .reconValue { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; color: var(--kpi-color, var(--color-text)); }
 .reconArrow { color: var(--color-neutral-600); }
+
+/* A tile that opens a screen (delivery 5b). */
+.linkTile {
+  text-decoration: none;
+  color: inherit;
+}
+
+.linkTile:hover {
+  box-shadow: inset 0 0 0 1px var(--color-accent-700);
+}

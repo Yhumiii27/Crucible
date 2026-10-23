@@ -1,0 +1,12 @@
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.period {
+  font-size: 13px;
+  color: var(--color-neutral-200);
+  font-variant-numeric: tabular-nums;
+}

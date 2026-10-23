@@ -3,7 +3,7 @@
 // reference of a test report. Each submits to its Server Function and shows the translated result and warnings; the Server
 // Functions do every check again.
 import { useState } from 'react';
-import { ActionButton, ActionForm } from '@/components/app/ActionForm';
+import { ActionButton, ActionForm, Folded } from '@/components/app/ActionForm';
 import { Field, Input, Select, Textarea } from '@/components/ds/Field';
 import { MILESTONE_CRITICALITIES, MILESTONE_CRITICALITY_LABEL, NEED_LEVELS, NEED_LEVEL_LABEL, type MilestoneCriticality, type NeedLevel } from '@/domain/needs';
 import { useI18n } from '@/i18n/client';
@@ -11,7 +11,6 @@ import {
   addMilestoneAction, createNeedAction, createTestTypeAction, removeMilestoneAction, setReportRefAction, setTestTypeActiveAction, updateMilestoneAction, updateNeedAction,
   withdrawNeedAction,
 } from './actions';
-import s from '../resources/forms.module.css';
 
 export interface MilestoneRef {
   id: string;
@@ -42,13 +41,11 @@ export function MilestoneForm({ projectCode, milestone }: { projectCode: string;
 }
 
 export function EditMilestone({ milestone }: { milestone: MilestoneRef }) {
-  const { t } = useI18n();
   return (
-    <details className={s.fold}>
-      <summary>{t('Change')}</summary>
+    <Folded summary="Change" size="xs" variant="ghost">
       <MilestoneForm projectCode={milestone.projectCode} milestone={milestone} />
       <ActionButton run={() => removeMilestoneAction(milestone.id)} label="Remove the milestone" done="Milestone removed" variant="ghost" />
-    </details>
+    </Folded>
   );
 }
 
@@ -148,14 +145,13 @@ export function NeedForm({ projects, milestones, resources, testTypes, today, ne
 export function EditNeed(props: Parameters<typeof NeedForm>[0] & { need: NeedValues }) {
   const { t } = useI18n();
   return (
-    <details className={s.fold}>
-      <summary>{t('Change')}</summary>
+    <Folded summary="Change" size="xs" variant="ghost">
       <NeedForm {...props} />
       <ActionForm action={withdrawNeedAction} submit="Withdraw the need" done="Need withdrawn" inline variant="ghost">
         <input type="hidden" name="needId" value={props.need.id} />
         <Input size="inline" name="reason" placeholder={t('Reason')} aria-label={t('Reason')} required />
       </ActionForm>
-    </details>
+    </Folded>
   );
 }
 
