@@ -143,7 +143,7 @@ Jalons Keystone (K-2), habilitations et absences Cursus (CU-1, CU-2), contrôles
 
 **CR-003 · Données à fournir D-1 à D-11** — *Prochaine étape · attend le responsable produit · effort M*  
 Moyens, règles d’exclusion, types d’essai, substitutions, projets et besoins, personnes, accord EPC France, historique, origine des 30 %, contrôles, participants à l’atelier.  
-*Avancement : Indispensables pour remplacer le jeu de démonstration : moyens réels (D-1), règles (D-2), accord EPC France (D-7), historique (D-8), origine des 30 % (D-9), contrôles (D-10). · Attend : Responsable produit et équipes R&D · Sources : docs/DECISIONS.md §11, docs/ATELIER-CADRAGE.md*
+*Avancement : Gabarits prêts pour l’atelier : docs/atelier/gabarits-donnees-crucible.xlsx (un onglet par donnée, format de l’import de l’historique pour D-8). · Attend : Responsable produit et équipes R&D · Sources : docs/ATELIER-CADRAGE.md, docs/DECISIONS.md §11, docs/atelier/gabarits-donnees-crucible.xlsx*
 
 **CR-002 · Réponses du responsable produit** — *À décider · non commencé · effort S* · **en cours**  
 57 questions du questionnaire « Décisions Crucible ».  
@@ -155,6 +155,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-23 — Gabarits de données de l’atelier (D-1 à D-11) : classeur docs/atelier/gabarits-donnees-crucible.xlsx, colonnes alignées sur les champs de Crucible, D-8 au format de l’import de l’historique.
 - 2026-10-23 — Pilote préparé : écran Pilote (premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote, X-2), plan docs/PILOTE.md ; démarrage à la levée des prérequis (atelier, données, hébergement, Entra).
 - 2026-10-23 — Livraison 6 : assistant IA adossé au moteur — panneau sur chaque écran, explications (trace du moteur, conflits), alternatives, risques, simulation, brouillon de besoin ; repli par gabarits sans IA ; Claude prêt, activé après validation de la DSI.
 - 2026-10-23 — Livraison 5b : interface fidèle à Keystone d’après les maquettes validées — menu par thèmes, section Installation, en-tête (recherche, cloche, date d’état, langue, export CSV), panneaux latéraux, écran « À trancher », écrans principaux refaits.

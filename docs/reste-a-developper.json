@@ -46,6 +46,10 @@
   {
    "date": "2026-10-23",
    "text": "Pilote préparé : écran Pilote (premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote, X-2), plan docs/PILOTE.md ; démarrage à la levée des prérequis (atelier, données, hébergement, Entra)."
+  },
+  {
+   "date": "2026-10-23",
+   "text": "Gabarits de données de l’atelier (D-1 à D-11) : classeur docs/atelier/gabarits-donnees-crucible.xlsx, colonnes alignées sur les champs de Crucible, D-8 au format de l’import de l’historique."
   }
  ],
  "items": [
@@ -101,13 +105,14 @@
    "waiting_on": "Responsable produit et équipes R&D",
    "effort": "M",
    "sources": [
+    "docs/ATELIER-CADRAGE.md",
     "docs/DECISIONS.md §11",
-    "docs/ATELIER-CADRAGE.md"
+    "docs/atelier/gabarits-donnees-crucible.xlsx"
    ],
    "evidence": [],
    "progress": {
     "state": "a_faire",
-    "note": "Indispensables pour remplacer le jeu de démonstration : moyens réels (D-1), règles (D-2), accord EPC France (D-7), historique (D-8), origine des 30 % (D-9), contrôles (D-10)."
+    "note": "Gabarits prêts pour l’atelier : docs/atelier/gabarits-donnees-crucible.xlsx (un onglet par donnée, format de l’import de l’historique pour D-8)."
    }
   },
   {
