@@ -50,7 +50,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in
   step with it and rebuild the page with `npm run questionnaire:page`. 22 Oct 2026: 56 defaults confirmed, P-2 answered
   (above); the data D-1 to D-11 are still to come. Delivery 2 added F-10, R-10, P-7, delivery 3 F-11, F-12, F-13, S-7,
-  delivery 4 R-11, A-9, F-14, delivery 5 P-8, P-9, A-10, F-15, delivery 6 I-5, I-6 (defaults applied).
+  delivery 4 R-11, A-9, F-14, delivery 5 P-8, P-9, A-10, F-15, delivery 6 I-5, I-6 (confirmed 23 Oct 2026), pilot P-10, X-7 (defaults applied).
 - **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
   run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
   and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
@@ -58,7 +58,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - **Requests sent to other repos** (22 Oct 2026, validated by the owner): Keystone K-2 `pub_jalons` (Keystone#22, merged),
   Cursus CU-1 `pub_absences` (Cursus#15, merged), Vigie V-1 `pub_controles` (Vigie#12), Matrix M-7 (copy `pub_moyens`,
   `pub_reservations` into `partage/80-crucible.sql`, Matrix#17); Matrix M-8 (copy `pub_occupation_hebdo`, grant to
-  `matrix_app`), validated 23 Oct 2026, added to the same PR Matrix#17.
+  `matrix_app`), validated 23 Oct 2026, added to the same PR Matrix#17 (merged 23 Oct 2026).
 - **Delivery 5 (incidents, scenarios, full steering) is done** (`docs/DELIVERY-5.md`): incidents (breakdown → unavailability,
   absence; `AL-AAAA-NNNN`) and their recovery scenario computed at once (`src/domain/recovery.ts`, `src/server/planning/scenarios.ts`:
   only the confirmed bookings touched move; before / after per project), accepted by the coordinator of every facility touched or
@@ -85,7 +85,12 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   the provider (I-3); the `external` audience never names a confidential project (I-4). Exchanges are append-only
   (`assistant_conversations`, `assistant_turns`); Claude's messages are resent verbatim on the next turns. Never give the
   assistant a tool that writes.
-- Next: the pilot and the data D-1 to D-11 (workshop with the teams); Claude's activation waits on the IT department (I-3).
+- **Pilot prepared** (23 Oct 2026, `docs/PILOTE.md`; P-10, X-7 added; I-5, I-6 confirmed): screen `/pilot` (`src/domain/pilot.ts`,
+  `src/server/dal/pilot.ts`, `src/features/pilot/`): the R&D director sets the first day, length and facilities (app_settings
+  `crucible.pilot`, audited), a checklist of the start computed from what is recorded, and the reference measure (weeks before
+  the start, from the imported history) compared with the pilot so far (X-2; usage shared with the dashboard through
+  `resourceUsages`). The start waits on outside prerequisites: the workshop and the data D-1 to D-11, hosting (T-6), the Entra
+  registration, M-6 (Matrix). Claude's activation waits on the IT department (I-3).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

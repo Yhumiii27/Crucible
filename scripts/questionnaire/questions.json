@@ -732,6 +732,17 @@
     "blocks": "L2"
   },
   {
+    "id": "X-7",
+    "group": "extra",
+    "title": "Écran « Pilote »",
+    "context": "Pour lancer et suivre le pilote, il faut savoir ce qui manque avant le premier jour et comparer avec la situation de départ.",
+    "proposal": "Un écran Pilote (direction R&D, coordinateur, responsables, sécurité) : la direction R&D fixe le premier jour, la durée et les installations ; liste de contrôle du démarrage calculée ; mesure de référence comparée au pilote (X-2).",
+    "alts": [
+      "Suivre le pilote sur le seul pilotage de l’occupation"
+    ],
+    "blocks": "Pilote"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",
@@ -960,5 +971,17 @@
       "Compter en jours calendaires"
     ],
     "blocks": "L5"
+  },
+  {
+    "id": "P-10",
+    "group": "perimetre",
+    "title": "Critères de réussite du pilote",
+    "context": "Le pilote dure 4 semaines d’usage réel ; il faut savoir à l’avance ce qui dira qu’il a réussi.",
+    "proposal": "100 % des réservations des installations du pilote dans Crucible ; occupation réalisée avec préparation du PDE en hausse par rapport à la référence (X-2) ; attente moyenne stable ou en baisse et moins de demandes tardives ; conflits tranchés sous 2 jours ouvrés ; avis favorable des responsables d’installation et des chefs de projet.",
+    "alts": [
+      "Des cibles chiffrées (par exemple + 10 points d’occupation du PDE)",
+      "Prolonger le pilote à 8 semaines avant tout bilan"
+    ],
+    "blocks": "Pilote"
   }
 ]

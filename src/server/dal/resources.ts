@@ -3,7 +3,8 @@ import 'server-only';
 // Every read starts from the facilities the viewer sees (src/server/dal/visibility.ts) and masks what a booking is for when the
 // viewer may not see its project (U-3): "Booked · <entity>", or "Booked (confidential)".
 import { and, asc, eq, gte, inArray, isNull, lt, ne, or } from 'drizzle-orm';
-import { inspectionDueOn, type Closure, type WeeklyHours } from '@/domain/calendar';
+import { DEFAULT_HOURS, inspectionDueOn, openWindows, type Closure, type WeeklyHours } from '@/domain/calendar';
+import { resourceUsage, type ResourceUsage } from '@/domain/utilisation';
 import { canRequestBooking, canSeeBookingDetail, operatedFacilities } from '@/domain/rights';
 import type { BookingStatus } from '@/domain/resources';
 import { addDaysIso, parisInstant } from '@/lib/dates';
@@ -236,6 +237,17 @@ export async function usageFacts(viewer: Viewer, fromIso: string, toIso: string,
     agreements,
     period: { start: ms(from), end: ms(to) },
   };
+}
+
+/** The usage of every resource of `usageFacts` over its period (the dashboard, the pilot's reference measure). */
+export function resourceUsages(f: Awaited<ReturnType<typeof usageFacts>>, fromIso: string, toIso: string): Map<string, ResourceUsage> {
+  return new Map(f.resources.map((r) => {
+    const cal = f.calendars.get(r.facilityCode)!;
+    return [r.id, resourceUsage({
+      resourceId: r.id, period: f.period, open: openWindows(cal.hours.length ? cal.hours : DEFAULT_HOURS, cal.closures, fromIso, toIso),
+      unavailable: f.unavailabilities.filter((u) => u.resourceId === r.id), bookings: f.bookings, rules: f.rules,
+    })];
+  }));
 }
 
 /** Rules and agreements screen. */

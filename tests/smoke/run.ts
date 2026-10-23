@@ -117,6 +117,12 @@ async function main(): Promise<void> {
   check(explain.status === 200 && explain.body.includes('Expliquer') && !explain.body.includes('Rédigé par l’assistant'), 'assistant: "Explain" on a conflict; an unknown exchange prefills nothing');
   check((await get('/my/needs?draft=not-a-uuid', 'project_lead')).status === 200, 'assistant: a bad draft reference opens the needs page as usual');
   check(!(await get('/admin/users', 'admin')).body.includes('Assistant IA'), 'assistant: no assistant for the administrator');
+  // The pilot: its checklist and, for the R&D director, the form that sets it.
+  const pilot = await get('/pilot', 'rd_director');
+  check(pilot.status === 200 && pilot.body.includes('Liste de contrôle du démarrage') && pilot.body.includes('Définir le pilote'), 'pilot: checklist of the start and the form of the R&D director');
+  const pilotCoord = await get('/pilot', 'coordinator');
+  check(pilotCoord.status === 200 && !pilotCoord.body.includes('Définir le pilote'), 'pilot: the coordinator reads it, does not set it');
+  check((await get('/pilot', 'project_lead')).status === 404, 'pilot: not in a project lead’s workspace');
   check((await get('/propose', 'partner')).status === 404, 'a screen outside the profile’s workspace is not found');
   check((await get('/nowhere', 'rd_director')).status === 404, 'an unknown path is not found');
 

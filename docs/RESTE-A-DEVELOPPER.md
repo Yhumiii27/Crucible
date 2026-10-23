@@ -6,15 +6,15 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-10-23 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 13 faits, 3 en cours, 2 à faire, sur 18 points.
+**Avancement** : 13 faits, 4 en cours, 2 à faire, sur 19 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
-| Prochaine étape | 1 | ≈ 4 |
+| Prochaine étape | 2 | ≈ 8 |
 | À décider | 1 | ≈ 2 |
 | Plus tard | 2 | ≈ 14 |
-| **Total** | **5** | **≈ 23** |
+| **Total** | **6** | **≈ 27** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
@@ -22,7 +22,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 |---|---:|
 | Non commencé | 1 |
 | Partiel | 0 |
-| Attend le responsable produit | 2 |
+| Attend le responsable produit | 3 |
 | Attend un système externe | 2 |
 
 | Domaine | Bloquant production | Prochaine étape | À décider | Plus tard | Restants | Faits |
@@ -32,7 +32,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 | Moyens d’essais, règles et réservations | 0 | 0 | 0 | 0 | 0 | 3 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
-| Aléas, scénarios et pilotage | 0 | 0 | 0 | 0 | 0 | 3 |
+| Aléas, scénarios et pilotage | 0 | 1 | 0 | 0 | 1 | 3 |
 | Assistant IA | 0 | 0 | 0 | 1 | 1 | 1 |
 | Liens avec les autres outils | 0 | 0 | 0 | 1 | 1 | 0 |
 | Cadrage, décisions et données attendues | 0 | 1 | 1 | 0 | 2 | 1 |
@@ -50,6 +50,7 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 - **CR-002** Réponses du responsable produit — —
 - **CR-003** Données à fournir D-1 à D-11 — Responsable produit et équipes R&D
 - **CR-051** Activer Claude pour l’assistant — DSI (fournisseur et région, I-3)
+- **CR-070** Pilote (4 semaines d’usage réel) — Atelier et données D-1 à D-11 ; DSI (hébergement T-6, inscription Entra) ; Matrix (M-6)
 
 ### 1.3 Ce qui attend les autres applications
 
@@ -104,7 +105,11 @@ Prévisions, demandes, délai de prévenance (F-5), plan de charge 26 semaines (
 Personnes et compétences, substitutions validées, heuristique déterministe (T-3), fiches de conflit, règles de priorité versionnées (A-1, A-2).  
 *Avancement : Personnes et compétences (lecture de Cursus quand la vue est accordée), exigences des types d’essai, équipements mobiles, substitutions validées (R-4), règles de priorité versionnées, moteur déterministe qui propose seulement (passage quotidien), acceptation par lot après un nouveau contrôle, fiches de conflit avec options, règle citée et recommandation, arbitrages en ajout seul, veto sécurité. Propriété vérifiée sur 60 scénarios aléatoires. Choix à confirmer : R-11, A-9, F-14. · Sources : docs/spec/03-planification.md §4–5*
 
-### 2.6 Aléas, scénarios et pilotage (0 restants, 3 faits)
+### 2.6 Aléas, scénarios et pilotage (1 restants, 3 faits)
+
+**CR-070 · Pilote (4 semaines d’usage réel)** — *Prochaine étape · attend le responsable produit · effort M* · **en cours (Pilote)**  
+Laboratoire 67 et PDE (P-3) : Crucible référence des réservations, mesure de référence comparée au pilote (X-2), revue hebdomadaire, bilan (P-10).  
+*Avancement : Écran Pilote prêt : premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote. Démarrage à la levée des prérequis de docs/PILOTE.md §2. · Attend : Atelier et données D-1 à D-11 ; DSI (hébergement T-6, inscription Entra) ; Matrix (M-6) · Sources : docs/PILOTE.md, docs/PLAN.md*
 
 **~~CR-013 · Pilotage de l’occupation et import de l’historique~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 2)**  
 Occupation réservée / réalisée / avec préparation / blocage (P-5), attente par entité, mesure de référence (X-2, F-9).  
@@ -150,6 +155,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-23 — Pilote préparé : écran Pilote (premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote, X-2), plan docs/PILOTE.md ; démarrage à la levée des prérequis (atelier, données, hébergement, Entra).
 - 2026-10-23 — Livraison 6 : assistant IA adossé au moteur — panneau sur chaque écran, explications (trace du moteur, conflits), alternatives, risques, simulation, brouillon de besoin ; repli par gabarits sans IA ; Claude prêt, activé après validation de la DSI.
 - 2026-10-23 — Livraison 5b : interface fidèle à Keystone d’après les maquettes validées — menu par thèmes, section Installation, en-tête (recherche, cloche, date d’état, langue, export CSV), panneaux latéraux, écran « À trancher », écrans principaux refaits.
 - 2026-10-22 — Livraison 5 : aléas et scénarios de reprise (avant / après par projet), simulations « et si ? », urgences, notifications (cloche, e-mail, relances, récapitulatif), instantanés hebdomadaires, valeur de la capacité inoccupée, retards imputables, vue pub_occupation_hebdo.
