@@ -6,14 +6,15 @@
 // validates with the pure rules of src/domain/needs.ts, writes, audits and revalidates.
 import { and, desc, eq, like, ne } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { ISSUE_LABEL } from '@/domain/booking';
-import { checkMilestone, checkNeed, checkTestType, DEFAULT_NOTICE_WORKDAYS, isLateRequest, type NeedInput } from '@/domain/needs';
-import { canEditTestTypes, canManageNeeds, canSeeFacility, facilityVisibility, operatedFacilities } from '@/domain/rights';
+import { checkMilestone, checkNeed, checkTestType, type NeedInput } from '@/domain/needs';
+import { canEditTestTypes, canManageNeeds, operatedFacilities } from '@/domain/rights';
 import { parisParts } from '@/lib/dates';
 import { businessNow, businessToday } from '@/server/clock';
 import { getDb } from '@/server/db/client';
+import { needContext, needWarnings } from '@/server/dal/need-context';
+import { citationOf } from '@/server/assistant/service';
 import { writeAudit } from '@/server/db/helpers';
-import { bookings, entityAgreements, facilities, facilityPartners, projectMilestones, projects, resources, testNeeds, testTypes } from '@/server/db/schema';
+import { bookings, projectMilestones, projects, resources, testNeeds, testTypes } from '@/server/db/schema';
 import type { Tx } from '@/server/db/types';
 import { getViewer, type Viewer } from '@/server/session';
 
@@ -108,37 +109,6 @@ async function nextNeedRef(tx: Tx, year: string): Promise<string> {
   return `N-${year}-${String(n).padStart(4, '0')}`;
 }
 
-/** What a need of the project may refer to, as the viewer sees it: resources of the visible facilities, the project's milestones, the catalogue. */
-async function needContext(tx: Tx, v: Viewer, projectCode: string, today: string) {
-  const vis = facilityVisibility(v.role, v.assignments);
-  const [facs, partners, res, ms, types] = await Promise.all([
-    tx.select().from(facilities).where(eq(facilities.active, true)),
-    tx.select().from(facilityPartners),
-    tx.select({ id: resources.id, facilityCode: resources.facilityCode }).from(resources).where(ne(resources.status, 'retired')),
-    tx.select({ id: projectMilestones.id, dueOn: projectMilestones.dueOn }).from(projectMilestones).where(eq(projectMilestones.projectCode, projectCode)),
-    tx.select({ code: testTypes.code }).from(testTypes).where(eq(testTypes.active, true)),
-  ]);
-  const visible = new Set(facs.filter((f) => canSeeFacility(vis, { code: f.code, operatorEntityCode: f.operatorEntityCode, partnerEntityCodes: partners.filter((p) => p.facilityCode === f.code).map((p) => p.entityCode) })).map((f) => f.code));
-  return {
-    resources: new Set(res.filter((r) => visible.has(r.facilityCode)).map((r) => r.id)),
-    facilityOf: new Map(res.map((r) => [r.id, r.facilityCode])),
-    milestones: new Map(ms.map((m) => [m.id, { dueOn: m.dueOn }])),
-    testTypes: new Set(types.map((x) => x.code)),
-    today,
-  };
-}
-
-/** Working days of notice asked of an entity on a facility: its agreement's, else the rule for everyone (F-5). */
-async function noticeOf(tx: Tx, facilityCode: string, entityCode: string): Promise<number> {
-  const [a] = await tx.select({ n: entityAgreements.noticeWorkdays }).from(entityAgreements).where(and(eq(entityAgreements.facilityCode, facilityCode), eq(entityAgreements.entityCode, entityCode)));
-  return a?.n ?? DEFAULT_NOTICE_WORKDAYS;
-}
-
-async function needWarnings(tx: Tx, n: NeedInput, facilityCode: string, entityCode: string, today: string, warnings: string[] = []): Promise<string[]> {
-  const late = n.level === 'request' && isLateRequest(today, n.earliestOn, await noticeOf(tx, facilityCode, entityCode));
-  return late ? [...warnings, ISSUE_LABEL.late_request] : warnings;
-}
-
 export async function createNeedAction(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
   const v = await getViewer();
   const [today, now] = await Promise.all([businessToday(), businessNow()]);
@@ -153,8 +123,10 @@ export async function createNeedAction(_prev: ActionResult | null, fd: FormData)
     const ref = await nextNeedRef(tx, parisParts(now).iso.slice(0, 4));
     const [row] = await tx.insert(testNeeds).values({ ...c.value, ref, projectCode: code, requestedByUserId: v.userId, requestedByName: v.name, requestedAt: now }).returning({ id: testNeeds.id });
     const warnings = await needWarnings(tx, c.value, ctx.facilityOf.get(c.value.resourceId)!, proj.entityCode, today, c.warnings);
-    await writeAudit(tx, audit(v, 'Needs', `Need ${ref}`, `${c.value.level} recorded: ${c.value.halfDays} half-days · ${c.value.earliestOn} → ${c.value.deadlineOn}`, {
-      entityType: 'need', entityId: row.id, projectCode: code, after: { ...c.value, warnings },
+    // Prepared by the assistant (spec 04 §3): the audit row cites the exchange; the person recorded it.
+    const assistant = await citationOf(tx, v, String(fd.get('assistantTurn') ?? ''));
+    await writeAudit(tx, audit(v, 'Needs', `Need ${ref}`, `${c.value.level} recorded: ${c.value.halfDays} half-days · ${c.value.earliestOn} → ${c.value.deadlineOn}${assistant ? ` · prepared with the assistant · ${assistant}` : ''}`, {
+      entityType: 'need', entityId: row.id, projectCode: code, after: { ...c.value, warnings, ...(assistant ? { assistant } : {}) },
     }));
     return { ok: true, warnings };
   });

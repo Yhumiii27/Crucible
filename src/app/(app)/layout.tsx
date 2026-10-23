@@ -1,6 +1,7 @@
 // App shell: 232px sidebar | main (Keystone's Nocturne shell). Demo mode: "View as" at the bottom of the sidebar; Entra mode:
 // the signed-in user's account menu instead. The sidebar gets the facilities of the switcher (the viewer's own first) and the
-// counts of its entries: decisions waiting, open proposals and conflicts (delivery 5b).
+// counts of its entries: decisions waiting, open proposals and conflicts (delivery 5b). The assistant panel is mounted once here
+// (delivery 6): it keeps its conversation from one screen to the next.
 import { cookies } from 'next/headers';
 import { Suspense } from 'react';
 import { inArray } from 'drizzle-orm';
@@ -8,6 +9,8 @@ import { ClockProvider } from '@/components/app/clock';
 import { Sidebar } from '@/components/app/shell/sidebar';
 import styles from '@/components/app/shell/shell.module.css';
 import { ToastProvider } from '@/components/ds/Toast';
+import { AssistantPanel } from '@/features/assistant/panel';
+import { canUseAssistant } from '@/server/assistant/service';
 import { isRoleKey } from '@/config/roles';
 import { canSee } from '@/config/screens';
 import { operatedFacilities } from '@/domain/rights';
@@ -56,6 +59,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
           </Suspense>
           <main className={styles.main}>{children}</main>
         </div>
+        {canUseAssistant(viewer.role) && <AssistantPanel />}
       </ToastProvider>
     </ClockProvider>
   );

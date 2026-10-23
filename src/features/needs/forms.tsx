@@ -81,11 +81,14 @@ export interface NeedValues {
  * A need (spec 03 §6): a forecast or a request, on a resource, its length in half-days, from its earliest date to its
  * deadline — or to the milestone it serves. Choosing a test type proposes its nominal resource and usual length.
  */
-export function NeedForm({ projects, milestones, resources, testTypes, today, need }: {
+export function NeedForm({ projects, milestones, resources, testTypes, today, need: editing, draft }: {
   projects: { code: string; name: string }[]; milestones: MilestoneRef[]; resources: ResourceRef[]; testTypes: TestTypeRef[]; today: string; need?: NeedValues;
+  /** A need prepared by the assistant (delivery 6): the form starts from it; recording it cites the exchange in the journal. */
+  draft?: Omit<NeedValues, 'id' | 'codexRef'> & { turnId: string };
 }) {
   const { t } = useI18n();
-  const key = need?.id ?? 'new';
+  const need: (Omit<NeedValues, 'id'> & { id?: string }) | undefined = editing ?? (draft ? { ...draft, codexRef: null, id: undefined } : undefined);
+  const key = editing?.id ?? 'new';
   const [projectCode, setProjectCode] = useState(need?.projectCode ?? projects[0]?.code ?? '');
   const [resourceId, setResourceId] = useState(need?.resourceId ?? resources[0]?.id ?? '');
   const [halfDays, setHalfDays] = useState(String(need?.halfDays ?? 2));
@@ -99,9 +102,10 @@ export function NeedForm({ projects, milestones, resources, testTypes, today, ne
     setHalfDays(String(x.typicalHalfDays));
   };
   return (
-    <ActionForm action={need ? updateNeedAction : createNeedAction} submit={need ? 'Save the need' : 'Record the need'} done={need ? 'Need saved' : 'Need recorded'}>
-      {need && <input type="hidden" name="needId" value={need.id} />}
-      {need || projects.length === 1 ? (
+    <ActionForm action={editing ? updateNeedAction : createNeedAction} submit={editing ? 'Save the need' : 'Record the need'} done={editing ? 'Need saved' : 'Need recorded'}>
+      {editing && <input type="hidden" name="needId" value={editing.id} />}
+      {draft && <input type="hidden" name="assistantTurn" value={draft.turnId} />}
+      {editing || projects.length === 1 ? (
         <input type="hidden" name="projectCode" value={projectCode} />
       ) : (
         <Field label={t('Project')} htmlFor={`nd-proj-${key}`} required>

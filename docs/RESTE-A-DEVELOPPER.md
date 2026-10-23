@@ -6,15 +6,15 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-10-23 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 12 faits, 3 en cours, 2 à faire, sur 17 points.
+**Avancement** : 13 faits, 3 en cours, 2 à faire, sur 18 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 1 | ≈ 4 |
 | À décider | 1 | ≈ 2 |
-| Plus tard | 2 | ≈ 16 |
-| **Total** | **5** | **≈ 26** |
+| Plus tard | 2 | ≈ 14 |
+| **Total** | **5** | **≈ 23** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
@@ -33,7 +33,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
 | Aléas, scénarios et pilotage | 0 | 0 | 0 | 0 | 0 | 3 |
-| Assistant IA | 0 | 0 | 0 | 1 | 1 | 0 |
+| Assistant IA | 0 | 0 | 0 | 1 | 1 | 1 |
 | Liens avec les autres outils | 0 | 0 | 0 | 1 | 1 | 0 |
 | Cadrage, décisions et données attendues | 0 | 1 | 1 | 0 | 2 | 1 |
 
@@ -49,7 +49,7 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 
 - **CR-002** Réponses du responsable produit — —
 - **CR-003** Données à fournir D-1 à D-11 — Responsable produit et équipes R&D
-- **CR-050** Assistant IA — DSI (fournisseur, I-3)
+- **CR-051** Activer Claude pour l’assistant — DSI (fournisseur et région, I-3)
 
 ### 1.3 Ce qui attend les autres applications
 
@@ -118,11 +118,15 @@ Menu par thèmes, section Installation, en-tête de Keystone, panneaux latéraux
 Scénario de reprise, avant / après par projet, urgences (A-8), cloche et e-mail (F-8).  
 *Avancement : Aléas (panne, absence) et scénario de reprise avant / après par projet décidé par le coordinateur ou la direction R&D ; simulations « et si ? » ; urgences (A-8) ; cloche et e-mail, relances d’arbitrage, récapitulatif hebdomadaire ; instantanés hebdomadaires, valeur inoccupée, retards imputables ; vue pub_occupation_hebdo. · Sources : docs/spec/03-planification.md §7*
 
-### 2.7 Assistant IA (1 restants)
+### 2.7 Assistant IA (1 restants, 1 faits)
 
-**CR-050 · Assistant IA** — *Plus tard · attend le responsable produit · effort M*  
+**CR-051 · Activer Claude pour l’assistant** — *Plus tard · attend le responsable produit · effort S*  
+Poser CRUCIBLE_AI=claude et ANTHROPIC_API_KEY une fois le fournisseur et la région d’hébergement validés par la DSI (I-3) ; confirmer le modèle (I-6) et la conservation des échanges (I-5).  
+*Attend : DSI (fournisseur et région, I-3) · Sources : docs/DELIVERY-6.md, docs/DECISIONS.md*
+
+**~~CR-050 · Assistant IA~~** — *Plus tard · non commencé · effort M* · **fait (Livraison 6)**  
 Assistant adossé au moteur, sans écriture seule (I-1 à I-4) ; fournisseur à valider.  
-*Attend : DSI (fournisseur, I-3) · Sources : docs/spec/04-assistant-ia.md*
+*Avancement : Panneau sur chaque écran : trace du moteur, conflits et compte rendu d’arbitrage, alternatives validées, risques de charge, simulation, brouillon de besoin ; gabarits sans IA ; échanges conservés en ajout seul et cités au journal. Claude prêt mais désactivé (CR-051). · Sources : docs/spec/04-assistant-ia.md, docs/DELIVERY-6.md*
 
 ### 2.8 Liens avec les autres outils (1 restants)
 
@@ -146,6 +150,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-23 — Livraison 6 : assistant IA adossé au moteur — panneau sur chaque écran, explications (trace du moteur, conflits), alternatives, risques, simulation, brouillon de besoin ; repli par gabarits sans IA ; Claude prêt, activé après validation de la DSI.
 - 2026-10-23 — Livraison 5b : interface fidèle à Keystone d’après les maquettes validées — menu par thèmes, section Installation, en-tête (recherche, cloche, date d’état, langue, export CSV), panneaux latéraux, écran « À trancher », écrans principaux refaits.
 - 2026-10-22 — Livraison 5 : aléas et scénarios de reprise (avant / après par projet), simulations « et si ? », urgences, notifications (cloche, e-mail, relances, récapitulatif), instantanés hebdomadaires, valeur de la capacité inoccupée, retards imputables, vue pub_occupation_hebdo.
 - 2026-10-22 — Livraison 4 : personnes et compétences, substitutions validées, règles de priorité versionnées, moteur de proposition déterministe, acceptation des propositions, fiches de conflit, arbitrages et veto sécurité, équipements mobiles.

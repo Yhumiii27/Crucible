@@ -78,6 +78,19 @@ describe('parseConfig', () => {
     expect(vars(parse({ CRUCIBLE_ADMIN_EMAILS: 'a@b.example' }).warnings)).toEqual(['CRUCIBLE_ADMIN_EMAILS']);
   });
 
+  it('the AI assistant is off unless CRUCIBLE_AI=claude with a key (I-3); the key is a secret', () => {
+    expect(parse({}).config.ai).toEqual({ provider: 'off', apiKey: null, model: 'claude-opus-5-5', fallbacks: true });
+    // A key alone does not switch it on (another tool's credential on the machine must not).
+    expect(parse({ ANTHROPIC_API_KEY: 'sk-ant-xxxxxxxx' }).config.ai.provider).toBe('off');
+    const on = parse({ CRUCIBLE_AI: 'Claude', ANTHROPIC_API_KEY: 'sk-ant-xxxxxxxx', CRUCIBLE_AI_MODEL: 'claude-sonnet-5-5', CRUCIBLE_AI_FALLBACKS: 'off' });
+    expect(on.config.ai).toEqual({ provider: 'claude', apiKey: 'sk-ant-xxxxxxxx', model: 'claude-sonnet-5-5', fallbacks: false });
+    expect(on.config.secrets).toContain('sk-ant-xxxxxxxx');
+    const missing = parse({ CRUCIBLE_AI: 'claude' });
+    expect(missing.config.ai.provider).toBe('off');
+    expect(missing.errors).toEqual([{ variable: 'ANTHROPIC_API_KEY', message: 'is required with CRUCIBLE_AI=claude' }]);
+    expect(vars(parse({ CRUCIBLE_AI: 'openai' }).errors)).toEqual(['CRUCIBLE_AI']);
+  });
+
   it('redactUrl hides the password; every variable is known', () => {
     expect(redactUrl(DB)).toBe('postgres://crucible_app:***@db:5432/epc2i');
     expect(redactUrl('nope')).toBe('[invalid URL]');

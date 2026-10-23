@@ -16,6 +16,7 @@ import { HOLDING } from '@/domain/resources';
 import { canEditSkills, canEditTestTypes, canPublishPriorityRules, canRunEngine, managedFacilities, peopleFacilities } from '@/domain/rights';
 import { parisParts } from '@/lib/dates';
 import { businessNow, businessToday } from '@/server/clock';
+import { citationOf } from '@/server/assistant/service';
 import { getDb } from '@/server/db/client';
 import { writeAudit } from '@/server/db/helpers';
 import {
@@ -483,7 +484,9 @@ export async function decideConflictAction(_prev: ActionResult | null, fd: FormD
     const ruleInvoked = optionKey === c.recommendedKey ? `recommended · ${c.ruleCited}` : c.ruleCited;
     await tx.insert(arbitrations).values({ conflictId: id, kind: 'decision', optionKey, order: option.order, ruleInvoked, reason, decidedByName: v.name, decidedByRole: v.role, decidedAt: now });
     await tx.update(conflicts).set({ status: 'decided', updatedAt: new Date() }).where(eq(conflicts.id, id));
-    await writeAudit(tx, audit(v, 'Planning', `Conflict ${c.ref}`, `decided: ${optionKey}`, { entityType: 'conflict', entityId: id, reason, after: { optionKey, order: option.order, ruleInvoked } }));
+    // Minutes drafted by the assistant (spec 04 §2): the audit row cites the exchange; the decider chose and signed.
+    const assistant = await citationOf(tx, v, String(fd.get('assistantTurn') ?? ''));
+    await writeAudit(tx, audit(v, 'Planning', `Conflict ${c.ref}`, `decided: ${optionKey}${assistant ? ` · prepared with the assistant · ${assistant}` : ''}`, { entityType: 'conflict', entityId: id, reason, after: { optionKey, order: option.order, ruleInvoked, ...(assistant ? { assistant } : {}) } }));
     return { ok: true };
   });
   if (r.ok) revalidate('/conflicts', '/propose');

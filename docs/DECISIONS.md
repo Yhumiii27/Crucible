@@ -25,7 +25,9 @@ A-4, A-5, A-6, F-2, F-3, F-4, F-7, R-4, R-8, S-3, T-3 (confirmés) et ajoute **R
 confirmer). La livraison 5 est faite ([`DELIVERY-5.md`](DELIVERY-5.md)) ; elle applique A-8, F-8 et X-4 (confirmés) et ajoute
 **P-8, P-9, A-10 et F-15** (réponse par défaut appliquée, à confirmer). Relecture du questionnaire avant la livraison 5 : aucune
 nouvelle réponse. La livraison 5b (interface fidèle à Keystone, [`DELIVERY-5b.md`](DELIVERY-5b.md)) applique X-5 et X-6, validés
-par le responsable produit sur maquettes le 23 oct. 2026.
+par le responsable produit sur maquettes le 23 oct. 2026. La livraison 6 est faite ([`DELIVERY-6.md`](DELIVERY-6.md)) ; elle applique
+I-1 à I-4 (confirmés ; Claude reste désactivé jusqu’à la validation de la DSI) et ajoute **I-5 et I-6** (réponse par défaut
+appliquée, à confirmer). Relecture du questionnaire avant la livraison 6 (23 oct. 2026) : aucune nouvelle réponse.
 
 **Décidé le 22 oct. 2026** (demande initiale) : l’application s’appelle **Crucible**, dépôt `Yhumiii27/Crucible` ; elle
 suit la logique des autres outils du groupe, dont les dépôts ne sont jamais modifiés (demandes dans `DEMANDES-*.md`).
@@ -118,6 +120,8 @@ suit la logique des autres outils du groupe, dont les dépôts ne sont jamais mo
 | I-2 | **Pouvoir de l’IA** — Un agent qui décide seul serait inexplicable et difficile à accepter entre deux entités et avec des règles de sécurité. | L’IA propose, explique et prépare ; elle n’écrit jamais rien sans validation humaine, ne touche jamais aux règles de sécurité, et ne voit que ce que voit l’utilisateur. — **confirmé** | Elle peut confirmer seule les réservations sans conflit | L6 |
 | I-3 | **Fournisseur d’IA et hébergement des données** — Les données R&D et de sécurité pyrotechnique sont sensibles. Keystone utilise Claude (Anthropic) seulement si une clé est posée, avec un repli local. | Claude (Anthropic), désactivé tant que la DSI n’a pas validé le fournisseur et la région d’hébergement ; Crucible fonctionne entièrement sans IA. — **confirmé** | Claude via un hébergeur cloud en région UE (AWS Bedrock, Google Vertex) ; Aucun fournisseur externe | L6 |
 | I-4 | **Données envoyées à l’IA** — Ce qui part vers le fournisseur doit être limité. | Le strict nécessaire à la question posée ; les projets marqués confidentiels sont exclus ; aucune donnée personnelle autre que les noms des personnes planifiées. — **confirmé** | Aucune donnée de projet, seulement des codes | L6 |
+| I-5 | **Conservation des échanges avec l’assistant** — La spec demande que chaque échange qui aboutit à une écriture soit référencé au journal (spec 04 §3). | Chaque échange est conservé dans Crucible tel quel (question, consultations faites, ce qui est parti chez le fournisseur, réponse), en ajout seul comme le journal ; chacun ne voit que ses conversations ; l’écriture préparée cite l’échange. — *défaut appliqué (livraison 6), à confirmer* | Conserver 12 mois puis purger ; ne conserver que les échanges qui ont abouti à une écriture | L6 |
+| I-6 | **Modèle et coût de l’assistant** — Une question peut demander plusieurs consultations ; le modèle fixe la qualité et le coût. | Claude Opus 5.5 (`claude-opus-5-5`), effort moyen, au plus huit allers-retours par question, consigne mise en cache ; modèle modifiable par `CRUCIBLE_AI_MODEL`. — *défaut appliqué (livraison 6), à confirmer* | Claude Sonnet 5.5, moins cher ; un plafond de questions par personne et par jour | L6 |
 
 ## 8. Liens avec les autres outils
 

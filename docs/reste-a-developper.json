@@ -38,6 +38,10 @@
   {
    "date": "2026-10-23",
    "text": "Livraison 5b : interface fidèle à Keystone d’après les maquettes validées — menu par thèmes, section Installation, en-tête (recherche, cloche, date d’état, langue, export CSV), panneaux latéraux, écran « À trancher », écrans principaux refaits."
+  },
+  {
+   "date": "2026-10-23",
+   "text": "Livraison 6 : assistant IA adossé au moteur — panneau sur chaque écran, explications (trace du moteur, conflits), alternatives, risques, simulation, brouillon de besoin ; repli par gabarits sans IA ; Claude prêt, activé après validation de la DSI."
   }
  ],
  "items": [
@@ -352,11 +356,33 @@
    "category": "assistant_ia",
    "kind": "fonction",
    "priority": "plus_tard",
-   "status": "bloque_attente_proprietaire",
-   "waiting_on": "DSI (fournisseur, I-3)",
+   "status": "non_commence",
+   "waiting_on": "",
    "effort": "M",
    "sources": [
-    "docs/spec/04-assistant-ia.md"
+    "docs/spec/04-assistant-ia.md",
+    "docs/DELIVERY-6.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "fait",
+    "delivery": "Livraison 6",
+    "note": "Panneau sur chaque écran : trace du moteur, conflits et compte rendu d’arbitrage, alternatives validées, risques de charge, simulation, brouillon de besoin ; gabarits sans IA ; échanges conservés en ajout seul et cités au journal. Claude prêt mais désactivé (CR-051)."
+   }
+  },
+  {
+   "id": "CR-051",
+   "title": "Activer Claude pour l’assistant",
+   "description": "Poser CRUCIBLE_AI=claude et ANTHROPIC_API_KEY une fois le fournisseur et la région d’hébergement validés par la DSI (I-3) ; confirmer le modèle (I-6) et la conservation des échanges (I-5).",
+   "category": "assistant_ia",
+   "kind": "fonction",
+   "priority": "plus_tard",
+   "status": "bloque_attente_proprietaire",
+   "waiting_on": "DSI (fournisseur et région, I-3)",
+   "effort": "S",
+   "sources": [
+    "docs/DELIVERY-6.md",
+    "docs/DECISIONS.md"
    ],
    "evidence": [],
    "progress": {

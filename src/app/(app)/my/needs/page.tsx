@@ -1,6 +1,7 @@
 // My test needs (docs/spec/05 "Mes besoins", delivery 3): the projects whose needs I enter — my projects as a project lead,
 // my entity's as a partner contact —, their milestones and open needs, with how much is booked and the late requests (F-5),
-// the slots the engine proposes for them (delivery 4), and the form to record a need. Booking a slot for a need is done from
+// the slots the engine proposes for them (delivery 4), and the form to record a need — opened filled with a need the assistant
+// prepared when the page comes from the assistant (?draft=, delivery 6). Booking a slot for a need is done from
 // the resource planning ("Need served").
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -15,15 +16,19 @@ import { NeedForm } from '@/features/needs/forms';
 import { NeedsTable } from '@/features/needs/needs-table';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate, fmtSlot } from '@/lib/format';
+import { draftOfTurn } from '@/server/assistant/service';
 import { businessToday } from '@/server/clock';
 import { myNeeds } from '@/server/dal/needs';
 import { proposalsForProjects } from '@/server/dal/planning';
 import { getI18n, getViewer } from '@/server/session';
 
-export default async function MyNeedsPage() {
-  const [{ t, lang }, viewer, today] = await Promise.all([getI18n(), getViewer(), businessToday()]);
+export default async function MyNeedsPage({ searchParams }: PageProps<'/my/needs'>) {
+  const [{ t, lang }, viewer, today, sp] = await Promise.all([getI18n(), getViewer(), businessToday(), searchParams]);
   if (!canSee(viewer.role, 'my-needs')) notFound();
   const data = await myNeeds(viewer, today);
+  // A need prepared by the assistant (delivery 6): the form opens filled with it; the person checks and records it.
+  const prepared = typeof sp.draft === 'string' ? await draftOfTurn(viewer, sp.draft) : null;
+  const draft = prepared && data.projects.some((p) => p.code === prepared.projectCode) ? prepared : null;
   const proposed = await proposalsForProjects(data.projects.map((p) => p.code));
   const projects = data.projects.map((p) => ({ code: p.code, name: dataText(p.name, lang) }));
   const milestones = data.milestones.map((m) => ({ id: m.id, projectCode: m.projectCode, label: dataText(m.label, lang), dueOn: m.dueOn, criticality: m.criticality }));
@@ -33,9 +38,14 @@ export default async function MyNeedsPage() {
     <>
       <PageHeader screen="my-needs"
         primary={projects.length > 0 && resources.length > 0 ? (
-          <Folded summary="Record a need" variant="primary" size="md">
+          <Folded summary="Record a need" variant="primary" size="md" open={!!draft}>
+            {draft && <p className="tag tag-outline" role="note">{t('Prepared by the assistant: check every field before recording')} · {draft.citation}</p>}
             <p className="text-muted">{t('A request is made at least 10 working days before the test (F-5); a late request is accepted when there is room, and counted.')}</p>
-            <NeedForm projects={projects} milestones={milestones} resources={resources} testTypes={testTypes} today={today} />
+            <NeedForm projects={projects} milestones={milestones} resources={resources} testTypes={testTypes} today={today}
+              draft={draft ? {
+                projectCode: draft.projectCode, level: draft.level, title: draft.title, resourceId: draft.resourceId, halfDays: draft.halfDays, earliestOn: draft.earliestOn,
+                deadlineOn: draft.deadlineOn, milestoneId: draft.milestoneId, testTypeCode: draft.testTypeCode, note: draft.note, turnId: draft.turnId,
+              } : undefined} />
           </Folded>
         ) : undefined}
       />

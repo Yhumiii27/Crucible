@@ -48,7 +48,8 @@ export async function decisionQueue(viewer: Viewer): Promise<DecisionQueue> {
     .filter((c) => role !== 'safety' || c.status === 'open')
     .map((c) => ({
       kind: 'conflict' as const, ref: c.ref, subject: c.subject, dueOn: c.dueOn, vetoed: c.status === 'vetoed', href: '/conflicts',
-      needs: c.needIds.map((id) => needOf.get(id)).filter((n) => !!n).map((n) => label(n!)),
+      // By reference: the ids are random, their order is not the reader's.
+      needs: c.needIds.map((id) => needOf.get(id)).filter((n) => !!n).sort((a, b) => a!.ref.localeCompare(b!.ref)).map((n) => label(n!)),
     }));
   if (role === 'safety') return { items, openProposals: 0, openConflicts: items.length };
 

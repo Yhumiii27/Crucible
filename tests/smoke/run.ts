@@ -109,6 +109,14 @@ async function main(): Promise<void> {
   const csv = await get('/api/export/propose', 'coordinator');
   check(csv.status === 200 && (csv.headers.get('content-type') ?? '').startsWith('text/csv') && csv.body.includes('N-2026-0006'), 'export: CSV of the proposals');
   check((await get('/api/export/propose', 'partner')).status === 404, 'export: refused outside the workspace');
+  // Delivery 6: the assistant — its button on every screen, the "Why?" and "Explain" shortcuts, drafts that do not belong to the
+  // viewer are ignored (the forms open empty).
+  const why = await get('/propose', 'coordinator');
+  check(why.status === 200 && why.body.includes('Assistant IA') && why.body.includes('Pourquoi ?'), 'assistant: the header button and the "Why?" of the proposals');
+  const explain = await get('/conflicts?ref=C-2026-0001&turn=00000000-0000-0000-0000-000000000000', 'coordinator');
+  check(explain.status === 200 && explain.body.includes('Expliquer') && !explain.body.includes('Rédigé par l’assistant'), 'assistant: "Explain" on a conflict; an unknown exchange prefills nothing');
+  check((await get('/my/needs?draft=not-a-uuid', 'project_lead')).status === 200, 'assistant: a bad draft reference opens the needs page as usual');
+  check(!(await get('/admin/users', 'admin')).body.includes('Assistant IA'), 'assistant: no assistant for the administrator');
   check((await get('/propose', 'partner')).status === 404, 'a screen outside the profile’s workspace is not found');
   check((await get('/nowhere', 'rd_director')).status === 404, 'an unknown path is not found');
 

@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { ActionButton, ActionForm, Folded } from '@/components/app/ActionForm';
 import { Field, Input, Select, Textarea } from '@/components/ds/Field';
+import { AskButton } from '@/features/assistant/panel';
 import { useI18n } from '@/i18n/client';
 import {
   acceptProposalsAction, addAbsenceAction, createEquipmentAction, createPersonAction, createSkillAction, decideConflictAction, proposeSubstitutionAction,
@@ -167,6 +168,8 @@ export interface ProposalRow {
   /** Each cell: its text and an optional second line (translated or typed, already displayed). */
   cells: { text: string; sub?: string; tag?: string }[];
   acceptable: boolean;
+  /** The question "why this slot?" for the assistant (delivery 6), in both languages. */
+  ask?: { fr: string; en: string };
 }
 
 /**
@@ -201,7 +204,10 @@ export function AcceptProposalsForm({ head, rows }: { head: string[]; rows: Prop
                     </div>
                   </td>
                 ))}
-                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{r.acceptable && <RejectProposalButton id={r.id} />}</td>
+                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                  {r.ask && <AskButton question={r.ask} label="Why?" />}
+                  {r.acceptable && <RejectProposalButton id={r.id} />}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -215,15 +221,22 @@ export function RejectProposalButton({ id }: { id: string }) {
   return <ActionButton run={() => rejectProposalAction(id)} label="Reject" done="Rejected" variant="ghost" />;
 }
 
-export function DecideConflictForm({ conflictId, options, recommendedKey }: { conflictId: string; options: Opt[]; recommendedKey: string }) {
+export function DecideConflictForm({ conflictId, options, recommendedKey, minutes }: {
+  conflictId: string; options: Opt[]; recommendedKey: string;
+  /** Minutes drafted by the assistant (delivery 6): the reason starts from them, and the audit row cites the exchange. */
+  minutes?: { text: string; turnId: string };
+}) {
   const { t } = useI18n();
   return (
     <ActionForm action={decideConflictAction} submit="Decide" done="Decision recorded">
       <input type="hidden" name="conflictId" value={conflictId} />
+      {minutes && <input type="hidden" name="assistantTurn" value={minutes.turnId} />}
       <Field label={t('Option')} htmlFor={`dc-${conflictId}`} required>
         <Select id={`dc-${conflictId}`} name="optionKey" defaultValue={recommendedKey} options={options} />
       </Field>
-      <Field label={t('Reason')} htmlFor={`dr-${conflictId}`} required><Input id={`dr-${conflictId}`} name="reason" required /></Field>
+      <Field label={t('Reason')} htmlFor={`dr-${conflictId}`} required hint={minutes ? t('Drafted by the assistant: check and edit before deciding.') : undefined}>
+        {minutes ? <Textarea id={`dr-${conflictId}`} name="reason" required defaultValue={minutes.text} rows={8} /> : <Input id={`dr-${conflictId}`} name="reason" required />}
+      </Field>
     </ActionForm>
   );
 }
