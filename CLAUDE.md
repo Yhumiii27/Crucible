@@ -57,7 +57,8 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   as `url`).
 - **Requests sent to other repos** (22 Oct 2026, validated by the owner): Keystone K-2 `pub_jalons` (Keystone#22, merged),
   Cursus CU-1 `pub_absences` (Cursus#15, merged), Vigie V-1 `pub_controles` (Vigie#12), Matrix M-7 (copy `pub_moyens`,
-  `pub_reservations` into `partage/80-crucible.sql`, Matrix#17).
+  `pub_reservations` into `partage/80-crucible.sql`, Matrix#17); Matrix M-8 (copy `pub_occupation_hebdo`, grant to
+  `matrix_app`), validated 23 Oct 2026, added to the same PR Matrix#17.
 - **Delivery 5 (incidents, scenarios, full steering) is done** (`docs/DELIVERY-5.md`): incidents (breakdown → unavailability,
   absence; `AL-AAAA-NNNN`) and their recovery scenario computed at once (`src/domain/recovery.ts`, `src/server/planning/scenarios.ts`:
   only the confirmed bookings touched move; before / after per project), accepted by the coordinator of every facility touched or
@@ -65,7 +66,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   after the urgent test), notifications — bell and e-mail by the worker (`src/server/notify/`, `CRUCIBLE_MAIL_TRANSPORT`, F-15),
   arbitration reminders, weekly recap —, weekly snapshots kept once per completed week (`snapshots.ts`, view
   `pub_occupation_hebdo`), value of the unused capacity (facility acquisition cost, P-8) and delays due to the resources (P-9) on
-  `/dashboard`. Screens `/incidents`, `/notifications`. Matrix M-8 (copy `pub_occupation_hebdo`) is a draft, not sent.
+  `/dashboard`. Screens `/incidents`, `/notifications`.
 - Next: delivery 6 (AI assistant, spec 04) once the provider is chosen (I-1 to I-4), see `docs/PLAN.md`.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)

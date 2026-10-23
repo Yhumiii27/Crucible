@@ -53,6 +53,6 @@ la cheffe de projet reçoit « Votre essai a été déplacé » ; le worker écr
 - Pas encore de transport SMTP ni Microsoft Graph : les e-mails sont déposés en fichiers (`CRUCIBLE_MAIL_TRANSPORT=file`).
 - Les retards ne distinguent pas leur cause (aléa, conflit, demande tardive) ; les absences restent saisies dans Crucible en
   attendant `cursus.pub_absences` (CU-1) ; les pannes ne sont pas encore reçues de Vigie (V-1, V-2).
-- La vue `pub_occupation_hebdo` doit être recopiée dans le partage de Matrix : brouillon **M-8** dans
-  [`DEMANDES-MATRIX.md`](DEMANDES-MATRIX.md), à valider par le responsable produit avant toute transmission.
+- La vue `pub_occupation_hebdo` doit être recopiée dans le partage de Matrix : demande **M-8**
+  ([`DEMANDES-MATRIX.md`](DEMANDES-MATRIX.md)), validée le 23/10/2026 et transmise (Yhumiii27/Matrix#17).
 - Livraison suivante : L6, assistant IA (spec 04), après le choix du fournisseur (I-1 à I-4).
