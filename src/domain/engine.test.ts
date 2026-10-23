@@ -3,7 +3,7 @@ import { parisInstant, parisParts } from '@/lib/dates';
 import { checkBooking, type BookingFacts, type RuleFacts } from './booking';
 import { DEFAULT_HOURS, overlaps } from './calendar';
 import { detectConflicts } from './conflicts';
-import { proposePlan, type EngineInput, type EngineNeed, type EnginePerson, type EngineResource } from './engine';
+import { proposePlan, traceNeed, type EngineInput, type EngineNeed, type EnginePerson, type EngineResource } from './engine';
 import { PRIORITY_CRITERIA } from './planning-vocabulary';
 import { compareNeeds, decidingCriterion, isCriteriaOrder, serviceOrder, slackOf } from './priority';
 
@@ -178,4 +178,45 @@ describe('every proposal respects every hard constraint (property, 60 random sce
       });
     });
   }
+});
+
+describe('trace of a need (spec 04: why this slot and not an earlier one)', () => {
+  it('the pilot waits for the workshop: refused on 2 Nov by the exclusion rule, which cites the booking', () => {
+    const input = base({
+      needs: [need({ id: 'N1', resourceId: 'PIL', remainingHalfDays: 3, earliestOn: '2026-11-02', deadlineOn: '2026-11-13' })],
+      bookings: [{ id: 'b', ref: 'B1', resourceId: 'ATM', resourceCode: 'ATM', start: at('2026-11-02', '07:00'), end: at('2026-11-02', '17:00'), status: 'confirmed' }],
+    });
+    const r = proposePlan(input);
+    const tr = traceNeed(input, r, 'N1')!;
+    expect(tr).toMatchObject({ needRef: 'N1', rank: 1, servedBefore: [], unplacedReason: null, candidates: [{ id: 'PIL', code: 'PIL', substitute: false }] });
+    expect(iso(tr.chosen!.start)).toBe('2026-11-03');
+    expect(tr.steps.map((s) => [s.resourceCode, iso(s.from), iso(s.to), s.cause])).toEqual([
+      ['PIL', '2026-11-02', '2026-11-02', { kind: 'issue', code: 'exclusion', ref: 'PDE-ONE-ZONE · ATM', by: ['B1'] }],
+    ]);
+  });
+
+  it('a late need: the competitor served first holds the zone; the trace names it, its rank, and the missing skill elsewhere', () => {
+    const input = base({
+      needs: [
+        need({ id: 'VEGA', ref: 'N-2', resourceId: 'ATM', remainingHalfDays: 8, earliestOn: '2026-12-14', deadlineOn: '2026-12-18' }),
+        need({ id: 'CASS', ref: 'N-3', resourceId: 'LAB', remainingHalfDays: 4, earliestOn: '2026-12-14', deadlineOn: '2026-12-18', criticality: 'regulatory', priorityClass: 'P1' }),
+      ],
+    });
+    const r = proposePlan(input);
+    const tr = traceNeed(input, r, 'VEGA')!;
+    expect(tr).toMatchObject({ rank: 2, servedBefore: ['N-3'], chosen: expect.objectContaining({ lateDays: 1 }) });
+    // Mon 14 to Tue 15: the laboratory test (served first, regulatory) holds the building.
+    expect(tr.steps.map((s) => [iso(s.from), iso(s.to), s.cause])).toEqual([
+      ['2026-12-14', '2026-12-15', { kind: 'issue', code: 'exclusion', ref: 'PDE-ONE-ZONE · LAB', by: ['N-3'] }],
+    ]);
+    const staffed = base({
+      needs: [need({ id: 'N9', resourceId: 'PIL', remainingHalfDays: 1, earliestOn: '2026-11-02', deadlineOn: '2026-11-03', testTypeCode: 'FIRING' })],
+      testTypes: new Map([['FIRING', { skills: [{ code: 'PYRO', count: 1 }], equipment: [] }]]),
+      people: [person('Ana', ['PYRO'], { absences: [{ fromOn: '2026-11-02', toOn: '2026-11-02' }] })],
+    });
+    const t2 = traceNeed(staffed, proposePlan(staffed), 'N9')!;
+    expect(t2.steps.map((s) => [iso(s.from), iso(s.to), s.cause])).toEqual([['2026-11-02', '2026-11-02', { kind: 'staff', skillCode: 'PYRO' }]]);
+    expect(iso(t2.chosen!.start)).toBe('2026-11-03');
+    expect(traceNeed(staffed, proposePlan(staffed), 'nope')).toBeNull();
+  });
 });

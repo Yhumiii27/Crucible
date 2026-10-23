@@ -6,7 +6,7 @@
 // a VALIDATED substitute (never another one, R-4), then late, on the block that ends first. It never moves a booking: it only
 // proposes (F-3). Same input, same proposals. Pure.
 import { addDaysIso, parisParts } from '@/lib/dates';
-import { checkBooking, type BookingFacts, type RuleFacts } from './booking';
+import { checkBooking, type BookingFacts, type IssueCode, type RuleFacts } from './booking';
 import { halfDays, overlaps, type Closure, type Interval, type WeeklyHours } from './calendar';
 import type { MilestoneCriticality } from './needs';
 import type { PriorityClass } from './organisation';
@@ -188,6 +188,151 @@ function earliestBlock(input: EngineInput, r: EngineResource, need: EngineNeed, 
   }
   if (!reasons.size) reasons.add('no_slot');
   return { ok: false, reasons };
+}
+
+/** Why a block could not start at a given half-day: the first hard constraint it fails (checked in the engine's order). */
+export type TraceCause =
+  /** A booking check (./booking.ts); `by`: the bookings and the proposals served before that hold the slot (capacity, exclusion). */
+  | { kind: 'issue'; code: IssueCode; ref: string | null; by: string[] }
+  | { kind: 'shutdown' }
+  | { kind: 'staff'; skillCode: string }
+  | { kind: 'equipment'; codes: string[] };
+
+/** Consecutive block starts on one resource refused for the same cause. */
+export interface TraceStep {
+  resourceId: string;
+  resourceCode: string;
+  /** First and last refused block starts of the period. */
+  from: number;
+  to: number;
+  cause: TraceCause;
+}
+
+export interface NeedTrace {
+  needId: string;
+  needRef: string;
+  /** Position in the service order (1 = served first). */
+  rank: number;
+  /** Needs served before it whose proposals held a slot it could have taken (refs). */
+  servedBefore: string[];
+  earliestOn: string;
+  deadlineOn: string;
+  chosen: { resourceId: string; start: number; end: number; substitute: boolean; lateDays: number } | null;
+  unplacedReason: UnplacedReason | null;
+  /** Candidate resources in the order the engine tried them (nominal first, then validated substitutes). */
+  candidates: { id: string; code: string; substitute: boolean }[];
+  steps: TraceStep[];
+}
+
+const causeKey = (c: TraceCause) => JSON.stringify(c);
+
+/** The first skill of the test type nobody can staff on this block (null when the team is complete). */
+function missingSkill(input: EngineInput, r: EngineResource, need: EngineNeed, block: Interval, placed: readonly Placed[]): string | null {
+  const asked = need.testTypeCode ? input.testTypes.get(need.testTypeCode)?.skills ?? [] : [];
+  for (let i = 1; i <= asked.length; i++) {
+    const partial = { ...input, testTypes: new Map([[need.testTypeCode!, { skills: asked.slice(0, i), equipment: [] }]]) };
+    if (!pickStaff(partial, r, need, block, placed)) return asked[i - 1].code;
+  }
+  return null;
+}
+
+/** Why each earlier block was refused on one resource, up to `until` (excluded), in periods. */
+function traceResource(input: EngineInput, r: EngineResource, need: EngineNeed, placed: readonly Placed[], until: number, codeOf: (id: string) => string): TraceStep[] {
+  if (r.status !== 'in_service') return [];
+  const n = need.remainingHalfDays;
+  const from = need.earliestOn > input.fromOn ? need.earliestOn : input.fromOn;
+  const slots = halfSlots(input, r, from, input.toOn);
+  const cal = input.calendars.get(r.facilityCode)!;
+  const fixed: BookingFacts[] = [
+    ...input.bookings,
+    ...placed.map((p, i) => ({ id: `proposal-${i}`, ref: p.needRef, resourceId: p.resourceId, resourceCode: codeOf(p.resourceId), start: p.start, end: p.end, status: 'confirmed' as const })),
+  ];
+  const linked = new Set([r.id, ...input.rules.filter((x) => x.status === 'validated' && x.resourceIds.includes(r.id)).flatMap((x) => x.resourceIds)]);
+  const holders = (block: Interval, code: IssueCode) =>
+    code === 'capacity' || code === 'exclusion'
+      ? [...new Set(fixed.filter((b) => (code === 'capacity' ? b.resourceId === r.id : b.resourceId !== r.id && linked.has(b.resourceId)) && overlaps(b, block)).map((b) => b.ref))].sort()
+      : [];
+  const steps: TraceStep[] = [];
+  const push = (start: number, cause: TraceCause) => {
+    const last = steps[steps.length - 1];
+    if (last && causeKey(last.cause) === causeKey(cause)) last.to = start;
+    else steps.push({ resourceId: r.id, resourceCode: r.code, from: start, to: start, cause });
+  };
+  for (let i = 0; i + n <= slots.length && slots[i].start < until; i++) {
+    const block = { start: slots[i].start, end: slots[i + n - 1].end };
+    if (block.start < input.now) continue;
+    if (slots.slice(i, i + n - 1).some((s, k) => slots[i + k + 1].start - s.end > MAX_GAP_MS)) {
+      push(block.start, { kind: 'shutdown' });
+      continue;
+    }
+    const check = checkBooking(block, {
+      resource: { id: r.id, code: r.code, status: r.status, capacity: r.capacity, granularity: 'half_day' },
+      hours: cal.hours, closures: cal.closures,
+      unavailabilities: input.unavailabilities.filter((u) => u.resourceId === r.id),
+      inspections: input.inspections.filter((x) => x.resourceId === r.id),
+      bookings: fixed, rules: input.rules, now: input.now, noticeWorkdays: null,
+    });
+    if (check.errors.length) {
+      const e = check.errors[0];
+      push(block.start, { kind: 'issue', code: e.code, ref: e.ref, by: holders(block, e.code) });
+      continue;
+    }
+    const skill = missingSkill(input, r, need, block, placed);
+    if (skill) {
+      push(block.start, { kind: 'staff', skillCode: skill });
+      continue;
+    }
+    if (!equipmentFree(input, need, block, placed)) {
+      const asked = need.testTypeCode ? input.testTypes.get(need.testTypeCode)?.equipment ?? [] : [];
+      const busy = [...input.equipmentBusy, ...placed.flatMap((p) => p.equipment.map((code) => ({ code, start: p.start, end: p.end })))];
+      push(block.start, { kind: 'equipment', codes: asked.filter((code) => busy.some((b) => b.code === code && overlaps(b, block))).sort() });
+    }
+  }
+  return steps;
+}
+
+/**
+ * The trace of one need in a run (spec 04 §2, "why is my test proposed on the 14th and not the 7th?"): its place in the
+ * service order, the resources the engine tried, and for each one why every earlier block was refused — the booking or the
+ * proposal that holds it, the exclusion rule, the shutdown, the missing skill, the busy equipment. Same input and result as the
+ * run, same answer: the engine is replayed up to that need. Null when the need is not in the run.
+ */
+export function traceNeed(input: EngineInput, result: EngineResult, needId: string): NeedTrace | null {
+  const idx = result.order.indexOf(needId);
+  const need = input.needs.find((n) => n.id === needId);
+  if (idx < 0 || !need) return null;
+  const byId = new Map(input.resources.map((r) => [r.id, r]));
+  const placed = result.proposals.filter((p) => p.rank <= idx);
+  const nominal = byId.get(need.resourceId);
+  const subs = (need.testTypeCode ? input.substitutes.get(need.testTypeCode) ?? [] : [])
+    .filter((id) => id !== need.resourceId).map((id) => byId.get(id)).filter((r): r is EngineResource => !!r)
+    .sort((a, b) => a.code.localeCompare(b.code));
+  const candidates = [...(nominal ? [nominal] : []), ...subs];
+  const p = result.proposals.find((x) => x.needId === needId) ?? null;
+  // A block starting after the deadline day cannot be on time (UTC midnight of the next day is still night in Paris).
+  const afterDeadline = Date.parse(`${addDaysIso(need.deadlineOn, 1)}T00:00:00Z`);
+  const steps: TraceStep[] = [];
+  const onTime = !!p && p.lateDays === 0;
+  for (const r of candidates) {
+    let until: number;
+    if (p && r.id === p.resourceId) until = p.start;
+    else if (onTime) {
+      // Tried on time only, before the chosen one: refused up to the deadline.
+      if (candidates.indexOf(r) > candidates.findIndex((c) => c.id === p!.resourceId)) continue;
+      until = afterDeadline;
+    } else until = p ? p.end : Number.POSITIVE_INFINITY;
+    steps.push(...traceResource(input, r, need, placed, until, (id) => byId.get(id)?.code ?? id));
+  }
+  const placedRefs = new Set(placed.map((x) => x.needRef));
+  return {
+    needId, needRef: need.ref, rank: idx + 1,
+    servedBefore: [...new Set(steps.flatMap((x) => (x.cause.kind === 'issue' ? x.cause.by.filter((ref) => placedRefs.has(ref)) : [])))].sort(),
+    earliestOn: need.earliestOn, deadlineOn: need.deadlineOn,
+    chosen: p ? { resourceId: p.resourceId, start: p.start, end: p.end, substitute: p.substitute, lateDays: p.lateDays } : null,
+    unplacedReason: result.unplaced.find((u) => u.needId === needId)?.reason ?? null,
+    candidates: candidates.map((c) => ({ id: c.id, code: c.code, substitute: c.id !== need.resourceId })),
+    steps,
+  };
 }
 
 const REASON_ORDER: UnplacedReason[] = ['inspection_due', 'no_staff', 'no_equipment', 'no_slot', 'no_resource'];

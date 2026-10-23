@@ -517,6 +517,30 @@
     "blocks": "L6"
   },
   {
+    "id": "I-5",
+    "group": "ia",
+    "title": "Conservation des échanges avec l’assistant",
+    "context": "La spec demande que chaque échange qui aboutit à une écriture soit référencé au journal (spec 04 §3).",
+    "proposal": "Chaque échange est conservé dans Crucible tel quel (question, consultations faites, ce qui est parti chez le fournisseur, réponse), en ajout seul comme le journal ; chacun ne voit que ses conversations ; l’écriture préparée cite l’échange.",
+    "alts": [
+      "Conserver 12 mois puis purger",
+      "Ne conserver que les échanges qui ont abouti à une écriture"
+    ],
+    "blocks": "L6"
+  },
+  {
+    "id": "I-6",
+    "group": "ia",
+    "title": "Modèle et coût de l’assistant",
+    "context": "Une question peut demander plusieurs consultations ; le modèle fixe la qualité et le coût.",
+    "proposal": "Claude Opus 5.5 (claude-opus-5-5), effort moyen, au plus huit allers-retours par question, consigne mise en cache ; modèle modifiable par CRUCIBLE_AI_MODEL.",
+    "alts": [
+      "Claude Sonnet 5.5, moins cher",
+      "Un plafond de questions par personne et par jour"
+    ],
+    "blocks": "L6"
+  },
+  {
     "id": "S-2",
     "group": "integrations",
     "title": "Demander à Keystone de publier les jalons",

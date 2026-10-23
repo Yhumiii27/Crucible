@@ -54,7 +54,7 @@ describe('to decide', () => {
     expect(q).toMatchObject({ openProposals: 4, openConflicts: 1 });
     // The confidential project of the conflict stays masked for the coordinator (U-3).
     const conflict = q.items[0];
-    expect(conflict.kind === 'conflict' && conflict.needs).toEqual(['N-2026-0003', 'N-2026-0002 · RD-VEGA']);
+    expect(conflict.kind === 'conflict' && conflict.needs).toEqual(['N-2026-0002 · RD-VEGA', 'N-2026-0003']);
   });
 
   it('the safety officer: the open conflict sheets only (to veto); a project lead and a partner: nothing', async () => {

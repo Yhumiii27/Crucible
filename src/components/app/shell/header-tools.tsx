@@ -1,6 +1,6 @@
 'use client';
 // Tools of the page header (Keystone's header islands, docs/spec/01 §5 there; delivery 5b): global search, the bell and its
-// latest notifications, the status date, the language toggle, Export (CSV of the screen's current view, when it has one).
+// latest notifications, the assistant's button (delivery 6), the status date, the language toggle, Export (CSV of the screen's current view, when it has one).
 // Strings arrive translated from the server, typed text as typed.
 import { Bell, CalendarBlank, Export, FileCsv, MagnifyingGlass } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import { cx } from '@/components/ds/cx';
 import { MenuEmpty, MenuHeader, MenuItem } from '@/components/ds/Menu';
 import { Popover } from '@/components/ds/Popover';
 import { Segmented } from '@/components/ds/Segmented';
+import { AssistantButton } from '@/features/assistant/panel';
 import { markNotificationsReadAction } from '@/features/incidents/actions';
 import { useI18n } from '@/i18n/client';
 import type { Lang } from '@/i18n/translate';
@@ -227,13 +228,14 @@ function ExportButton({ screen }: { screen: string | null }) {
   );
 }
 
-export function HeaderTools({ items, unread, statusDate, lang, exportScreen, bell }: {
-  items: BellItem[]; unread: number; statusDate: string; lang: Lang; exportScreen: string | null; bell: boolean;
+export function HeaderTools({ items, unread, statusDate, lang, exportScreen, bell, assistant }: {
+  items: BellItem[]; unread: number; statusDate: string; lang: Lang; exportScreen: string | null; bell: boolean; assistant: boolean;
 }) {
   const { t } = useI18n();
   return (
     <div className={styles.actions}>
       <GlobalSearch />
+      {assistant && <AssistantButton />}
       {bell && <Notifications items={items} unread={unread} />}
       <span className={styles.statusDate}>
         <CalendarBlank size={13} />

@@ -50,7 +50,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in
   step with it and rebuild the page with `npm run questionnaire:page`. 22 Oct 2026: 56 defaults confirmed, P-2 answered
   (above); the data D-1 to D-11 are still to come. Delivery 2 added F-10, R-10, P-7, delivery 3 F-11, F-12, F-13, S-7,
-  delivery 4 R-11, A-9, F-14, delivery 5 P-8, P-9, A-10, F-15 (defaults applied).
+  delivery 4 R-11, A-9, F-14, delivery 5 P-8, P-9, A-10, F-15, delivery 6 I-5, I-6 (defaults applied).
 - **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
   run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
   and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
@@ -74,7 +74,18 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   every form in a side panel (`Folded` of `ActionForm.tsx`), "To decide" (`/my/decisions`, `src/server/dal/decisions.ts`), load
   heat map (`src/features/load/`). New screens follow the same layout: page actions as `PageHeader primary`, filters and period
   navigation as `toolbar` (`PeriodNav`, `Segmented` with `href`), no form shown open in a page.
-- Next: delivery 6 (AI assistant, spec 04) once the provider is chosen (I-1 to I-4), see `docs/PLAN.md`.
+- **Delivery 6 (AI assistant) is done** (`docs/DELIVERY-6.md`; I-1 to I-4 applied, I-5 and I-6 added): a conversation panel on every
+  screen (`src/features/assistant/panel.tsx`, mounted once in the app layout; "Why?" / "Explain" shortcuts on proposals and
+  conflicts). It reads with the asker's rights through the lookups of `src/server/assistant/facts.ts` (engine trace `traceNeed`
+  in `src/domain/engine.ts`, conflict sheet, validated alternatives, load risks, what-if built and dropped, need draft checked
+  like the form) and writes nothing in the planning: a need draft opens the needs form (`/my/needs?draft=`), arbitration minutes
+  open the decision (`/conflicts?turn=`), and the person's write cites the exchange in the audit trail (`citationOf`). Without a
+  provider (default) rule-based templates answer (`src/server/assistant/local.ts`, `src/domain/assistant-intents.ts`); Claude
+  (`src/server/assistant/claude.ts`) only with `CRUCIBLE_AI=claude` and `ANTHROPIC_API_KEY`, once the IT department has validated
+  the provider (I-3); the `external` audience never names a confidential project (I-4). Exchanges are append-only
+  (`assistant_conversations`, `assistant_turns`); Claude's messages are resent verbatim on the next turns. Never give the
+  assistant a tool that writes.
+- Next: the pilot and the data D-1 to D-11 (workshop with the teams); Claude's activation waits on the IT department (I-3).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

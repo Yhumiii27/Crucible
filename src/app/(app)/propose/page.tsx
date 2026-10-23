@@ -15,6 +15,7 @@ import { Table, Td, Th } from '@/components/ds/Table';
 import { canSee } from '@/config/screens';
 import { PRIORITY_CRITERION_LABEL, PROPOSAL_STATUS_LABEL, UNPLACED_REASON_LABEL, type PriorityCriterion, type UnplacedReason } from '@/domain/planning-vocabulary';
 import { canRunEngine, managedFacilities } from '@/domain/rights';
+import { AskButton } from '@/features/assistant/panel';
 import { AcceptProposalsForm, RunEngineButton } from '@/features/planning/forms';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate, fmtInstant, fmtSlot } from '@/lib/format';
@@ -27,6 +28,9 @@ export default async function ProposePage({ searchParams }: PageProps<'/propose'
   const data = await proposeScreen(viewer);
   const mine = managedFacilities(viewer.role, viewer.assignments);
   const need = (id: string) => data.needs.get(id);
+  // Delivery 6: the assistant explains a slot from the engine's trace.
+  const whyAsk = (ref: string) => ({ fr: `Pourquoi ${ref} est-il proposé sur ce créneau et pas plus tôt ?`, en: `Why is ${ref} proposed on this slot and not earlier?` });
+  const unplacedAsk = (ref: string) => ({ fr: `Pourquoi ${ref} n’est-il pas placé ?`, en: `Why is ${ref} not placed?` });
   const what = (id: string) => {
     const n = need(id);
     if (!n) return '—';
@@ -86,6 +90,7 @@ export default async function ProposePage({ searchParams }: PageProps<'/propose'
               const n = need(x.p.needId);
               return {
                 id: x.p.id, acceptable: mine.includes(x.facilityCode),
+                ask: n ? whyAsk(n.ref) : undefined,
                 cells: [
                   { text: n ? `${n.ref} · ${n.projectCode ?? (n.confidential ? t('Confidential project') : `${t('Project of')} ${n.entityCode}`)}` : '—', sub: n?.title ? dataText(n.title, lang) : undefined },
                   { text: `${x.resourceCode}${x.p.substitute ? ` (${t('validated substitute')})` : ''}`, sub: fmtSlot(x.p.startsAt.getTime(), x.p.endsAt.getTime(), lang) },
@@ -132,6 +137,7 @@ export default async function ProposePage({ searchParams }: PageProps<'/propose'
                 <Th>{t('Need')}</Th>
                 <Th>{t('Deadline')}</Th>
                 <Th>{t('Reason')}</Th>
+                <Th />
               </tr>
             </thead>
             <tbody>
@@ -140,6 +146,7 @@ export default async function ProposePage({ searchParams }: PageProps<'/propose'
                   <Td>{what(u.needId)}</Td>
                   <Td nowrap>{need(u.needId) ? fmtDate(need(u.needId)!.deadlineOn, lang) : '—'}</Td>
                   <Td>{t(UNPLACED_REASON_LABEL[u.reason as UnplacedReason] ?? u.reason)}</Td>
+                  <Td align="right"><AskButton question={unplacedAsk(u.needRef)} label="Why?" /></Td>
                 </tr>
               ))}
             </tbody>

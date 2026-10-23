@@ -14,7 +14,9 @@ import { ROLE_LABEL, type RoleKey } from '@/config/roles';
 import { canSee } from '@/config/screens';
 import { canDecide } from '@/domain/conflicts';
 import { CONFLICT_STATUS_LABEL, PRIORITY_CRITERION_LABEL, type PriorityCriterion } from '@/domain/planning-vocabulary';
+import { AskButton } from '@/features/assistant/panel';
 import { DecideConflictForm, VetoForm } from '@/features/planning/forms';
+import { minutesOfTurn } from '@/server/assistant/service';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate, fmtInstant, fmtSlot } from '@/lib/format';
 import { businessToday } from '@/server/clock';
@@ -22,10 +24,12 @@ import { conflictsScreen, type OptionView } from '@/server/dal/planning';
 import { getI18n, getViewer } from '@/server/session';
 import s from './conflicts.module.css';
 
-export default async function ConflictsPage() {
-  const [{ t, lang }, viewer, today] = await Promise.all([getI18n(), getViewer(), businessToday()]);
+export default async function ConflictsPage({ searchParams }: PageProps<'/conflicts'>) {
+  const [{ t, lang }, viewer, today, sp] = await Promise.all([getI18n(), getViewer(), businessToday(), searchParams]);
   if (!canSee(viewer.role, 'conflicts')) notFound();
   const data = await conflictsScreen(viewer);
+  // Opened from the assistant (delivery 6): the decision of that conflict starts from the minutes it drafted.
+  const minutes = typeof sp.turn === 'string' ? await minutesOfTurn(viewer, sp.turn) : null;
   const label = (id: string) => {
     const n = data.needs.get(id);
     if (!n) return '—';
@@ -44,7 +48,8 @@ export default async function ConflictsPage() {
     const asProposed = c.options.find((o) => o.key === 'as_proposed');
     const recommended = c.options.find((o) => o.key === c.recommendedKey);
     return (
-      <SectionCard key={c.id} title={`${c.ref} · ${c.subject}`} actions={<Tag tone={live ? 'accent' : 'neutral'} size="sm">{t(CONFLICT_STATUS_LABEL[c.status])}</Tag>}
+      <SectionCard key={c.id} title={`${c.ref} · ${c.subject}`}
+        actions={<><AskButton question={{ fr: `Explique le conflit ${c.ref} et prépare le compte rendu de l’arbitrage`, en: `Explain conflict ${c.ref} and draft the minutes of its arbitration` }} label="Explain" /><Tag tone={live ? 'accent' : 'neutral'} size="sm">{t(CONFLICT_STATUS_LABEL[c.status])}</Tag></>}
         subtitle={`${t('Needs in competition')} : ${c.needIds.map(label).join(' / ')}`}>
         <div className={s.facts}>
           <div className={s.fact}><span className={s.factLabel}>{t('Rule cited')}</span><span className={s.factValue}>{rule(c)}</span></div>
@@ -91,7 +96,7 @@ export default async function ConflictsPage() {
         ))}
         {live && canDecide(viewer.role, c.decider) && (
           <div className={s.decide}>
-            <DecideConflictForm conflictId={c.id} recommendedKey={c.recommendedKey} options={c.options.map((o, i) => ({ value: o.key, label: `${t('Option')} ${letter(i)} · ${optionLabel(o)}${o.key === c.recommendedKey ? ` (${t('Recommended')})` : ''}` }))} />
+            <DecideConflictForm conflictId={c.id} recommendedKey={c.recommendedKey} minutes={minutes?.conflictRef === c.ref ? { text: minutes.text, turnId: minutes.turnId } : undefined} options={c.options.map((o, i) => ({ value: o.key, label: `${t('Option')} ${letter(i)} · ${optionLabel(o)}${o.key === c.recommendedKey ? ` (${t('Recommended')})` : ''}` }))} />
             <span className="text-muted" style={{ fontSize: 12 }}>{t('The reason is kept in the journal and never changed. The safety officer may veto; the sheet is then to decide again. The next engine run serves the needs in the order decided.')}</span>
           </div>
         )}

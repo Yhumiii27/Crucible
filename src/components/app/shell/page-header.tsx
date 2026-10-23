@@ -1,5 +1,5 @@
 // Page header (derived from Keystone's PageHeader; delivery 5b): breadcrumb and title on the left, the header tools on the
-// right (global search, bell, status date, language, Export), then the page's actions under it — a button opening a side panel
+// right (global search, the assistant (delivery 6), bell, status date, language, Export), then the page's actions under it — a button opening a side panel
 // for each form. The "outside my workspace" banner shows when the screen is not in the profile's workspace (read-only: the
 // page hides its actions).
 import { Eye } from '@phosphor-icons/react/dist/ssr';
@@ -68,7 +68,7 @@ export async function PageHeader({ screen, title, crumbs = [], crumbData, aside,
             {aside}
           </div>
         </div>
-        <HeaderTools items={items} unread={notes.unread} statusDate={fmtDate(today, lang)} lang={lang} bell={bell} exportScreen={isExportable(screen) && !outside ? screen : null} />
+        <HeaderTools items={items} unread={notes.unread} statusDate={fmtDate(today, lang)} lang={lang} bell={bell} assistant={bell} exportScreen={isExportable(screen) && !outside ? screen : null} />
       </header>
       {(toolbar || (primary && !outside)) && (
         <div className={styles.pageBar}>

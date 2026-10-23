@@ -53,9 +53,17 @@ export interface CrucibleConfig {
   adminEmails: string[];
   /** E-mail of the notifications (F-8): `none` = the bell only; `file` = one .eml file per message in `dir`. */
   mail: { transport: 'none' | 'file'; dir: string | null; from: string };
+  /**
+   * The AI assistant (spec 04, I-3): `off` (default) = the rule-based templates only, nothing leaves Crucible; `claude` = Claude
+   * (Anthropic) with the API key, once the IT department has validated the provider and the hosting region.
+   */
+  ai: { provider: 'off' | 'claude'; apiKey: string | null; model: string; fallbacks: boolean };
   /** Secret values present in the environment: the logger masks them wherever they appear. */
   secrets: string[];
 }
+
+/** Model of the assistant when CRUCIBLE_AI_MODEL is unset. */
+export const DEFAULT_AI_MODEL = 'claude-opus-5-5';
 
 export interface ConfigIssue {
   variable: string;
@@ -133,13 +141,19 @@ const VARS = {
   CRUCIBLE_MAIL_TRANSPORT: z.enum(['none', 'file'], { message: 'must be "none" or "file"' }).optional(),
   CRUCIBLE_MAIL_DIR: z.string().optional(),
   CRUCIBLE_MAIL_FROM: z.string().refine((v) => normaliseEmail(v) != null, 'must be an e-mail address').optional(),
+  // AI assistant (spec 04, I-3): off unless "claude" AND a key; the key is passed explicitly to the SDK, so no other credential
+  // found on the machine switches it on. CRUCIBLE_AI_FALLBACKS=off drops the server-side refusal fallback (a model without it).
+  CRUCIBLE_AI: z.string().transform((v) => v.toLowerCase()).pipe(z.enum(['off', 'claude'], { message: 'must be "off" or "claude"' })).optional(),
+  ANTHROPIC_API_KEY: z.string().min(8, 'is too short').optional(),
+  CRUCIBLE_AI_MODEL: z.string().regex(/^[a-z0-9][a-z0-9.\-]{2,80}$/i, 'must be a model id').optional(),
+  CRUCIBLE_AI_FALLBACKS: z.enum(['on', 'off'], { message: 'must be "on" or "off"' }).optional(),
 } as const;
 
 export type ConfigVariable = keyof typeof VARS;
 /** Every variable the configuration reads (the cache key of src/server/config/index.ts). */
 export const CONFIG_VARIABLES = Object.keys(VARS) as ConfigVariable[];
 /** Variables whose value is a secret (masked in logs, never echoed in messages). */
-const SECRET_VARIABLES: ConfigVariable[] = ['CRUCIBLE_SESSION_SECRET', 'ENTRA_CLIENT_SECRET', 'MATRIX_TOKEN'];
+const SECRET_VARIABLES: ConfigVariable[] = ['CRUCIBLE_SESSION_SECRET', 'ENTRA_CLIENT_SECRET', 'MATRIX_TOKEN', 'ANTHROPIC_API_KEY'];
 
 type Values = { [K in ConfigVariable]: z.output<(typeof VARS)[K]> };
 
@@ -221,6 +235,8 @@ export function parseConfig(env: Record<string, string | undefined>, opts: { cwd
   if (production && v.CRUCIBLE_CLOCK?.kind === 'fixed')
     warnings.push({ variable: 'CRUCIBLE_CLOCK', message: 'pins the business date in production: lateness, due dates and dated writes ignore the real date' });
   if (v.CRUCIBLE_MAIL_TRANSPORT === 'file' && !v.CRUCIBLE_MAIL_DIR) errors.push({ variable: 'CRUCIBLE_MAIL_DIR', message: 'is required with CRUCIBLE_MAIL_TRANSPORT=file' });
+  if (v.CRUCIBLE_AI === 'claude' && !v.ANTHROPIC_API_KEY && !errors.some((e) => e.variable === 'ANTHROPIC_API_KEY'))
+    errors.push({ variable: 'ANTHROPIC_API_KEY', message: 'is required with CRUCIBLE_AI=claude' });
   const secrets = [...SECRET_VARIABLES.map((n) => v[n] as string | undefined), urlPassword(v.DATABASE_URL), urlPassword(v.MATRIX_URL)].filter((s): s is string => !!s && s.length >= 4);
 
   return {
@@ -245,6 +261,12 @@ export function parseConfig(env: Record<string, string | undefined>, opts: { cwd
         transport: v.CRUCIBLE_MAIL_TRANSPORT ?? 'none',
         dir: v.CRUCIBLE_MAIL_DIR ? path.resolve(opts.cwd, v.CRUCIBLE_MAIL_DIR) : null,
         from: v.CRUCIBLE_MAIL_FROM ?? 'crucible@epc2i.example',
+      },
+      ai: {
+        provider: v.CRUCIBLE_AI === 'claude' && v.ANTHROPIC_API_KEY ? 'claude' : 'off',
+        apiKey: v.CRUCIBLE_AI === 'claude' ? v.ANTHROPIC_API_KEY ?? null : null,
+        model: v.CRUCIBLE_AI_MODEL ?? DEFAULT_AI_MODEL,
+        fallbacks: v.CRUCIBLE_AI_FALLBACKS !== 'off',
       },
       secrets: [...new Set(secrets)],
     },
