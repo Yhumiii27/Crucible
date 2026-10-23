@@ -42,6 +42,10 @@
   {
    "date": "2026-10-23",
    "text": "Livraison 6 : assistant IA adossé au moteur — panneau sur chaque écran, explications (trace du moteur, conflits), alternatives, risques, simulation, brouillon de besoin ; repli par gabarits sans IA ; Claude prêt, activé après validation de la DSI."
+  },
+  {
+   "date": "2026-10-23",
+   "text": "Pilote préparé : écran Pilote (premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote, X-2), plan docs/PILOTE.md ; démarrage à la levée des prérequis (atelier, données, hébergement, Entra)."
   }
  ],
  "items": [
@@ -407,6 +411,27 @@
     "state": "en_cours",
     "delivery": "Livraison 3",
     "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. Livraison 4 : lecture des titres de cursus.pub_titres_detenus (compétences rattachées à un titre, personnes avec matricule) dès que la vue est accordée."
+   }
+  },
+  {
+   "id": "CR-070",
+   "title": "Pilote (4 semaines d’usage réel)",
+   "description": "Laboratoire 67 et PDE (P-3) : Crucible référence des réservations, mesure de référence comparée au pilote (X-2), revue hebdomadaire, bilan (P-10).",
+   "category": "aleas_pilotage",
+   "kind": "fonction",
+   "priority": "prochaine_etape",
+   "status": "bloque_attente_proprietaire",
+   "waiting_on": "Atelier et données D-1 à D-11 ; DSI (hébergement T-6, inscription Entra) ; Matrix (M-6)",
+   "effort": "M",
+   "sources": [
+    "docs/PILOTE.md",
+    "docs/PLAN.md"
+   ],
+   "evidence": [],
+   "progress": {
+    "state": "en_cours",
+    "delivery": "Pilote",
+    "note": "Écran Pilote prêt : premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote. Démarrage à la levée des prérequis de docs/PILOTE.md §2."
    }
   }
  ]

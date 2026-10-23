@@ -11,28 +11,22 @@ import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
 import { Table, Td, Th } from '@/components/ds/Table';
 import { canSee } from '@/config/screens';
-import { DEFAULT_HOURS, addMonthsIso, openWindows } from '@/domain/calendar';
+import { addMonthsIso } from '@/domain/calendar';
 import { isIsoDate } from '@/domain/clock';
 import { DEFAULT_NOTICE_WORKDAYS, isLateRequest } from '@/domain/needs';
-import { daysUsed, rateOf, resourceUsage, waitingByEntity, type ResourceUsage } from '@/domain/utilisation';
+import { daysUsed, rateOf, sumUsage, waitingByEntity } from '@/domain/utilisation';
 import { dataText } from '@/i18n/data-text';
 import { addDaysIso, parisParts } from '@/lib/dates';
 import { fmtDate } from '@/lib/format';
 import { businessToday } from '@/server/clock';
 import { steeringFacts } from '@/server/dal/incidents';
-import { usageFacts } from '@/server/dal/resources';
+import { resourceUsages, usageFacts } from '@/server/dal/resources';
 import { getI18n, getViewer } from '@/server/session';
 
 const pct = (v: number | null, lang: 'fr' | 'en') => (v == null ? '—' : `${v.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')} %`);
 const h = (v: number) => `${Math.round(v * 10) / 10} h`;
 
-function sum(xs: ResourceUsage[]): ResourceUsage {
-  return xs.reduce((a, x) => ({
-    openHours: a.openHours + x.openHours, netOpenHours: a.netOpenHours + x.netOpenHours, bookedHours: a.bookedHours + x.bookedHours,
-    realisedHours: a.realisedHours + x.realisedHours, realisedWithPrepHours: a.realisedWithPrepHours + x.realisedWithPrepHours,
-    blockedHours: a.blockedHours + x.blockedHours, noShows: a.noShows + x.noShows,
-  }), { openHours: 0, netOpenHours: 0, bookedHours: 0, realisedHours: 0, realisedWithPrepHours: 0, blockedHours: 0, noShows: 0 });
-}
+const sum = sumUsage;
 
 export default async function DashboardPage({ searchParams }: PageProps<'/dashboard'>) {
   const [{ t, lang }, viewer, today, sp] = await Promise.all([getI18n(), getViewer(), businessToday(), searchParams]);
@@ -41,13 +35,7 @@ export default async function DashboardPage({ searchParams }: PageProps<'/dashbo
   const from = typeof sp.from === 'string' && isIsoDate(sp.from) && sp.from < to ? sp.from : addDaysIso(to, -28);
   const monthStart = `${today.slice(0, 8)}01`;
   const [f, steer] = await Promise.all([usageFacts(viewer, from, to, { fromIso: monthStart, toIso: addMonthsIso(monthStart, 1) }), steeringFacts(viewer, from, to, today)]);
-  const usage = new Map(f.resources.map((r) => {
-    const cal = f.calendars.get(r.facilityCode)!;
-    return [r.id, resourceUsage({
-      resourceId: r.id, period: f.period, open: openWindows(cal.hours.length ? cal.hours : DEFAULT_HOURS, cal.closures, from, to),
-      unavailable: f.unavailabilities.filter((u) => u.resourceId === r.id), bookings: f.bookings, rules: f.rules,
-    })];
-  }));
+  const usage = resourceUsages(f, from, to);
   const isoOf = (ms: number) => parisParts(new Date(ms)).iso;
   const noticeOf = (facilityCode: string, entityCode: string) => f.agreements.find((a) => a.facilityCode === facilityCode && a.entityCode === entityCode)?.noticeWorkdays ?? DEFAULT_NOTICE_WORKDAYS;
   // Imported history (F-9) carries no request date of its own: never counted late.

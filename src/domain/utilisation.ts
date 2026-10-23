@@ -80,6 +80,15 @@ export function resourceUsage(input: {
   };
 }
 
+/** The usage of several resources added up (a facility, a period). */
+export function sumUsage(xs: readonly ResourceUsage[]): ResourceUsage {
+  return xs.reduce((a, x) => ({
+    openHours: a.openHours + x.openHours, netOpenHours: a.netOpenHours + x.netOpenHours, bookedHours: a.bookedHours + x.bookedHours,
+    realisedHours: a.realisedHours + x.realisedHours, realisedWithPrepHours: a.realisedWithPrepHours + x.realisedWithPrepHours,
+    blockedHours: a.blockedHours + x.blockedHours, noShows: a.noShows + x.noShows,
+  }), { openHours: 0, netOpenHours: 0, bookedHours: 0, realisedHours: 0, realisedWithPrepHours: 0, blockedHours: 0, noShows: 0 });
+}
+
 /** Rate of `hours` over the net open hours, in %, one decimal; null without open hours. */
 export const rateOf = (hours: number, netOpenHours: number) => (netOpenHours > 0 ? Math.round((1000 * hours) / netOpenHours) / 10 : null);
 

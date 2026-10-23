@@ -9,12 +9,12 @@ export type ScreenId =
   | 'home' | 'notifications' | 'my-schedule' | 'my-needs' | 'decide'
   | 'planning' | 'load' | 'propose' | 'conflicts' | 'incidents'
   | 'facilities' | 'facility' | 'projects' | 'project' | 'people' | 'rules'
-  | 'dashboard'
+  | 'dashboard' | 'pilot'
   | 'admin-org' | 'admin-users' | 'admin-connectors';
 
 export type Section = 'fixed' | 'planning' | 'facility' | 'reference' | 'steering' | 'admin';
 
-export type Delivery = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6';
+export type Delivery = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'Pilot';
 
 export interface ScreenDef {
   id: ScreenId;
@@ -58,6 +58,7 @@ export const SCREENS: readonly ScreenDef[] = [
   { id: 'people', path: '/people', title: 'People & skills', section: 'reference', roles: ['rd_director', 'coordinator', 'facility_manager', 'safety'], delivery: 'L4' },
   { id: 'rules', path: '/rules', title: 'Rules', section: 'reference', roles: PLANNERS, delivery: 'L2' },
   { id: 'dashboard', path: '/dashboard', title: 'Utilisation dashboard', section: 'steering', roles: [...PLANNERS, 'partner'], delivery: 'L2' },
+  { id: 'pilot', path: '/pilot', title: 'Pilot', section: 'steering', roles: PLANNERS, delivery: 'Pilot' },
   { id: 'admin-org', path: '/admin/organisation', title: 'Entities, sites, facilities, projects', section: 'admin', roles: ['admin', 'rd_director'], delivery: 'L1' },
   { id: 'admin-users', path: '/admin/users', title: 'Users & roles', section: 'admin', roles: ['admin'], delivery: 'L1' },
   { id: 'admin-connectors', path: '/admin/connectors', title: 'Connectors', section: 'admin', roles: ['admin'], delivery: 'L3' },

@@ -28,6 +28,6 @@ describe('screen registry', () => {
     expect(canSee('rd_director', 'admin-users')).toBe(false);
     expect(canSee('rd_director', 'admin-org')).toBe(true);
     expect(canSee('technician', 'projects')).toBe(false);
-    expect([...BUILT].sort()).toEqual(['admin-connectors', 'admin-org', 'admin-users', 'conflicts', 'dashboard', 'decide', 'facilities', 'facility', 'home', 'incidents', 'load', 'my-needs', 'my-schedule', 'notifications', 'people', 'planning', 'project', 'projects', 'propose', 'rules']);
+    expect([...BUILT].sort()).toEqual(['admin-connectors', 'admin-org', 'admin-users', 'conflicts', 'dashboard', 'decide', 'facilities', 'facility', 'home', 'incidents', 'load', 'my-needs', 'my-schedule', 'notifications', 'people', 'pilot', 'planning', 'project', 'projects', 'propose', 'rules']);
   });
 });
