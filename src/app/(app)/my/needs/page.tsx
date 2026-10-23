@@ -4,6 +4,7 @@
 // the resource planning ("Need served").
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Folded } from '@/components/app/ActionForm';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
@@ -30,7 +31,14 @@ export default async function MyNeedsPage() {
   const testTypes = data.choices.testTypes.map((x) => ({ ...x, name: dataText(x.name, lang) }));
   return (
     <>
-      <PageHeader screen="my-needs" />
+      <PageHeader screen="my-needs"
+        primary={projects.length > 0 && resources.length > 0 ? (
+          <Folded summary="Record a need" variant="primary" size="md">
+            <p className="text-muted">{t('A request is made at least 10 working days before the test (F-5); a late request is accepted when there is room, and counted.')}</p>
+            <NeedForm projects={projects} milestones={milestones} resources={resources} testTypes={testTypes} today={today} />
+          </Folded>
+        ) : undefined}
+      />
       <SectionCard title={t('My projects')} hint={String(projects.length)}>
         {data.projects.length ? (
           <Table>
@@ -87,11 +95,6 @@ export default async function MyNeedsPage() {
           <EmptyState>{t('No slot proposed yet.')}</EmptyState>
         )}
       </SectionCard>
-      {projects.length > 0 && resources.length > 0 && (
-        <SectionCard title={t('Record a need')} subtitle={t('A request is made at least 10 working days before the test (F-5); a late request is accepted when there is room, and counted.')}>
-          <NeedForm projects={projects} milestones={milestones} resources={resources} testTypes={testTypes} today={today} />
-        </SectionCard>
-      )}
     </>
   );
 }

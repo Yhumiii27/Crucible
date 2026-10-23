@@ -2,7 +2,7 @@
 // Forms and buttons of delivery 2 (client islands of the server pages): each submits to its Server Function and shows the
 // translated result and warnings. The Server Functions do every check again; these only collect the input.
 import { useActionState, useState, useTransition } from 'react';
-import { ActionForm, Result, type ActionResult } from '@/components/app/ActionForm';
+import { ActionForm, Result, type ActionResult, Folded } from '@/components/app/ActionForm';
 import { Button } from '@/components/ds/Button';
 import { Field, Input, Select, Textarea } from '@/components/ds/Field';
 import { RESOURCE_KINDS, RESOURCE_KIND_LABEL, RESOURCE_STATUSES, RESOURCE_STATUS_LABEL, RULE_REASONS, RULE_REASON_LABEL, UNAVAILABILITY_KINDS, UNAVAILABILITY_KIND_LABEL, GRANULARITIES, GRANULARITY_LABEL } from '@/domain/resources';
@@ -83,24 +83,19 @@ export function ResourceStatusSelect({ resourceId, status }: { resourceId: strin
 export function AcquisitionForm({ facilityCode, value }: { facilityCode: string; value: number | null }) {
   const { t } = useI18n();
   return (
-    <details className={s.fold}>
-      <summary>{t('Change the acquisition cost')}</summary>
-      <ActionForm action={setAcquisitionAction} submit="Save" done="Acquisition cost saved">
-        <input type="hidden" name="facilityCode" value={facilityCode} />
-        <Field label={t('Acquisition cost (k€)')} htmlFor={`acq-${facilityCode}`}>
-          <Input id={`acq-${facilityCode}`} name="acquisitionKeur" type="number" min={0} step={1} defaultValue={value ?? ''} />
-        </Field>
-      </ActionForm>
-    </details>
+    <ActionForm action={setAcquisitionAction} submit="Save" done="Acquisition cost saved">
+      <input type="hidden" name="facilityCode" value={facilityCode} />
+      <Field label={t('Acquisition cost (k€)')} htmlFor={`acq-${facilityCode}`}>
+        <Input id={`acq-${facilityCode}`} name="acquisitionKeur" type="number" min={0} step={1} defaultValue={value ?? ''} />
+      </Field>
+    </ActionForm>
   );
 }
 
 export function HoursForm({ facilityCode, hours }: { facilityCode: string; hours: { weekday: number; opensAt: string; closesAt: string }[] }) {
   const { t } = useI18n();
   return (
-    <details className={s.fold}>
-      <summary>{t('Change the opening hours')}</summary>
-      <ActionForm action={setFacilityHoursAction} submit="Save the opening hours" done="Opening hours saved">
+    <ActionForm action={setFacilityHoursAction} submit="Save the opening hours" done="Opening hours saved">
         <input type="hidden" name="facilityCode" value={facilityCode} />
         <div className={s.hours}>
           {WEEKDAYS.map((d, i) => {
@@ -115,7 +110,6 @@ export function HoursForm({ facilityCode, hours }: { facilityCode: string; hours
           })}
         </div>
       </ActionForm>
-    </details>
   );
 }
 
@@ -331,13 +325,12 @@ export function NoShowButton({ id }: { id: string }) {
 export function CancelBookingForm({ id }: { id: string }) {
   const { t } = useI18n();
   return (
-    <details className={s.fold}>
-      <summary>{t('Cancel')}</summary>
+    <Folded summary="Cancel" size="xs" variant="ghost">
       <ActionForm action={cancelBookingAction} submit="Cancel the booking" done="Booking cancelled" inline variant="ghost">
         <input type="hidden" name="bookingId" value={id} />
         <Input size="inline" name="reason" placeholder={t('Reason')} aria-label={t('Reason')} required />
       </ActionForm>
-    </details>
+    </Folded>
   );
 }
 

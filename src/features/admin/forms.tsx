@@ -2,7 +2,7 @@
 // Administration forms (client islands of the server pages): each submits to its Server Function and shows the translated
 // result. The Server Functions do every check again.
 import { useActionState, useState, useTransition } from 'react';
-import { ActionForm, Result } from '@/components/app/ActionForm';
+import { ActionForm, Result, Folded } from '@/components/app/ActionForm';
 import { Button } from '@/components/ds/Button';
 import { Field, Input, Select } from '@/components/ds/Field';
 import { ROLE_KEYS, ROLE_LABEL, ROLE_SCOPE, type RoleKey } from '@/config/roles';
@@ -53,8 +53,7 @@ export function AddRoleForm({ userId, refs }: { userId: string; refs: RefLists }
   const list = scope === 'entity' ? refs.entities : scope === 'facility' ? refs.facilities : scope === 'project' ? refs.projects : [];
   const refOptions = list.map((x) => ({ value: x.code, label: `${x.code} · ${x.name}` }));
   return (
-    <details className={s.addDetails}>
-      <summary>{t('Add a role')}</summary>
+    <Folded summary="Add a role" size="xs" variant="ghost">
       <form action={run} className={s.addRole}>
         <input type="hidden" name="userId" value={userId} />
         <Select size="inline" name="role" aria-label={t('Role')} value={role} onChange={(e) => setRole(e.target.value as RoleKey)} options={ROLE_KEYS.map((r) => ({ value: r, label: t(ROLE_LABEL[r]) }))} />
@@ -64,7 +63,7 @@ export function AddRoleForm({ userId, refs }: { userId: string; refs: RefLists }
         </Button>
         <Result state={state} done="Role added" />
       </form>
-    </details>
+    </Folded>
   );
 }
 

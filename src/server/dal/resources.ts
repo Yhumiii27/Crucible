@@ -251,3 +251,12 @@ export async function rulesScreen(viewer: Viewer) {
   ]);
   return { facilities, rules, resources: res, agreements, entities: ents };
 }
+
+/** Bookings of the visible facilities from today over the next `days` days, masked for the viewer (home, delivery 5b). */
+export async function upcomingBookings(viewer: Viewer, today: string, days = 7): Promise<PlanBooking[]> {
+  const db = await getDb();
+  const codes = (await visibleFacilities(viewer)).map((f) => f.code);
+  const res = codes.length ? await db.select({ id: resources.id }).from(resources).where(inArray(resources.facilityCode, codes)) : [];
+  const rows = await bookingsFor(viewer, db, res.map((r) => r.id), parisInstant(today, '00:00'), parisInstant(addDaysIso(today, days), '00:00'));
+  return rows.filter((b) => b.status !== 'no_show');
+}

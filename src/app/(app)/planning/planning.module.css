@@ -118,3 +118,24 @@
   gap: 6px;
   align-items: center;
 }
+
+/* Request refused by a rule at confirmation (delivery 5b). */
+.warning {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-accent-800);
+  background: color-mix(in srgb, var(--color-accent-900) 70%, transparent);
+}
+
+.warnIcon {
+  color: var(--color-accent-400);
+  flex: none;
+}
+
+.warnText {
+  font-size: 13.5px;
+  color: var(--color-accent-100);
+}

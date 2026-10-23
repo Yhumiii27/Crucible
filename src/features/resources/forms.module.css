@@ -35,3 +35,16 @@
   cursor: pointer;
   color: var(--color-accent);
 }
+
+/* Two-line cell of a table (delivery 5b). */
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.cellSub {
+  font-size: 12px;
+  color: var(--color-neutral-400);
+}

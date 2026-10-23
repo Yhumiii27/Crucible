@@ -1,0 +1,20 @@
+// Tabs of a facility sheet (delivery 5b): listed in the sidebar's Facility section, under the facility switcher, and as the
+// sheet's tab bar (`/facilities/[code]?tab=`). Pure: loaded by the nav model and the page.
+export const FACILITY_TABS = ['resources', 'calendar', 'inspections', 'equipment'] as const;
+export type FacilityTab = (typeof FACILITY_TABS)[number];
+
+/** EN source strings. */
+export const FACILITY_TAB_LABEL: Record<FacilityTab, string> = {
+  resources: 'Resources & zones',
+  calendar: 'Calendar & unavailabilities',
+  inspections: 'Periodic inspections',
+  equipment: 'Mobile equipment',
+};
+
+export const isFacilityTab = (v: unknown): v is FacilityTab => typeof v === 'string' && (FACILITY_TABS as readonly string[]).includes(v);
+
+/** URL of a tab of a facility sheet (the first tab has no parameter). */
+export function facilityTabHref(code: string, tab: FacilityTab): string {
+  const base = `/facilities/${encodeURIComponent(code)}`;
+  return tab === 'resources' ? base : `${base}?tab=${tab}`;
+}

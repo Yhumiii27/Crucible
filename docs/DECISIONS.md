@@ -24,7 +24,8 @@ ajoute **F-11, F-12, F-13 et S-7** (réponse par défaut appliquée, à confirme
 A-4, A-5, A-6, F-2, F-3, F-4, F-7, R-4, R-8, S-3, T-3 (confirmés) et ajoute **R-11, A-9 et F-14** (réponse par défaut appliquée, à
 confirmer). La livraison 5 est faite ([`DELIVERY-5.md`](DELIVERY-5.md)) ; elle applique A-8, F-8 et X-4 (confirmés) et ajoute
 **P-8, P-9, A-10 et F-15** (réponse par défaut appliquée, à confirmer). Relecture du questionnaire avant la livraison 5 : aucune
-nouvelle réponse.
+nouvelle réponse. La livraison 5b (interface fidèle à Keystone, [`DELIVERY-5b.md`](DELIVERY-5b.md)) applique X-5 et X-6, validés
+par le responsable produit sur maquettes le 23 oct. 2026.
 
 **Décidé le 22 oct. 2026** (demande initiale) : l’application s’appelle **Crucible**, dépôt `Yhumiii27/Crucible` ; elle
 suit la logique des autres outils du groupe, dont les dépôts ne sont jamais modifiés (demandes dans `DEMANDES-*.md`).
@@ -149,6 +150,8 @@ suit la logique des autres outils du groupe, dont les dépôts ne sont jamais mo
 | X-2 | **Mesure de référence avant / après** — Pour prouver la réduction des attentes et l’amélioration de l’occupation. | Retenir : mesurer la situation de départ à partir de l’historique importé (F-9), puis comparer chaque trimestre. — **confirmé** | Non | Pilote |
 | X-3 | **Mode démonstration « Voir en tant que »** — Comme Keystone et Arche : changer de profil pour développer, tester et présenter, derrière authentification. | Retenir. — **confirmé** | Non | L1 |
 | X-4 | **Journal unifié et instantanés hebdomadaires** — Vue pub_journal pour le journal unifié de Matrix (convention commune) et historique des indicateurs. | Retenir les deux. — **confirmé** | Seulement le journal unifié | L2 |
+| X-5 | **Interface fidèle à Keystone** — Le responsable produit a relevé que l’interface n’était pas fidèle à Keystone (même remarque que pour Arche). | Menu par thèmes avec recherche ⌘K et compteurs, section « Installation » avec sélecteur et onglets, en-tête de page de Keystone (recherche globale, cloche, date d’état, FR / EN, Exporter en CSV), formulaires dans des panneaux latéraux, plan de charge en carte de chaleur, options d’un conflit côte à côte. — **validé le 23 oct. 2026** (maquettes https://claude.ai/artifact/NCPJzxcCPuXWFxPL36CvJS) | — | L5b |
+| X-6 | **Écran « À trancher »** — Les décisions attendues étaient dispersées entre conflits, aléas et propositions. | Une entrée « À trancher » (direction R&D, coordinateur, sécurité) qui liste les conflits, scénarios, propositions et besoins non placés avec l’action qui les règle ; reprise sur l’accueil. — **validé le 23 oct. 2026** (maquettes) | — | L5b |
 
 ## 11. Données à fournir
 

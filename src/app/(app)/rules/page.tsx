@@ -5,6 +5,7 @@
 // manager, validated by the host facility's manager with the technical referent, and the safety officer for hazardous matter,
 // R-4) and the versions of the priority rules (published by the R&D director, A-1, A-2).
 import { notFound } from 'next/navigation';
+import { Folded } from '@/components/app/ActionForm';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
@@ -73,7 +74,7 @@ export default async function RulesPage() {
                   {safety && (
                     <Td valign="top">
                       {r.status === 'proposed' && <ValidateRuleButton id={r.id} />}
-                      {r.status !== 'retired' && <RetireRuleForm id={r.id} />}
+                      {r.status !== 'retired' && <Folded summary="Retire…" title="Retire the rule" size="xs" variant="ghost"><RetireRuleForm id={r.id} /></Folded>}
                     </Td>
                   )}
                 </tr>
@@ -83,7 +84,7 @@ export default async function RulesPage() {
         ) : (
           <EmptyState>{t('No exclusion rule.')}</EmptyState>
         )}
-        {proposable.length > 1 && <ProposeRuleForm resources={proposable.map((r) => ({ id: r.id, code: r.code }))} />}
+        {proposable.length > 1 && <div><Folded summary="Propose a rule"><ProposeRuleForm resources={proposable.map((r) => ({ id: r.id, code: r.code }))} /></Folded></div>}
       </SectionCard>
 
       <SectionCard title={t('Sharing agreements')} subtitle={t('Quota and notice agreed with each partner entity on a shared facility. A request with less notice is accepted with a warning.')} scroll>
@@ -113,7 +114,7 @@ export default async function RulesPage() {
         ) : (
           <EmptyState>{t('No sharing agreement.')}</EmptyState>
         )}
-        {viewer.role === 'rd_director' && pairs.length > 0 && <AgreementForm pairs={pairs} />}
+        {viewer.role === 'rd_director' && pairs.length > 0 && <div><Folded summary="Record an agreement"><AgreementForm pairs={pairs} /></Folded></div>}
       </SectionCard>
 
       <SectionCard title={t('Test types')} hint={String(types.length)} subtitle={t('The catalogue of the tests practised: nominal resource, usual length, skills required. Choosing a type in a need proposes them.')} scroll>
@@ -165,7 +166,7 @@ export default async function RulesPage() {
         ) : (
           <EmptyState>{t('No test type yet.')}</EmptyState>
         )}
-        {editTypes && <TestTypeForm resources={data.resources.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang) }))} />}
+        {editTypes && <div><Folded summary="Add a test type"><TestTypeForm resources={data.resources.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang) }))} /></Folded></div>}
       </SectionCard>
 
       <SectionCard title={t('Substitutions')} hint={String(plan.substitutions.length)} subtitle={t('A test type on another resource than its nominal one. The engine proposes a validated substitution only: the host facility’s manager validates, with the technical referent and the Codex justification; the safety officer’s opinion is asked for hazardous matter (R-4).')} scroll>
@@ -196,7 +197,7 @@ export default async function RulesPage() {
                       <Tag size="sm" tone={x.status === 'validated' ? 'accent' : x.status === 'proposed' ? 'outline' : 'neutral'}>{t(SUBSTITUTION_STATUS_LABEL[x.status])}</Tag>
                       {x.status === 'proposed' && host && !x.hostValidatedByName && <ValidateSubstitutionButton id={x.id} label="Validate (host facility)" />}
                       {x.status === 'proposed' && safety && x.hazardous && !x.safetyValidatedByName && <ValidateSubstitutionButton id={x.id} label="Give the safety opinion" />}
-                      {x.status !== 'retired' && (host || safety) && <RetireSubstitutionForm id={x.id} />}
+                      {x.status !== 'retired' && (host || safety) && <Folded summary="Retire…" title="Retire the substitution" size="xs" variant="ghost"><RetireSubstitutionForm id={x.id} /></Folded>}
                       {x.retiredReason && <div className="text-muted">{dataText(x.retiredReason, lang)}</div>}
                     </Td>
                   </tr>
@@ -208,8 +209,10 @@ export default async function RulesPage() {
           <EmptyState>{t('No substitution.')}</EmptyState>
         )}
         {mine.length > 0 && (
-          <SubstitutionForm testTypes={types.filter(({ t: x }) => x.active).map(({ t: x }) => ({ value: x.code, label: `${x.code} · ${dataText(x.name, lang)}` }))}
-            resources={data.resources.map((r) => ({ value: r.id, label: `${r.code} · ${dataText(r.name, lang)}` }))} />
+          <div><Folded summary="Propose a substitution">
+            <SubstitutionForm testTypes={types.filter(({ t: x }) => x.active).map(({ t: x }) => ({ value: x.code, label: `${x.code} · ${dataText(x.name, lang)}` }))}
+              resources={data.resources.map((r) => ({ value: r.id, label: `${r.code} · ${dataText(r.name, lang)}` }))} />
+          </Folded></div>
         )}
       </SectionCard>
 

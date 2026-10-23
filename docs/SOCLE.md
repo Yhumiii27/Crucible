@@ -31,3 +31,14 @@
 
 **Jamais copiés** : le cycle DIG-PRODI, le budget, les CAPEX (`src/domain/{lifecycle,budget,capex}.ts`, `src/features/capex/`,
 `src/server/dal/{capex,cycle}.ts`), leurs écrans et migrations, le jeu de démonstration d’Arche.
+
+## Livraison 5b (23 oct. 2026) : coquille fidèle à Keystone
+
+Reprise de la **plateforme** seulement, adaptée aux installations de Crucible :
+
+| Élément | Origine | Adaptation dans Crucible |
+|---|---|---|
+| Menu par thèmes, sections repliables (cookie), recherche de page ⌘K, sélecteur d’objet dans le menu | Arche `3d41e8f` (livraison 4b), `src/components/app/shell/{sidebar.tsx,nav-model.ts,sidebar.module.css}` | section **Installation** et son sélecteur (cookie `crucible-facility`), onglets de la fiche (`src/config/facility-tabs.ts`), compteurs des entrées |
+| Formulaire dans un panneau latéral (`Folded`), fermé quand l’action réussit, avis de confirmation | Arche `3d41e8f`, `src/components/app/ActionForm.tsx` | avertissements des Server Functions repris dans l’avis |
+| Outils de l’en-tête : recherche globale, cloche, date d’état, FR / EN, Exporter | Keystone `f8664df`, `src/components/app/shell/header-islands.tsx`, `header.module.css` | `header-tools.tsx` ; recherche `src/server/actions/search.ts` (filtres U-3) ; export CSV `src/app/api/export/[screen]` (pas d’Excel ni de PDF) |
+

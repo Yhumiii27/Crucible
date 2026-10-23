@@ -39,13 +39,16 @@ export interface KpiTileProps {
   /** `lg` = 24px value + 12px sub (Home, Overview); `md` = 22px + 11.5px. */
   size?: 'md' | 'lg';
   className?: string;
+  /** The tile opens this screen (delivery 5b, home). */
+  href?: string;
 }
 
 /** `.card.elev-sm` gap 3px · padding 12px 14px: label / value / sub. */
-export function KpiTile({ label, value, sub, tone = 'default', color, icon: I, size = 'md', className }: KpiTileProps) {
+export function KpiTile({ label, value, sub, tone = 'default', color, icon: I, size = 'md', className, href }: KpiTileProps) {
   const c = color ?? (tone === 'alert' ? LO : undefined);
+  const Box = href ? Link : 'div';
   return (
-    <div className={cx('card', 'elev-sm', s.tile, size === 'lg' && s.lg, className)} style={c ? ({ '--kpi-color': c } as CSSProperties) : undefined}>
+    <Box href={href as string} className={cx('card', 'elev-sm', s.tile, size === 'lg' && s.lg, href && s.linkTile, className)} style={c ? ({ '--kpi-color': c } as CSSProperties) : undefined}>
       <div className={s.label}>{label}</div>
       <div className={s.value}>{value}</div>
       {(sub != null || I) && (
@@ -54,7 +57,7 @@ export function KpiTile({ label, value, sub, tone = 'default', color, icon: I, s
           {sub}
         </div>
       )}
-    </div>
+    </Box>
   );
 }
 

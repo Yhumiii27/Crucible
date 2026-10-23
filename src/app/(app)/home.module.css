@@ -1,0 +1,23 @@
+/* Home (delivery 5b): greeting line, then rows of cards that wrap. */
+.hello {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.helloName {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.helloSub {
+  font-size: 13px;
+  color: var(--color-neutral-400);
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}

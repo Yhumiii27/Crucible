@@ -2,8 +2,10 @@
 // breakdown takes a resource out, an absence a person — and Crucible computes the recovery scenario at once: the bookings touched,
 // placed again (resource, then a validated substitute, qualified people, equipment), and the consequences per project before
 // and after. The decider accepts it (the bookings are moved and their requesters notified) or rejects it. Urgencies (the R&D
-// director, the coordinator) and what-if simulations (never applied) use the same mechanism.
+// director, the coordinator) and what-if simulations (never applied) use the same mechanism. Delivery 5b: the three forms in side
+// panels opened from the header, each scenario as a card — its facts, then before → after per booking, then the decision.
 import { notFound } from 'next/navigation';
+import { Folded } from '@/components/app/ActionForm';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
@@ -20,6 +22,7 @@ import { fmtDate, fmtInstant, fmtSlot } from '@/lib/format';
 import { businessToday } from '@/server/clock';
 import { incidentsScreen } from '@/server/dal/incidents';
 import { getI18n, getViewer } from '@/server/session';
+import st from './incidents.module.css';
 
 const DECLARERS = ['rd_director', 'coordinator', 'facility_manager', 'safety', 'project_lead', 'technician', 'partner'];
 
@@ -33,18 +36,37 @@ export default async function IncidentsPage() {
   const mine = managedFacilities(viewer.role, viewer.assignments);
   return (
     <>
-      <PageHeader screen="incidents" />
-      {DECLARERS.includes(viewer.role) && (data.resources.length > 0 || data.people.length > 0) && (
-        <SectionCard title={t('Declare an incident')} subtitle={t('A breakdown makes the resource unavailable; an absence takes the person out. The recovery scenario is computed at once and submitted to the decider: nothing moves without a decision.')}>
-          <IncidentForm today={today} resources={data.resources.map((r) => ({ value: r.id, label: `${r.code} · ${dataText(r.name, lang)}` }))} people={data.people.map((p) => ({ value: p.id, label: p.name }))} />
-        </SectionCard>
-      )}
-
+      <PageHeader
+        screen="incidents"
+        crumbs={['Planning']}
+        primary={
+          <>
+            {['rd_director', 'coordinator', 'project_lead'].includes(viewer.role) && data.resources.length > 0 && (
+              <Folded summary="Simulate a what-if" size="md" title="What if?">
+                <p className="text-muted">{t('A simulation: the consequences if a resource were out of service, without moving or notifying anything.')}</p>
+                <SimulationForm resources={data.resources.map((r) => ({ value: r.id, label: `${r.code} · ${dataText(r.name, lang)}` }))} />
+              </Folded>
+            )}
+            {deciding && data.openNeeds.length > 0 && (
+              <Folded summary="Declare an urgency" size="md">
+                <p className="text-muted">{t('An urgent test passes first, even inside the frozen window; the bookings it displaces are placed again after it. The decider validates the moves; urgencies are counted in the steering (A-8).')}</p>
+                <UrgencyForm needs={data.openNeeds.map((n) => ({ value: n.id, label: `${n.ref} · ${n.projectCode} · ${dataText(n.title, lang)}` }))} />
+              </Folded>
+            )}
+            {DECLARERS.includes(viewer.role) && (data.resources.length > 0 || data.people.length > 0) && (
+              <Folded summary="Declare an incident" variant="primary" size="md">
+                <p className="text-muted">{t('A breakdown makes the resource unavailable; an absence takes the person out. The recovery scenario is computed at once and submitted to the decider: nothing moves without a decision.')}</p>
+                <IncidentForm today={today} resources={data.resources.map((r) => ({ value: r.id, label: `${r.code} · ${dataText(r.name, lang)}` }))} people={data.people.map((p) => ({ value: p.id, label: p.name }))} />
+              </Folded>
+            )}
+          </>
+        }
+      />
       <SectionCard title={t('Scenarios')} hint={String(data.scenarios.length)} subtitle={t('Only the bookings touched move; every other booking stays (frozen window). Each move respects every hard constraint.')}>
         {data.scenarios.length ? data.scenarios.map((s) => {
           const hyp = s.hypothesis as { resource?: string; fromOn?: string; toOn?: string; urgentSlot?: { resourceId: string; start: number; end: number } } | null;
           return (
-            <div key={s.id} style={{ display: 'grid', gap: 8, padding: '10px 0', borderTop: '1px solid var(--color-neutral-800)' }}>
+            <div key={s.id} className={s.status === 'submitted' ? `${st.card} ${st.pending}` : st.card}>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                 <strong>{s.ref}</strong>
                 <span>{t(SCENARIO_KIND_LABEL[s.kind])}</span>
@@ -52,6 +74,11 @@ export default async function IncidentsPage() {
                 <span className="text-muted">{fmtInstant(s.createdAt, lang)} · {s.createdByName} · {t('rules')} v{s.ruleVersion}</span>
                 {hyp?.resource && <span className="text-muted">{t('Hypothesis')} : {hyp.resource} {t('out of service')} {fmtDate(hyp.fromOn!, lang)} → {fmtDate(hyp.toOn!, lang)}</span>}
                 {hyp?.urgentSlot && <span>{t('Urgent test')} : {code(hyp.urgentSlot.resourceId)} · {fmtSlot(hyp.urgentSlot.start, hyp.urgentSlot.end, lang)}</span>}
+              </div>
+              <div className={st.facts}>
+                <div className={st.fact}><span className={st.label}>{t('Bookings touched')}</span><span className={st.value}>{s.moves.length}</span><span className={st.sub}>{t('the others stay (frozen window)')}</span></div>
+                <div className={st.fact}><span className={st.label}>{t('Late after recovery')}</span><span className={st.value}>{s.impacts.reduce((a, x) => a + (x.lateAfter ?? 0), 0)} {t('working days')}</span><span className={st.sub}>{s.impacts.some((x) => x.lateAfter == null) ? t('some tests not placed') : s.impacts.every((x) => (x.lateAfter ?? 0) === 0) ? t('every deadline kept') : t('deadlines missed')}</span></div>
+                <div className={st.fact}><span className={st.label}>{t('Projects touched')}</span><span className={st.value}>{new Set(s.moves.map((m) => m.projectCode)).size}</span><span className={st.sub}>{[...new Set(s.moves.map((m) => project(m.projectCode)))].join(' · ')}</span></div>
               </div>
               {s.moves.length ? (
                 <Table>
@@ -95,18 +122,6 @@ export default async function IncidentsPage() {
           );
         }) : <EmptyState>{t('No scenario yet.')}</EmptyState>}
       </SectionCard>
-
-      {['rd_director', 'coordinator', 'project_lead'].includes(viewer.role) && data.resources.length > 0 && (
-        <SectionCard title={t('What if?')} subtitle={t('A simulation: the consequences if a resource were out of service, without moving or notifying anything.')}>
-          <SimulationForm resources={data.resources.map((r) => ({ value: r.id, label: `${r.code} · ${dataText(r.name, lang)}` }))} />
-        </SectionCard>
-      )}
-
-      {deciding && data.openNeeds.length > 0 && (
-        <SectionCard title={t('Declare an urgency')} subtitle={t('An urgent test passes first, even inside the frozen window; the bookings it displaces are placed again after it. The decider validates the moves; urgencies are counted in the steering (A-8).')}>
-          <UrgencyForm needs={data.openNeeds.map((n) => ({ value: n.id, label: `${n.ref} · ${n.projectCode} · ${dataText(n.title, lang)}` }))} />
-        </SectionCard>
-      )}
 
       <SectionCard title={t('Incidents')} hint={String(data.incidents.length)} scroll>
         {data.incidents.length ? (
