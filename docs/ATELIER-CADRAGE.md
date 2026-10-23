@@ -47,5 +47,9 @@ coordinateur ? Quels indicateurs suivre chaque mois ?
 
 ## Données à rapporter (gabarits)
 
-Fichiers simples (tableur), une ligne par élément, colonnes indiquées dans le questionnaire (D-1 à D-10). Les réponses
-peuvent être collées directement dans les blocs « Données » du questionnaire.
+Classeur [`atelier/gabarits-donnees-crucible.xlsx`](atelier/gabarits-donnees-crucible.xlsx) (23 oct. 2026) : un onglet par
+donnée D-1 à D-11, une ligne par élément, colonnes alignées sur ce que Crucible vérifie à la saisie, listes déroulantes, une
+ligne d’exemple et une note par en-tête. L’onglet D-8 (historique) suit exactement le format de l’import de Crucible : ses
+lignes se collent telles quelles dans Planning des moyens → Importer l’historique. Le classeur est produit par
+`python3 scripts/atelier/gabarits.py` (à relancer si un champ change). Les réponses peuvent aussi être collées dans les blocs
+« Données » du questionnaire.
