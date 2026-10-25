@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-10-23",
+ "updated": "2026-10-25",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -50,6 +50,10 @@
   {
    "date": "2026-10-23",
    "text": "Gabarits de données de l’atelier (D-1 à D-11) : classeur docs/atelier/gabarits-donnees-crucible.xlsx, colonnes alignées sur les champs de Crucible, D-8 au format de l’import de l’historique."
+  },
+  {
+   "date": "2026-10-25",
+   "text": "Exploitation : ligne de dépannage « Bad Gateway » (domaine Coolify sans :3500) dans docs/EXPLOITATION.md §4.1, après la panne du 24 oct. 2026."
   }
  ],
  "items": [

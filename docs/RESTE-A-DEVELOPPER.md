@@ -1,6 +1,6 @@
 # Crucible — reste à développer
 
-Inventaire initial du 2026-10-22, mis à jour le 2026-10-23 (branche `claude/lucid-dirac-7bdq6x`). Il recense ce qu'il reste à développer, à brancher, à décider ou à mettre en production pour Crucible, aligné sur le plan de livraisons (`docs/PLAN.md`). Il est tenu à jour à chaque développement : un point passe « en cours » quand une livraison le prend, « fait » quand il est intégré et vérifié. Le détail est dans `docs/reste-a-developper.json` ; ce document et la page sont produits par `npm run remaining:page`.
+Inventaire initial du 2026-10-22, mis à jour le 2026-10-25 (branche `claude/lucid-dirac-7bdq6x`). Il recense ce qu'il reste à développer, à brancher, à décider ou à mettre en production pour Crucible, aligné sur le plan de livraisons (`docs/PLAN.md`). Il est tenu à jour à chaque développement : un point passe « en cours » quand une livraison le prend, « fait » quand il est intégré et vérifié. Le détail est dans `docs/reste-a-developper.json` ; ce document et la page sont produits par `npm run remaining:page`.
 
 **Lecture.** Priorité : Bloquant production, Prochaine étape, À décider (il faut d'abord trancher), Plus tard. Effort, pour un développeur qui connaît le code : S < 2 jours, M ≤ 1 semaine, L ≤ 3 semaines, XL > 3 semaines. Les identifiants entre parenthèses renvoient aux décisions (`docs/DECISIONS.md`) et aux demandes (`docs/DEMANDES-*.md`).
 
@@ -155,6 +155,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-25 — Exploitation : ligne de dépannage « Bad Gateway » (domaine Coolify sans :3500) dans docs/EXPLOITATION.md §4.1, après la panne du 24 oct. 2026.
 - 2026-10-23 — Gabarits de données de l’atelier (D-1 à D-11) : classeur docs/atelier/gabarits-donnees-crucible.xlsx, colonnes alignées sur les champs de Crucible, D-8 au format de l’import de l’historique.
 - 2026-10-23 — Pilote préparé : écran Pilote (premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote, X-2), plan docs/PILOTE.md ; démarrage à la levée des prérequis (atelier, données, hébergement, Entra).
 - 2026-10-23 — Livraison 6 : assistant IA adossé au moteur — panneau sur chaque écran, explications (trace du moteur, conflits), alternatives, risques, simulation, brouillon de besoin ; repli par gabarits sans IA ; Claude prêt, activé après validation de la DSI.
