@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-10-25",
+ "updated": "2026-10-26",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -54,6 +54,10 @@
   {
    "date": "2026-10-25",
    "text": "Exploitation : ligne de dépannage « Bad Gateway » (domaine Coolify sans :3500) dans docs/EXPLOITATION.md §4.1, après la panne du 24 oct. 2026."
+  },
+  {
+   "date": "2026-10-26",
+   "text": "Analyse comparative avec les solutions du commerce (25 oct. 2026) : 13 items ajoutés (CR-071 à CR-083), 4 annotés (CR-007, CR-051, CR-060, CR-070)."
   }
  ],
  "items": [
@@ -182,7 +186,7 @@
   {
    "id": "CR-007",
    "title": "Mise en production : hébergement, Entra réel, serveur commun",
-   "description": "Hébergeur (T-6), inscription Entra, rôle et schéma créés par Matrix (M-1 à M-5).",
+   "description": "Hébergeur (T-6), inscription Entra, rôle et schéma créés par Matrix (M-1 à M-5). Analyse comparative du 25 oct. 2026 : prérequis bloquants confirmés (hébergement T-6, Entra réel, données D-1 à D-11, pilote). Écart P2 (niveau standard) : la bêta tourne en mode démo (CRUCIBLE_AUTH=demo, « voir en tant que ») derrière l’authentification HTTP de Coolify ; l’authentification réelle par Entra doit être en place avant tout usage hors démonstration. La limitation des tentatives côté application fait l’objet de CR-079.",
    "category": "plateforme_production",
    "kind": "exploitation",
    "priority": "bloquant_production",
@@ -386,7 +390,7 @@
   {
    "id": "CR-051",
    "title": "Activer Claude pour l’assistant",
-   "description": "Poser CRUCIBLE_AI=claude et ANTHROPIC_API_KEY une fois le fournisseur et la région d’hébergement validés par la DSI (I-3) ; confirmer le modèle (I-6) et la conservation des échanges (I-5).",
+   "description": "Poser CRUCIBLE_AI=claude et ANTHROPIC_API_KEY une fois le fournisseur et la région d’hébergement validés par la DSI (I-3) ; confirmer le modèle (I-6) et la conservation des échanges (I-5). Analyse comparative du 25 oct. 2026 : écart P3 (différenciant) — l’assistant répond par gabarits locaux tant que Claude est désactivé ; une fois activé, étendre l’assistant à la prévision de charge (tendances d’occupation, risques de goulot à venir) en lecture seule, le moteur restant seul à proposer.",
    "category": "assistant_ia",
    "kind": "fonction",
    "priority": "plus_tard",
@@ -405,7 +409,7 @@
   {
    "id": "CR-060",
    "title": "Connecteurs Keystone, Cursus, Vigie, Codex",
-   "description": "Jalons Keystone (K-2), habilitations et absences Cursus (CU-1, CU-2), contrôles et coactivité Vigie (V-1, V-2), documents Codex (CX-1, CX-2) ; vues pub_ publiées.",
+   "description": "Jalons Keystone (K-2), habilitations et absences Cursus (CU-1, CU-2), contrôles et coactivité Vigie (V-1, V-2), documents Codex (CX-1, CX-2) ; vues pub_ publiées. Analyse comparative du 25 oct. 2026 : écart P1 (niveau standard du marché) — les vues attendues ne sont pas encore lues (jalons Keystone K-2, absences Cursus CU-1, contrôles Vigie V-1/V-2, documents Codex) ; tant qu’elles ne le sont pas, les jalons, absences et contrôles sont saisis deux fois (src/config/connectors.ts). Brancher les lectures dès que les vues sont accordées met fin aux doubles saisies.",
    "category": "liens_outils",
    "kind": "integration",
    "priority": "plus_tard",
@@ -425,7 +429,7 @@
   {
    "id": "CR-070",
    "title": "Pilote (4 semaines d’usage réel)",
-   "description": "Laboratoire 67 et PDE (P-3) : Crucible référence des réservations, mesure de référence comparée au pilote (X-2), revue hebdomadaire, bilan (P-10).",
+   "description": "Laboratoire 67 et PDE (P-3) : Crucible référence des réservations, mesure de référence comparée au pilote (X-2), revue hebdomadaire, bilan (P-10). Analyse comparative du 25 oct. 2026 : prérequis bloquant confirmé — le pilote reste le passage obligé avant toute extension fonctionnelle issue de l’analyse (CR-071 à CR-083) ; démarrage conditionné à l’hébergement, à Entra réel et aux données D-1 à D-11.",
    "category": "aleas_pilotage",
    "kind": "fonction",
    "priority": "prochaine_etape",
@@ -441,6 +445,291 @@
     "state": "en_cours",
     "delivery": "Pilote",
     "note": "Écran Pilote prêt : premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote. Démarrage à la levée des prérequis de docs/PILOTE.md §2."
+   }
+  },
+  {
+   "id": "CR-071",
+   "title": "Occupation réelle mesurée automatiquement (kiosque, agent, interlock, badge)",
+   "description": "P1, différenciant (Agilent iLab Kiosk / Interlock, Calira LabTrack). Mesurer l’occupation réelle sans déclaration : pointage sur une borne à l’entrée du moyen, agent sur le PC du banc, verrouillage matériel (interlock) ou lecture de badge ; rapprochement automatique avec la réservation (démarrage, fin, non-tenue A-7). Aujourd’hui démarrer / terminer sont déclaratifs à l’écran (Mon planning), sans capteur ni pointage.",
+   "category": "moyens_regles",
+   "kind": "fonction",
+   "priority": "prochaine_etape",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "L",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/features/resources/actions.ts : démarrer / terminer déclaratifs",
+    "src/domain/utilisation.ts : occupation calculée d’après les réservations déclarées"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-072",
+   "title": "E-mail vérifié (SMTP ou Microsoft Graph) et synchronisation Outlook / Teams des réservations",
+   "description": "P1, standard (Calira, QReserve, Ganttic). Envoyer réellement les notifications (relais SMTP du groupe ou Microsoft Graph) et proposer les réservations dans Outlook / Teams : invitations .ics à la confirmation, mise à jour et annulation, abonnement calendrier par moyen ou par personne. Aujourd’hui le transport e-mail est « none » ou « file » (dépôt sur disque) et aucun export calendrier n’existe.",
+   "category": "aleas_pilotage",
+   "kind": "integration",
+   "priority": "prochaine_etape",
+   "status": "bloque_systeme_externe",
+   "waiting_on": "DSI (relais SMTP ou application Graph)",
+   "effort": "M",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/server/config/parse.ts : CRUCIBLE_MAIL_TRANSPORT ∈ none | file",
+    "src/server/notify/mail.ts : pas de transport réseau",
+    "aucune génération .ics dans src/"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-073",
+   "title": "Maintenance et étalonnage des moyens : plan, échéances, alertes, blocage, piste d’audit",
+   "description": "P2, avancé (Calira Premium, LabVantage, Labguru). Plan de maintenance préventive et d’étalonnage par moyen (périodicité, prochaine échéance, prestataire), alertes avant l’échéance, blocage automatique des réservations à l’échéance dépassée, historique des interventions auditable. Aujourd’hui seuls les contrôles réglementaires périodiques existent (R-6, lecture Vigie V-1).",
+   "category": "moyens_regles",
+   "kind": "fonction",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "Responsable produit (hors demande initiale)",
+   "effort": "M",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/features/resources/actions.ts : recordInspectionAction (contrôles réglementaires seulement)",
+    "src/domain/resources.ts : indisponibilités de maintenance saisies à la main"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-074",
+   "title": "Refacturation interne : tarifs par moyen et par entité, coût des heures réservées et réelles, relevés par projet",
+   "description": "P2, avancé (QReserve, Agilent iLab). Grille tarifaire par moyen et par entité (laboratoire 67 partagé avec EPC France), valorisation des heures réservées et réalisées, relevé de refacturation par projet et par période, export vers la comptabilité. Aujourd’hui Crucible ne connaît que le coût d’acquisition de l’installation et la valeur de la capacité inoccupée (P-8).",
+   "category": "aleas_pilotage",
+   "kind": "fonction",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "Responsable produit (hors demande initiale)",
+   "effort": "M",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/domain/utilisation.ts : valeur inoccupée d’après le coût d’acquisition (P-8)",
+    "aucune notion de tarif ni de facture dans src/domain/"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-075",
+   "title": "Formulaires avant, pendant et après la réservation (check-list sécurité, fiche d’essai, rapport d’incident)",
+   "description": "P2, avancé (Calira). Formulaires configurables rattachés au type d’essai ou au moyen : check-list sécurité à remplir avant de démarrer, fiche d’essai pendant, rapport de fin ou d’incident après ; réponses conservées en ajout seul et citées au journal. Aujourd’hui absent ; seul un lien vers le protocole et le rapport dans Codex.",
+   "category": "moyens_regles",
+   "kind": "fonction",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "Responsable produit (hors demande initiale)",
+   "effort": "M",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/domain/needs.ts : références Codex des protocoles et rapports (liens seulement)"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-076",
+   "title": "Consommables et stock liés aux essais (quantités, péremption, alertes)",
+   "description": "P2, avancé (Labguru, QReserve). Consommables requis par type d’essai, quantités décomptées à la réservation ou à la fin de l’essai, lots et dates de péremption, alertes de seuil et de péremption, réservation signalée quand le stock manque. Aujourd’hui absent.",
+   "category": "moyens_regles",
+   "kind": "fonction",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "Responsable produit (hors demande initiale)",
+   "effort": "M",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "aucune table ni règle de consommable dans drizzle/ et src/domain/"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-077",
+   "title": "Rapports PDF et tableaux de bord exportables vers la BI",
+   "description": "P2, standard. Rapports périodiques en PDF (occupation, attente par entité, retards imputables, bilan du pilote) et exposition des indicateurs à un outil de BI (vue ou extraction planifiée) en plus du CSV. Aujourd’hui seul l’export CSV des écrans existe.",
+   "category": "aleas_pilotage",
+   "kind": "fonction",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "Responsable produit (hors demande initiale)",
+   "effort": "M",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/app/api/export/[screen]/route.ts : export CSV uniquement",
+    "vue crucible.pub_occupation_hebdo (instantanés hebdomadaires) seule exposée"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-078",
+   "title": "Réservations récurrentes, tampons entre réservations et délai d’anticipation minimal par moyen",
+   "description": "P2, standard (Skedda, Calpendo). Série de réservations (hebdomadaire, par campagne), temps tampon de préparation / remise en état entre deux réservations d’un même moyen, délai minimal d’anticipation et durée maximale propres à chaque moyen, contrôlés comme les autres contraintes dures. Aujourd’hui la prévenance n’existe que par accord d’entité (F-5) et chaque réservation est saisie une à une.",
+   "category": "moyens_regles",
+   "kind": "fonction",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "Responsable produit (hors demande initiale)",
+   "effort": "M",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/domain/booking.ts : checkBooking sans récurrence ni tampon",
+    "src/domain/needs.ts : prévenance de 10 jours ouvrés par entité (F-5)"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-079",
+   "title": "Limitation des tentatives (rate limiting applicatif)",
+   "description": "P2, standard. Limiter côté application les tentatives sur la connexion, la recherche globale, les exports et l’assistant (par session et par adresse), journaliser les dépassements. Aujourd’hui aucune limitation applicative ; la bêta repose sur l’authentification HTTP de Coolify (Traefik). L’authentification réelle est suivie dans CR-007.",
+   "category": "plateforme_production",
+   "kind": "technique",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "Responsable produit (hors demande initiale)",
+   "effort": "S",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/server/auth/ : aucun compteur de tentatives",
+    "deploy/compose.shared.yaml : middleware basicauth Traefik seulement"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-080",
+   "title": "Tests de bout en bout dans le navigateur",
+   "description": "P2, qualité. Parcours Playwright sur les écrans principaux (réservation refusée avec la règle citée, acceptation d’une proposition, scénario de reprise, panneau de l’assistant), joués en CI sur le port 3510. Aujourd’hui Playwright est installé mais aucun test de bout en bout n’existe ; seuls les tests unitaires et les contrôles de fumée HTTP tournent.",
+   "category": "plateforme_production",
+   "kind": "technique",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "Responsable produit (hors demande initiale)",
+   "effort": "M",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "package.json : @playwright/test 1.56.1 sans spécification",
+    "tests/smoke/run.ts : contrôles de fumée HTTP seulement"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-081",
+   "title": "Résultats d’essais et cahier de laboratoire (ELN) rattachés à la réservation",
+   "description": "P3, avancé (Benchling + Calira, Labguru). Rattacher à chaque réservation les résultats bruts, le cahier de laboratoire et le rapport, ou s’intégrer à un ELN. Hors périmètre déclaré au cadrage : Codex reste le référentiel documentaire et Crucible n’en garde que les liens ; à décider avant tout développement.",
+   "category": "liens_outils",
+   "kind": "integration",
+   "priority": "a_decider",
+   "status": "non_commence",
+   "waiting_on": "Responsable produit (hors périmètre déclaré)",
+   "effort": "L",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "docs/spec/00 : résultats d’essais hors périmètre",
+    "src/domain/needs.ts : lien Codex seulement"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-082",
+   "title": "Mobile : réservation et pointage depuis le téléphone, hors ligne à l’atelier",
+   "description": "P3, standard. Recette de l’interface sur téléphone (Mon planning, démarrer / terminer, cloche), écrans allégés pour l’atelier et le PDE, fonctionnement hors ligne avec resynchronisation. Aujourd’hui l’application web est responsive mais n’a pas été recettée sur mobile et ne fonctionne pas hors ligne.",
+   "category": "plateforme_production",
+   "kind": "fonction",
+   "priority": "plus_tard",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "M",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/features/ : mise en page responsive non recettée sur mobile",
+    "aucun service worker ni mode hors ligne"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+   }
+  },
+  {
+   "id": "CR-083",
+   "title": "API REST et webhooks pour les systèmes de bancs",
+   "description": "P3, standard (QReserve, Calira). API authentifiée pour lire les réservations et les moyens et déclarer un démarrage, une fin ou un incident depuis un automate de banc ; webhooks à la confirmation, au déplacement et à l’annulation. Aujourd’hui aucune API métier : les échanges passent par les vues pub_ et le CSV.",
+   "category": "liens_outils",
+   "kind": "integration",
+   "priority": "plus_tard",
+   "status": "non_commence",
+   "waiting_on": "",
+   "effort": "L",
+   "sources": [
+    "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
+   ],
+   "evidence": [
+    "src/app/api/ : auth, export CSV, health seulement",
+    "src/config/connectors.ts : échanges par vues pub_"
+   ],
+   "progress": {
+    "state": "a_faire",
+    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
    }
   }
  ]
