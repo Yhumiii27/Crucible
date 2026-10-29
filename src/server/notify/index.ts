@@ -14,6 +14,8 @@ export interface Notice {
   /** EN source text with typed references after " · ". */
   title: string;
   href?: string;
+  /** The booking it is about: its e-mail carries the calendar invitation (CR-072). */
+  bookingId?: string;
 }
 
 /** Stores one notification per recipient (distinct, active accounts, the author excepted). */
@@ -23,7 +25,7 @@ export async function notify(q: Q, userIds: readonly (string | null | undefined)
   const active = await q.select({ id: users.id }).from(users).where(and(inArray(users.id, ids), eq(users.active, true)));
   if (!active.length) return 0;
   const at = opts.at ?? new Date();
-  await q.insert(notifications).values(active.map((u) => ({ userId: u.id, kind: n.kind, title: n.title, href: n.href ?? null, createdAt: at })));
+  await q.insert(notifications).values(active.map((u) => ({ userId: u.id, kind: n.kind, title: n.title, href: n.href ?? null, bookingId: n.bookingId ?? null, createdAt: at })));
   return active.length;
 }
 

@@ -1,38 +1,38 @@
 # Crucible — reste à développer
 
-Inventaire initial du 2026-10-22, mis à jour le 2026-10-26 (branche `claude/lucid-dirac-7bdq6x`). Il recense ce qu'il reste à développer, à brancher, à décider ou à mettre en production pour Crucible, aligné sur le plan de livraisons (`docs/PLAN.md`). Il est tenu à jour à chaque développement : un point passe « en cours » quand une livraison le prend, « fait » quand il est intégré et vérifié. Le détail est dans `docs/reste-a-developper.json` ; ce document et la page sont produits par `npm run remaining:page`.
+Inventaire initial du 2026-10-22, mis à jour le 2026-10-29 (branche `claude/lucid-dirac-7bdq6x`). Il recense ce qu'il reste à développer, à brancher, à décider ou à mettre en production pour Crucible, aligné sur le plan de livraisons (`docs/PLAN.md`). Il est tenu à jour à chaque développement : un point passe « en cours » quand une livraison le prend, « fait » quand il est intégré et vérifié. Le détail est dans `docs/reste-a-developper.json` ; ce document et la page sont produits par `npm run remaining:page`.
 
 **Lecture.** Priorité : Bloquant production, Prochaine étape, À décider (il faut d'abord trancher), Plus tard. Effort, pour un développeur qui connaît le code : S < 2 jours, M ≤ 1 semaine, L ≤ 3 semaines, XL > 3 semaines. Les identifiants entre parenthèses renvoient aux décisions (`docs/DECISIONS.md`) et aux demandes (`docs/DEMANDES-*.md`).
 
 ## 1. En bref
 
-**Avancement** : 13 faits, 4 en cours, 15 à faire, sur 32 points.
+**Avancement** : 15 faits, 4 en cours, 13 à faire, sur 32 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
-| Prochaine étape | 4 | ≈ 24 |
+| Prochaine étape | 2 | ≈ 8 |
 | À décider | 10 | ≈ 43 |
 | Plus tard | 4 | ≈ 30 |
-| **Total** | **19** | **≈ 101** |
+| **Total** | **17** | **≈ 85** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 13 |
+| Non commencé | 12 |
 | Partiel | 0 |
 | Attend le responsable produit | 3 |
-| Attend un système externe | 3 |
+| Attend un système externe | 2 |
 
 | Domaine | Bloquant production | Prochaine étape | À décider | Plus tard | Restants | Faits |
 |---|---:|---:|---:|---:|---:|---:|
 | Plateforme et mise en production | 1 | 0 | 2 | 1 | 4 | 1 |
 | Connexion, profils et visibilité | 0 | 0 | 0 | 0 | 0 | 2 |
-| Moyens d’essais, règles et réservations | 0 | 1 | 4 | 0 | 5 | 3 |
+| Moyens d’essais, règles et réservations | 0 | 0 | 4 | 0 | 4 | 4 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
-| Aléas, scénarios et pilotage | 0 | 2 | 2 | 0 | 4 | 3 |
+| Aléas, scénarios et pilotage | 0 | 1 | 2 | 0 | 3 | 4 |
 | Assistant IA | 0 | 0 | 0 | 1 | 1 | 1 |
 | Liens avec les autres outils | 0 | 0 | 1 | 2 | 3 | 0 |
 | Cadrage, décisions et données attendues | 0 | 1 | 1 | 0 | 2 | 1 |
@@ -65,7 +65,6 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 
 - **CR-007** Mise en production : hébergement, Entra réel, serveur commun — Matrix, DSI
 - **CR-060** Connecteurs Keystone, Cursus, Vigie, Codex — Keystone, Cursus, Vigie, Codex
-- **CR-072** E-mail vérifié (SMTP ou Microsoft Graph) et synchronisation Outlook / Teams des réservations — DSI (relais SMTP ou application Graph)
 
 ## 2. Liste détaillée par domaine
 
@@ -101,11 +100,7 @@ Socle d’Arche (lui-même repris de Keystone), PostgreSQL seul, schéma crucibl
 Écritures validées côté serveur et auditées ; projets et classe de priorité par la direction R&D.  
 *Avancement : src/features/admin/. · Sources : docs/spec/05-ecrans.md*
 
-### 2.3 Moyens d’essais, règles et réservations (5 restants, 3 faits)
-
-**CR-071 · Occupation réelle mesurée automatiquement (kiosque, agent, interlock, badge)** — *Prochaine étape · non commencé · effort L*  
-P1, différenciant (Agilent iLab Kiosk / Interlock, Calira LabTrack). Mesurer l’occupation réelle sans déclaration : pointage sur une borne à l’entrée du moyen, agent sur le PC du banc, verrouillage matériel (interlock) ou lecture de badge ; rapprochement automatique avec la réservation (démarrage, fin, non-tenue A-7). Aujourd’hui démarrer / terminer sont déclaratifs à l’écran (Mon planning), sans capteur ni pointage.  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+### 2.3 Moyens d’essais, règles et réservations (4 restants, 4 faits)
 
 **CR-073 · Maintenance et étalonnage des moyens : plan, échéances, alertes, blocage, piste d’audit** — *À décider · non commencé · effort M*  
 P2, avancé (Calira Premium, LabVantage, Labguru). Plan de maintenance préventive et d’étalonnage par moyen (périodicité, prochaine échéance, prestataire), alertes avant l’échéance, blocage automatique des réservations à l’échéance dépassée, historique des interventions auditable. Aujourd’hui seuls les contrôles réglementaires périodiques existent (R-6, lecture Vigie V-1).  
@@ -135,6 +130,10 @@ Une zone du PDE active à la fois (P-2, R-2) ; validation par le référent séc
 Réservation refusée avec la règle citée ; planning des moyens ; « Mon planning » (démarrer, terminer) ; réservations non tenues (A-7).  
 *Avancement : Demande, confirmation, annulation, démarrer / terminer, non-tenue (A-7) ; planning des moyens ; Mon planning. · Sources : docs/spec/03-planification.md, docs/spec/05-ecrans.md*
 
+**~~CR-071 · Occupation réelle mesurée automatiquement (kiosque, agent, interlock, badge)~~** — *Prochaine étape · non commencé · effort L* · **fait (Livraison 7)**  
+P1, différenciant (Agilent iLab Kiosk / Interlock, Calira LabTrack). Mesurer l’occupation réelle sans déclaration : pointage sur une borne à l’entrée du moyen, agent sur le PC du banc, verrouillage matériel (interlock) ou lecture de badge ; rapprochement automatique avec la réservation (démarrage, fin, non-tenue A-7). Aujourd’hui démarrer / terminer sont déclaratifs à l’écran (Mon planning), sans capteur ni pointage.  
+*Avancement : Bornes (/kiosk/<jeton>), API POST /api/occupancy pour agent, verrouillage ou badge, rapprochement automatique avec la réservation (début, fin, utilisation sans réservation non comptée), événements en ajout seul, onglet « Mesure de l’occupation » ; X-8 à confirmer. Reste : brancher le matériel des installations (D-1). · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+
 ### 2.4 Besoins des projets et anticipation (0 restants, 1 faits)
 
 **~~CR-020 · Besoins des projets, jalons et plan de charge~~** — *Plus tard · non commencé · effort M* · **fait (Livraison 3)**  
@@ -147,15 +146,11 @@ Prévisions, demandes, délai de prévenance (F-5), plan de charge 26 semaines (
 Personnes et compétences, substitutions validées, heuristique déterministe (T-3), fiches de conflit, règles de priorité versionnées (A-1, A-2).  
 *Avancement : Personnes et compétences (lecture de Cursus quand la vue est accordée), exigences des types d’essai, équipements mobiles, substitutions validées (R-4), règles de priorité versionnées, moteur déterministe qui propose seulement (passage quotidien), acceptation par lot après un nouveau contrôle, fiches de conflit avec options, règle citée et recommandation, arbitrages en ajout seul, veto sécurité. Propriété vérifiée sur 60 scénarios aléatoires. Choix à confirmer : R-11, A-9, F-14. · Sources : docs/spec/03-planification.md §4–5*
 
-### 2.6 Aléas, scénarios et pilotage (4 restants, 3 faits)
+### 2.6 Aléas, scénarios et pilotage (3 restants, 4 faits)
 
 **CR-070 · Pilote (4 semaines d’usage réel)** — *Prochaine étape · attend le responsable produit · effort M* · **en cours (Pilote)**  
 Laboratoire 67 et PDE (P-3) : Crucible référence des réservations, mesure de référence comparée au pilote (X-2), revue hebdomadaire, bilan (P-10). Analyse comparative du 25 oct. 2026 : prérequis bloquant confirmé — le pilote reste le passage obligé avant toute extension fonctionnelle issue de l’analyse (CR-071 à CR-083) ; démarrage conditionné à l’hébergement, à Entra réel et aux données D-1 à D-11.  
 *Avancement : Écran Pilote prêt : premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote. Démarrage à la levée des prérequis de docs/PILOTE.md §2. · Attend : Atelier et données D-1 à D-11 ; DSI (hébergement T-6, inscription Entra) ; Matrix (M-6) · Sources : docs/PILOTE.md, docs/PLAN.md*
-
-**CR-072 · E-mail vérifié (SMTP ou Microsoft Graph) et synchronisation Outlook / Teams des réservations** — *Prochaine étape · attend un système externe · effort M*  
-P1, standard (Calira, QReserve, Ganttic). Envoyer réellement les notifications (relais SMTP du groupe ou Microsoft Graph) et proposer les réservations dans Outlook / Teams : invitations .ics à la confirmation, mise à jour et annulation, abonnement calendrier par moyen ou par personne. Aujourd’hui le transport e-mail est « none » ou « file » (dépôt sur disque) et aucun export calendrier n’existe.  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Attend : DSI (relais SMTP ou application Graph) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 **CR-074 · Refacturation interne : tarifs par moyen et par entité, coût des heures réservées et réelles, relevés par projet** — *À décider · non commencé · effort M*  
 P2, avancé (QReserve, Agilent iLab). Grille tarifaire par moyen et par entité (laboratoire 67 partagé avec EPC France), valorisation des heures réservées et réalisées, relevé de refacturation par projet et par période, export vers la comptabilité. Aujourd’hui Crucible ne connaît que le coût d’acquisition de l’installation et la valeur de la capacité inoccupée (P-8).  
@@ -172,6 +167,10 @@ Occupation réservée / réalisée / avec préparation / blocage (P-5), attente 
 **~~CR-041 · Interface fidèle à Keystone~~** — *Prochaine étape · non commencé · effort S* · **fait (Livraison 5b)**  
 Menu par thèmes, section Installation, en-tête de Keystone, panneaux latéraux, écrans refaits d’après les maquettes validées (X-5, X-6).  
 *Avancement : Menu par thèmes, ⌘K, sélecteur d’installation et onglets ; recherche globale, cloche, date d’état, FR / EN, export CSV ; formulaires en panneaux ; accueil, À trancher, planning, plan de charge, propositions, conflits, aléas, fiche d’installation. · Sources : docs/DELIVERY-5b.md, https://claude.ai/artifact/NCPJzxcCPuXWFxPL36CvJS*
+
+**~~CR-072 · E-mail vérifié (SMTP ou Microsoft Graph) et synchronisation Outlook / Teams des réservations~~** — *Prochaine étape · attend un système externe · effort M* · **fait (Livraison 7)**  
+P1, standard (Calira, QReserve, Ganttic). Envoyer réellement les notifications (relais SMTP du groupe ou Microsoft Graph) et proposer les réservations dans Outlook / Teams : invitations .ics à la confirmation, mise à jour et annulation, abonnement calendrier par moyen ou par personne. Aujourd’hui le transport e-mail est « none » ou « file » (dépôt sur disque) et aucun export calendrier n’existe.  
+*Avancement : Transports smtp (relais du groupe) et graph (Microsoft Graph sendMail), invitations .ics jointes (REQUEST puis CANCEL), abonnements Outlook / Teams par personne ou par moyen avec ses droits ; X-9 à confirmer. Activation : relais SMTP ou application Graph à obtenir de la DSI. · Attend : DSI (relais SMTP ou application Graph) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 **~~CR-040 · Aléas, replanification, scénarios et notifications~~** — *Plus tard · non commencé · effort M* · **fait (Livraison 5)**  
 Scénario de reprise, avant / après par projet, urgences (A-8), cloche et e-mail (F-8).  
@@ -217,6 +216,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-29 — Livraison 7 : CR-071 (occupation mesurée par borne, agent, verrouillage ou badge) et CR-072 (e-mail SMTP ou Microsoft Graph, invitations et abonnements Outlook / Teams) faits ; X-8 et X-9 ajoutés, réponse par défaut appliquée.
 - 2026-10-26 — Analyse comparative avec les solutions du commerce (25 oct. 2026) : 13 items ajoutés (CR-071 à CR-083), 4 annotés (CR-007, CR-051, CR-060, CR-070).
 - 2026-10-25 — Exploitation : ligne de dépannage « Bad Gateway » (domaine Coolify sans :3500) dans docs/EXPLOITATION.md §4.1, après la panne du 24 oct. 2026.
 - 2026-10-23 — Gabarits de données de l’atelier (D-1 à D-11) : classeur docs/atelier/gabarits-donnees-crucible.xlsx, colonnes alignées sur les champs de Crucible, D-8 au format de l’import de l’historique.

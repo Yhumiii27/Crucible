@@ -8,19 +8,30 @@ import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
 import { Tag } from '@/components/ds/Tag';
 import { canSee } from '@/config/screens';
+import { Folded } from '@/components/app/ActionForm';
 import { MarkReadButton } from '@/features/incidents/forms';
+import { CalendarFeedForm, RevokeFeedButton } from '@/features/measure/forms';
 import { fmtInstant } from '@/lib/format';
+import { myCalendarFeeds } from '@/server/calendar';
 import { myNotifications } from '@/server/dal/incidents';
+import { visibleResources } from '@/server/dal/visibility';
 import { getI18n, getViewer } from '@/server/session';
 
 export default async function NotificationsPage() {
   const [{ t, lang }, viewer] = await Promise.all([getI18n(), getViewer()]);
   if (!canSee(viewer.role, 'notifications')) notFound();
-  const { rows, unread } = await myNotifications(viewer.userId);
+  const [{ rows, unread }, feeds, resources] = await Promise.all([myNotifications(viewer.userId), myCalendarFeeds(viewer.userId), visibleResources(viewer)]);
   const title = (s: string) => s.split(' · ').map((x, i) => (i === 0 ? t(x) : x)).join(' · ');
   return (
     <>
-      <PageHeader screen="notifications" />
+      <PageHeader screen="notifications"
+        primary={
+          <Folded summary="Subscribe from Outlook" size="md">
+            <p className="text-muted">{t('Your tests, or a resource, in your Outlook calendar (and so in Teams), updated every hour with your rights.')}</p>
+            <CalendarFeedForm resources={resources.map((r) => ({ value: r.id, label: r.code }))} />
+          </Folded>
+        }
+      />
       <SectionCard title={t('Notifications')} hint={String(unread)} actions={unread > 0 ? <MarkReadButton /> : undefined}>
         {rows.length ? (
           <div style={{ display: 'grid', gap: 8 }}>
@@ -34,6 +45,24 @@ export default async function NotificationsPage() {
           </div>
         ) : (
           <EmptyState>{t('No notification.')}</EmptyState>
+        )}
+      </SectionCard>
+      <SectionCard title={t('Outlook and Teams calendars')} hint={String(feeds.length)}
+        subtitle={t('Confirmed, moved and cancelled bookings also come as invitations attached to the e-mails, when the e-mail is set up.')}>
+        {feeds.length ? (
+          <div style={{ display: 'grid', gap: 8 }}>
+            {feeds.map((f) => (
+              <div key={f.id} style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap' }}>
+                <span>{f.scope === 'resource' ? `${t('Resource')} ${f.resourceCode ?? ''}` : t('My tests')}</span>
+                <span className="text-muted" style={{ fontSize: 12 }}>
+                  {t('created')} {fmtInstant(f.createdAt, lang)}{f.lastReadAt ? ` · ${t('last read')} ${fmtInstant(f.lastReadAt, lang)}` : ` · ${t('never read')}`}
+                </span>
+                <RevokeFeedButton id={f.id} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyState>{t('No calendar subscription.')}</EmptyState>
         )}
       </SectionCard>
     </>

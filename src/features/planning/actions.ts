@@ -434,7 +434,7 @@ export async function acceptProposalsAction(_prev: ActionResult | null, fd: Form
         entityType: 'booking', entityId: b.id, projectCode: row.n.projectCode,
         after: { need: row.n.ref, resource: res.code, start: p.startsAt.toISOString(), end: p.endsAt.toISOString(), staff: p.staff, equipment: p.equipment, explanation: p.explanation },
       }));
-      await notify(tx, [row.n.requestedByUserId], { kind: 'booking_confirmed', title: `Booking confirmed · ${ref} · ${row.n.ref}`, href: `/projects/${encodeURIComponent(row.n.projectCode)}` }, { except: v.userId, at: now });
+      await notify(tx, [row.n.requestedByUserId], { kind: 'booking_confirmed', title: `Booking confirmed · ${ref} · ${row.n.ref}`, href: `/projects/${encodeURIComponent(row.n.projectCode)}`, bookingId: b.id }, { except: v.userId, at: now });
       accepted++;
     }
     if (!accepted) return { ok: false, error: refused.join(' — ') || 'Choose the proposals to accept' };

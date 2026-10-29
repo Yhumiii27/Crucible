@@ -97,4 +97,31 @@ describe('parseConfig', () => {
     expect(CONFIG_VARIABLES).toContain('DATABASE_URL');
     expect(CONFIG_VARIABLES.some((v) => v.startsWith('KEYSTONE_'))).toBe(false);
   });
+
+  it('e-mail transports (CR-072): smtp needs its relay and sender, graph an application and a sender; secrets masked', () => {
+    expect(vars(parse({ CRUCIBLE_MAIL_TRANSPORT: 'smtp' }).errors)).toEqual(['CRUCIBLE_SMTP_URL', 'CRUCIBLE_MAIL_FROM']);
+    expect(vars(parse({ CRUCIBLE_MAIL_TRANSPORT: 'smtp', CRUCIBLE_SMTP_URL: 'http://relay', CRUCIBLE_MAIL_FROM: 'crucible@groupe.fr' }).errors)).toEqual(['CRUCIBLE_SMTP_URL']);
+    const smtp = parse({ CRUCIBLE_MAIL_TRANSPORT: 'smtp', CRUCIBLE_SMTP_URL: 'smtp://crucible:relay-pw@relay.groupe.fr:587', CRUCIBLE_MAIL_FROM: 'crucible@groupe.fr' });
+    expect(smtp.errors).toEqual([]);
+    expect(smtp.config.mail).toMatchObject({ transport: 'smtp', smtpUrl: 'smtp://crucible:relay-pw@relay.groupe.fr:587', from: 'crucible@groupe.fr', graph: null });
+    expect(smtp.config.secrets).toContain('relay-pw');
+    expect(vars(parse({ CRUCIBLE_MAIL_TRANSPORT: 'graph', CRUCIBLE_MAIL_FROM: 'crucible@groupe.fr' }).errors)).toEqual(['CRUCIBLE_MAIL_TRANSPORT']);
+    const tenant = '11111111-2222-4333-8444-555555555555';
+    const viaEntra = parse({ CRUCIBLE_MAIL_TRANSPORT: 'graph', CRUCIBLE_MAIL_FROM: 'crucible@groupe.fr', ENTRA_TENANT_ID: tenant, ENTRA_CLIENT_ID: 'signin', ENTRA_CLIENT_SECRET: 'signin-secret' });
+    expect(viaEntra.config.mail.graph).toEqual({ tenantId: tenant, clientId: 'signin', clientSecret: 'signin-secret' });
+    const own = parse({
+      CRUCIBLE_MAIL_TRANSPORT: 'graph', CRUCIBLE_MAIL_FROM: 'crucible@groupe.fr', ENTRA_TENANT_ID: tenant, ENTRA_CLIENT_ID: 'signin', ENTRA_CLIENT_SECRET: 'signin-secret',
+      CRUCIBLE_GRAPH_CLIENT_ID: 'mailer', CRUCIBLE_GRAPH_CLIENT_SECRET: 'mailer-secret',
+    });
+    expect(own.config.mail.graph).toEqual({ tenantId: tenant, clientId: 'mailer', clientSecret: 'mailer-secret' });
+    expect(own.config.secrets).toContain('mailer-secret');
+    expect(vars(parse({ CRUCIBLE_MAIL_TRANSPORT: 'pigeon' }).errors)).toEqual(['CRUCIBLE_MAIL_TRANSPORT']);
+  });
+
+  it('public address (CR-072): links of the e-mails and calendar events; warned when e-mails are on in production without it', () => {
+    expect(parse({ CRUCIBLE_PUBLIC_URL: 'https://crucible.groupe.fr/' }).config.publicUrl).toBe('https://crucible.groupe.fr');
+    expect(parse({}).config.publicUrl).toBe('');
+    const prod = parse({ NODE_ENV: 'production', CRUCIBLE_AUTH: 'demo', CRUCIBLE_MAIL_TRANSPORT: 'file', CRUCIBLE_MAIL_DIR: 'mail' });
+    expect(vars(prod.warnings)).toContain('CRUCIBLE_PUBLIC_URL');
+  });
 });

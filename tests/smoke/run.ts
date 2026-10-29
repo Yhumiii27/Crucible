@@ -123,6 +123,18 @@ async function main(): Promise<void> {
   const pilotCoord = await get('/pilot', 'coordinator');
   check(pilotCoord.status === 200 && !pilotCoord.body.includes('Définir le pilote'), 'pilot: the coordinator reads it, does not set it');
   check((await get('/pilot', 'project_lead')).status === 404, 'pilot: not in a project lead’s workspace');
+  // CR-071: the occupancy measurement tab; the device and kiosk routes need their token (no session needed, nothing opened without it).
+  const measure = await get('/facilities/PDE?tab=measurement', 'facility_manager');
+  check(measure.status === 200 && measure.body.includes('Bornes et capteurs') && measure.body.includes('Ajouter une borne ou un capteur'), 'measurement: kiosks and sensors of the PDE, the manager adds one');
+  const measureTech = await get('/facilities/PDE?tab=measurement', 'technician');
+  check(measureTech.status === 200 && !measureTech.body.includes('Ajouter une borne ou un capteur'), 'measurement: the technician reads it, adds nothing');
+  const event = await fetch(`${BASE}/api/occupancy`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"event":"start"}' });
+  check(event.status === 401, 'POST /api/occupancy without a device token → 401');
+  check((await get(`/kiosk/crd_${'x'.repeat(43)}`)).status === 404, 'a kiosk with an unknown token is not found');
+  // CR-072: calendar subscriptions from the bell page; an unknown address is not found.
+  const agenda = await get('/notifications', 'project_lead');
+  check(agenda.status === 200 && agenda.body.includes('Agendas Outlook et Teams') && agenda.body.includes('S’abonner depuis Outlook'), 'calendars: the Outlook and Teams subscriptions of the bell page');
+  check((await get(`/api/calendar/crc_${'x'.repeat(43)}.ics`)).status === 404, 'a calendar address with an unknown token is not found');
   check((await get('/propose', 'partner')).status === 404, 'a screen outside the profile’s workspace is not found');
   check((await get('/nowhere', 'rd_director')).status === 404, 'an unknown path is not found');
 

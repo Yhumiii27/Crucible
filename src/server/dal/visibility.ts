@@ -1,11 +1,11 @@
 import 'server-only';
 // Facility and project reads under the visibility rules (docs/spec/01 §2, U-3): every read filters in SQL with the viewer's
 // visibility (src/domain/rights.ts); an object outside it does not exist for the viewer (null, never "forbidden").
-import { and, asc, eq, inArray, or, sql, type SQL } from 'drizzle-orm';
+import { and, asc, eq, inArray, ne, or, sql, type SQL } from 'drizzle-orm';
 import { facilityVisibility, projectVisibility, type FacilityVisibility, type ProjectVisibility } from '@/domain/rights';
 import type { PriorityClass } from '@/domain/organisation';
 import { getDb } from '@/server/db/client';
-import { entities, facilities, facilityPartners, projects, sites } from '@/server/db/schema';
+import { entities, facilities, facilityPartners, projects, resources, sites } from '@/server/db/schema';
 import type { Viewer } from '@/server/viewer';
 
 /** SQL condition of a facility visibility (null = no restriction). */
@@ -116,4 +116,13 @@ export function visibleProjects(viewer: Viewer): Promise<ProjectRow[]> {
 /** One project, or null when it does not exist or is outside the viewer's visibility. */
 export async function projectForViewer(viewer: Viewer, code: string): Promise<ProjectRow | null> {
   return (await selectProjects(viewer, eq(projects.code, code)))[0] ?? null;
+}
+
+/** The resources (not retired) of the facilities the viewer sees: id and code (calendar subscriptions, CR-072). */
+export async function visibleResources(viewer: Viewer): Promise<{ id: string; code: string }[]> {
+  const codes = (await selectFacilities(viewer)).map((f) => f.code);
+  if (!codes.length) return [];
+  const db = await getDb();
+  return db.select({ id: resources.id, code: resources.code }).from(resources)
+    .where(and(inArray(resources.facilityCode, codes), ne(resources.status, 'retired'))).orderBy(asc(resources.code));
 }

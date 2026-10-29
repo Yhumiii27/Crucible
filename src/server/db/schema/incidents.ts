@@ -8,7 +8,7 @@ import { id, timestamps } from './_common';
 import { testNeeds } from './needs';
 import { users } from './organisation';
 import { people } from './planning';
-import { resources, unavailabilities } from './resources';
+import { bookings, resources, unavailabilities } from './resources';
 
 export const incidents = crucible.table('incidents', {
   id: id(),
@@ -64,6 +64,8 @@ export const notifications = crucible.table('notifications', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   readAt: timestamp('read_at', { withTimezone: true }),
   emailedAt: timestamp('emailed_at', { withTimezone: true }),
+  /** The booking the notification is about (CR-072): its e-mail carries a calendar invitation (.ics). */
+  bookingId: uuid('booking_id').references(() => bookings.id),
 }, (t) => [index('notifications_user_idx').on(t.userId, t.createdAt)]);
 
 /** Weekly snapshot of the utilisation of a resource (X-4), computed once the week is over; history, never recomputed. */
