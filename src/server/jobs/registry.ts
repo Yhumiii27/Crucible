@@ -52,7 +52,7 @@ export function crucibleJobs(h: PostgresHandle): Job[] {
       everyMin: 5,
       enabled: !!cfg.database && cfg.mail.transport !== 'none',
       async run() {
-        return `${await sendPendingMail(h.db, { ...cfg.mail, baseUrl: process.env.NEXT_PUBLIC_APP_URL ?? '' })} e-mails`;
+        return `${await sendPendingMail(h.db, { ...cfg.mail, baseUrl: cfg.publicUrl })} e-mails`;
       },
     },
     {

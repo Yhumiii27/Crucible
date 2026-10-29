@@ -743,6 +743,30 @@
     "blocks": "Pilote"
   },
   {
+    "id": "X-8",
+    "group": "extra",
+    "title": "Occupation réelle mesurée sans déclaration (CR-071)",
+    "context": "Démarrer / terminer sont saisis à l’écran. L’analyse comparative du 25 oct. 2026 recommande de mesurer l’occupation sans déclaration : borne, agent sur le PC du banc, verrouillage ou badge.",
+    "proposal": "Une borne (tablette à l’entrée du moyen) et une API pour un agent, un verrouillage ou un lecteur de badge, liés à un moyen par un jeton, gérés par le responsable d’installation. Un « début » démarre la réservation confirmée du moyen (préparation et 30 min de tolérance comprises), une « fin » termine l’essai en cours ; sans réservation, une utilisation sans réservation est gardée et listée, non comptée dans l’occupation. La libération d’une non-tenue reste humaine (A-7).",
+    "alts": [
+      "Compter l’utilisation sans réservation dans l’occupation",
+      "Libérer automatiquement une réservation sans « début »"
+    ],
+    "blocks": "L7"
+  },
+  {
+    "id": "X-9",
+    "group": "extra",
+    "title": "E-mail réel et agendas Outlook / Teams (CR-072)",
+    "context": "Les notifications n’étaient envoyées que dans des fichiers et les réservations n’apparaissaient pas dans Outlook.",
+    "proposal": "Envoi par le relais SMTP du groupe ou par Microsoft Graph (boîte d’envoi, permission limitée à cette boîte) ; invitation d’agenda jointe aux e-mails d’une réservation confirmée, déplacée ou annulée ; abonnement Outlook (donc Teams) de chaque personne à ses essais ou à un moyen, relu toutes les heures avec ses droits, révocable. Activation par la DSI.",
+    "alts": [
+      "Seulement les invitations, sans abonnement",
+      "Seulement SMTP"
+    ],
+    "blocks": "L7"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

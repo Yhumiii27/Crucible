@@ -51,8 +51,13 @@ export interface CrucibleConfig {
   backup: { dir: string | null; everyMin: number; retentionDays: number };
   /** E-mails granted the administrator role at their first Entra sign-in (bootstrap of a new database, N-4). */
   adminEmails: string[];
-  /** E-mail of the notifications (F-8): `none` = the bell only; `file` = one .eml file per message in `dir`. */
-  mail: { transport: 'none' | 'file'; dir: string | null; from: string };
+  /**
+   * E-mail of the notifications (F-8, CR-072): `none` = the bell only; `file` = one .eml file per message in `dir`; `smtp` = the
+   * group's relay (`smtpUrl`); `graph` = Microsoft Graph sendMail from the `from` mailbox (application permission Mail.Send).
+   */
+  mail: MailConfig;
+  /** Public address of Crucible (CRUCIBLE_PUBLIC_URL): the links of the e-mails and of the calendar events; '' = none. */
+  publicUrl: string;
   /**
    * The AI assistant (spec 04, I-3): `off` (default) = the rule-based templates only, nothing leaves Crucible; `claude` = Claude
    * (Anthropic) with the API key, once the IT department has validated the provider and the hosting region.
@@ -60,6 +65,19 @@ export interface CrucibleConfig {
   ai: { provider: 'off' | 'claude'; apiKey: string | null; model: string; fallbacks: boolean };
   /** Secret values present in the environment: the logger masks them wherever they appear. */
   secrets: string[];
+}
+
+export const MAIL_TRANSPORTS = ['none', 'file', 'smtp', 'graph'] as const;
+export type MailTransport = (typeof MAIL_TRANSPORTS)[number];
+
+export interface MailConfig {
+  transport: MailTransport;
+  dir: string | null;
+  from: string;
+  /** smtp:// or smtps:// URL of the relay, credentials included (a secret). */
+  smtpUrl: string | null;
+  /** Microsoft Graph application (client credentials): CRUCIBLE_GRAPH_* else the Entra sign-in application. */
+  graph: { tenantId: string; clientId: string; clientSecret: string } | null;
 }
 
 /** Model of the assistant when CRUCIBLE_AI_MODEL is unset. */
@@ -136,9 +154,15 @@ const VARS = {
   CRUCIBLE_BACKUP_RETENTION_DAYS: z.coerce.number().int().min(1, 'must be at least 1').max(3650, 'must be at most 3650').optional(),
   MATRIX_TOKEN: z.string().optional(),
   MATRIX_DECLARATIONS_DIR: z.string().optional(),
-  // E-mail of the notifications (F-8), sent by the job worker: "none" (default, the bell only) or "file" (one .eml per message
-  // in CRUCIBLE_MAIL_DIR, for tests and for a relay that picks the files up). SMTP / Microsoft Graph come with the production.
-  CRUCIBLE_MAIL_TRANSPORT: z.enum(['none', 'file'], { message: 'must be "none" or "file"' }).optional(),
+  // E-mail of the notifications (F-8, CR-072), sent by the job worker: "none" (default, the bell only), "file" (one .eml per
+  // message in CRUCIBLE_MAIL_DIR, for tests and for a relay that picks the files up), "smtp" (CRUCIBLE_SMTP_URL, the group's
+  // relay) or "graph" (Microsoft Graph sendMail from the CRUCIBLE_MAIL_FROM mailbox).
+  CRUCIBLE_MAIL_TRANSPORT: z.enum(MAIL_TRANSPORTS, { message: 'must be "none", "file", "smtp" or "graph"' }).optional(),
+  CRUCIBLE_SMTP_URL: z.string().refine((v) => isUrlWith(v, ['smtp:', 'smtps:']), 'must be an smtp:// or smtps:// URL').optional(),
+  CRUCIBLE_GRAPH_CLIENT_ID: z.string().optional(),
+  CRUCIBLE_GRAPH_CLIENT_SECRET: z.string().optional(),
+  // Public address of Crucible: the links of the e-mails and of the calendar events (CR-072).
+  CRUCIBLE_PUBLIC_URL: httpUrl.optional(),
   CRUCIBLE_MAIL_DIR: z.string().optional(),
   CRUCIBLE_MAIL_FROM: z.string().refine((v) => normaliseEmail(v) != null, 'must be an e-mail address').optional(),
   // AI assistant (spec 04, I-3): off unless "claude" AND a key; the key is passed explicitly to the SDK, so no other credential
@@ -153,7 +177,7 @@ export type ConfigVariable = keyof typeof VARS;
 /** Every variable the configuration reads (the cache key of src/server/config/index.ts). */
 export const CONFIG_VARIABLES = Object.keys(VARS) as ConfigVariable[];
 /** Variables whose value is a secret (masked in logs, never echoed in messages). */
-const SECRET_VARIABLES: ConfigVariable[] = ['CRUCIBLE_SESSION_SECRET', 'ENTRA_CLIENT_SECRET', 'MATRIX_TOKEN', 'ANTHROPIC_API_KEY'];
+const SECRET_VARIABLES: ConfigVariable[] = ['CRUCIBLE_SESSION_SECRET', 'ENTRA_CLIENT_SECRET', 'MATRIX_TOKEN', 'ANTHROPIC_API_KEY', 'CRUCIBLE_GRAPH_CLIENT_SECRET'];
 
 type Values = { [K in ConfigVariable]: z.output<(typeof VARS)[K]> };
 
@@ -235,9 +259,19 @@ export function parseConfig(env: Record<string, string | undefined>, opts: { cwd
   if (production && v.CRUCIBLE_CLOCK?.kind === 'fixed')
     warnings.push({ variable: 'CRUCIBLE_CLOCK', message: 'pins the business date in production: lateness, due dates and dated writes ignore the real date' });
   if (v.CRUCIBLE_MAIL_TRANSPORT === 'file' && !v.CRUCIBLE_MAIL_DIR) errors.push({ variable: 'CRUCIBLE_MAIL_DIR', message: 'is required with CRUCIBLE_MAIL_TRANSPORT=file' });
+  const graph = v.ENTRA_TENANT_ID && (v.CRUCIBLE_GRAPH_CLIENT_ID ?? v.ENTRA_CLIENT_ID) && (v.CRUCIBLE_GRAPH_CLIENT_SECRET ?? v.ENTRA_CLIENT_SECRET)
+    ? { tenantId: v.ENTRA_TENANT_ID, clientId: (v.CRUCIBLE_GRAPH_CLIENT_ID ?? v.ENTRA_CLIENT_ID)!, clientSecret: (v.CRUCIBLE_GRAPH_CLIENT_SECRET ?? v.ENTRA_CLIENT_SECRET)! }
+    : null;
+  if (v.CRUCIBLE_MAIL_TRANSPORT === 'smtp' && !v.CRUCIBLE_SMTP_URL && !errors.some((e) => e.variable === 'CRUCIBLE_SMTP_URL')) errors.push({ variable: 'CRUCIBLE_SMTP_URL', message: 'is required with CRUCIBLE_MAIL_TRANSPORT=smtp' });
+  if (v.CRUCIBLE_MAIL_TRANSPORT === 'graph' && !graph)
+    errors.push({ variable: 'CRUCIBLE_MAIL_TRANSPORT', message: 'graph needs ENTRA_TENANT_ID and an application (CRUCIBLE_GRAPH_CLIENT_ID and _SECRET, else ENTRA_CLIENT_ID and _SECRET)' });
+  if ((v.CRUCIBLE_MAIL_TRANSPORT === 'smtp' || v.CRUCIBLE_MAIL_TRANSPORT === 'graph') && !v.CRUCIBLE_MAIL_FROM)
+    errors.push({ variable: 'CRUCIBLE_MAIL_FROM', message: `is required with CRUCIBLE_MAIL_TRANSPORT=${v.CRUCIBLE_MAIL_TRANSPORT} (the sending mailbox)` });
+  if (production && v.CRUCIBLE_MAIL_TRANSPORT && v.CRUCIBLE_MAIL_TRANSPORT !== 'none' && !v.CRUCIBLE_PUBLIC_URL)
+    warnings.push({ variable: 'CRUCIBLE_PUBLIC_URL', message: 'is not set: the e-mails carry relative links' });
   if (v.CRUCIBLE_AI === 'claude' && !v.ANTHROPIC_API_KEY && !errors.some((e) => e.variable === 'ANTHROPIC_API_KEY'))
     errors.push({ variable: 'ANTHROPIC_API_KEY', message: 'is required with CRUCIBLE_AI=claude' });
-  const secrets = [...SECRET_VARIABLES.map((n) => v[n] as string | undefined), urlPassword(v.DATABASE_URL), urlPassword(v.MATRIX_URL)].filter((s): s is string => !!s && s.length >= 4);
+  const secrets = [...SECRET_VARIABLES.map((n) => v[n] as string | undefined), urlPassword(v.DATABASE_URL), urlPassword(v.MATRIX_URL), urlPassword(v.CRUCIBLE_SMTP_URL)].filter((s): s is string => !!s && s.length >= 4);
 
   return {
     errors,
@@ -261,7 +295,10 @@ export function parseConfig(env: Record<string, string | undefined>, opts: { cwd
         transport: v.CRUCIBLE_MAIL_TRANSPORT ?? 'none',
         dir: v.CRUCIBLE_MAIL_DIR ? path.resolve(opts.cwd, v.CRUCIBLE_MAIL_DIR) : null,
         from: v.CRUCIBLE_MAIL_FROM ?? 'crucible@epc2i.example',
+        smtpUrl: v.CRUCIBLE_SMTP_URL ?? null,
+        graph,
       },
+      publicUrl: v.CRUCIBLE_PUBLIC_URL ?? '',
       ai: {
         provider: v.CRUCIBLE_AI === 'claude' && v.ANTHROPIC_API_KEY ? 'claude' : 'off',
         apiKey: v.CRUCIBLE_AI === 'claude' ? v.ANTHROPIC_API_KEY ?? null : null,

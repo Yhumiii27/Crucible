@@ -139,7 +139,7 @@ export async function applyScenario(tx: Tx, scenarioId: string, by: RunBy & { us
       before: { resourceId: b.resourceId, start: b.startsAt.toISOString(), end: b.endsAt.toISOString() },
       after: { resourceId: m.to.resourceId, start: new Date(m.to.start).toISOString(), end: new Date(m.to.end).toISOString(), substitute: m.to.substitute },
     });
-    await notify(tx, [b.requestedByUserId], { kind: 'booking_moved', title: `Your test was moved · ${b.ref} · ${sc.ref}`, href: `/projects/${encodeURIComponent(b.projectCode)}` }, { except: by.userId, at: now });
+    await notify(tx, [b.requestedByUserId], { kind: 'booking_moved', title: `Your test was moved · ${b.ref} · ${sc.ref}`, href: `/projects/${encodeURIComponent(b.projectCode)}`, bookingId: b.id }, { except: by.userId, at: now });
     moved++;
   }
   let urgentRef: string | null = null;
@@ -172,6 +172,6 @@ async function bookUrgent(tx: Tx, scenarioRef: string, slot: NonNullable<BuiltSc
     actorName: by.name, actorUserId: by.userId, actorRole: by.role, objectRef: `Booking ${ref}`, area: 'Bookings', change: `urgent test booked by scenario ${scenarioRef}: ${res.code}`,
     entityType: 'booking', entityId: b.id, projectCode: n.n.projectCode, after: { need: n.n.ref, start: new Date(slot.start).toISOString(), end: new Date(slot.end).toISOString() },
   });
-  await notify(tx, [n.n.requestedByUserId], { kind: 'booking_confirmed', title: `Booking confirmed · ${ref} · ${n.n.ref}`, href: `/projects/${encodeURIComponent(n.n.projectCode)}` }, { except: by.userId, at: now });
+  await notify(tx, [n.n.requestedByUserId], { kind: 'booking_confirmed', title: `Booking confirmed · ${ref} · ${n.n.ref}`, href: `/projects/${encodeURIComponent(n.n.projectCode)}`, bookingId: b.id }, { except: by.userId, at: now });
   return ref;
 }

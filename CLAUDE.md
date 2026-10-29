@@ -91,6 +91,15 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   the start, from the imported history) compared with the pilot so far (X-2; usage shared with the dashboard through
   `resourceUsages`). The start waits on outside prerequisites: the workshop and the data D-1 to D-11, hosting (T-6), the Entra
   registration, M-6 (Matrix). Claude's activation waits on the IT department (I-3).
+- **Delivery 7 (measured occupancy, Outlook / Teams calendars) is done** (`docs/DELIVERY-7.md`; CR-071 and CR-072 of the
+  comparative analysis, X-8 and X-9 added): occupancy devices (kiosk `/kiosk/<token>`, `POST /api/occupancy` with a Bearer
+  device token for a bench agent, an interlock or a badge reader; `src/domain/occupancy.ts` matches each start / stop to the
+  booking of the resource, else a use without a booking, never counted; events append-only; facility tab "measurement"); real
+  e-mail (`CRUCIBLE_MAIL_TRANSPORT` smtp | graph, `src/server/notify/mail.ts`, nodemailer composes the MIME), calendar
+  invitations attached to booking notifications (`notifications.booking_id`, `src/domain/ics.ts`), subscription feeds
+  `/api/calendar/<token>.ics` read with the owner's rights (`src/server/calendar.ts`). Device and feed tokens are shown once
+  and stored as SHA-256 hashes (`src/server/http/tokens.ts`); their routes are `TOKEN_PATHS` of `src/domain/auth.ts` (no
+  session).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

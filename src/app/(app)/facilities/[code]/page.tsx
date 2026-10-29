@@ -19,10 +19,13 @@ import {
   AcquisitionForm, ClosureForm, HoursForm, InspectionForm, NewResourceForm, RemoveUnavailabilityButton, ResourceStatusSelect, UnavailabilityForm,
 } from '@/features/resources/forms';
 import { EquipmentForm } from '@/features/planning/forms';
+import { DeviceForm, RevokeDeviceButton } from '@/features/measure/forms';
+import { DEVICE_KIND_LABEL, OCCUPANCY_OUTCOME_LABEL, type DeviceKind, type OccupancyOutcome } from '@/domain/occupancy';
 import { dataText } from '@/i18n/data-text';
 import { addDaysIso } from '@/lib/dates';
-import { fmtDate } from '@/lib/format';
-import { businessToday } from '@/server/clock';
+import { fmtDate, fmtInstant } from '@/lib/format';
+import { businessNow, businessToday } from '@/server/clock';
+import { facilityMeasurement } from '@/server/occupancy';
 import { facilityEquipment } from '@/server/dal/planning';
 import { facilitySheet } from '@/server/dal/resources';
 import { getI18n, getViewer } from '@/server/session';
@@ -32,13 +35,13 @@ const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satur
 
 export default async function FacilityPage({ params, searchParams }: PageProps<'/facilities/[code]'>) {
   const [{ code }, sp] = await Promise.all([params, searchParams]);
-  const [{ t, lang }, viewer, today] = await Promise.all([getI18n(), getViewer(), businessToday()]);
+  const [{ t, lang }, viewer, today, now] = await Promise.all([getI18n(), getViewer(), businessToday(), businessNow()]);
   if (!canSee(viewer.role, 'facility')) notFound();
   const sheet = await facilitySheet(viewer, decodeURIComponent(code), today);
   if (!sheet) notFound();
   const { facility } = sheet;
   const tab = isFacilityTab(sp.tab) ? sp.tab : 'resources';
-  const equipment = await facilityEquipment(viewer, facility.code);
+  const [equipment, measure] = await Promise.all([facilityEquipment(viewer, facility.code), tab === 'measurement' ? facilityMeasurement(viewer, facility.code, now) : null]);
   const manager = managedFacilities(viewer.role, viewer.assignments).includes(facility.code);
   const resRefs = sheet.resources.filter((r) => r.status !== 'retired').map((r) => ({ id: r.id, code: r.code }));
   const inService = sheet.resources.filter((r) => r.status === 'in_service').length;
@@ -71,6 +74,12 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
       )}
       {tab === 'equipment' && manager && (
         <Folded summary="Add mobile equipment" variant="primary" size="md"><EquipmentForm facilityCode={facility.code} /></Folded>
+      )}
+      {tab === 'measurement' && manager && resRefs.length > 0 && (
+        <Folded summary="Add a kiosk or a sensor" variant="primary" size="md">
+          <p className="text-muted">{t('Start and stop events of the device start and end the booking of the resource; without a booking they are kept as a use without a booking (X-8).')}</p>
+          <DeviceForm facilityCode={facility.code} resources={resRefs.map((r) => ({ value: r.id, label: r.code }))} />
+        </Folded>
       )}
     </>
   );
@@ -270,6 +279,98 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
             <EmptyState>{t('No mobile equipment.')}</EmptyState>
           )}
         </SectionCard>
+      )}
+
+      {tab === 'measurement' && measure && (
+        <>
+          <SectionCard title={t('Kiosks and sensors')} hint={String(measure.devices.filter((d) => !d.revoked).length)}
+            subtitle={t('Real occupancy measured without a declaration: a kiosk at the entrance, an agent on the bench PC, an interlock or a badge reader (X-8).')} scroll>
+            {measure.devices.length ? (
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t('Resource')}</Th>
+                    <Th>{t('Kind')}</Th>
+                    <Th>{t('Name')}</Th>
+                    <Th>{t('Last event')}</Th>
+                    <Th>{t('Status')}</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {measure.devices.map((d) => (
+                    <tr key={d.id}>
+                      <Td>{d.resourceCode}</Td>
+                      <Td>{t(DEVICE_KIND_LABEL[d.kind as DeviceKind] ?? d.kind)}</Td>
+                      <Td>{dataText(d.label, lang)}</Td>
+                      <Td>{d.lastSeenAt ? fmtInstant(new Date(d.lastSeenAt), lang) : '—'}</Td>
+                      <Td>{d.revoked ? t('Revoked') : manager ? <RevokeDeviceButton id={d.id} /> : t('Active')}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              <EmptyState>{t('No kiosk or sensor: tests are started and ended in My schedule.')}</EmptyState>
+            )}
+          </SectionCard>
+          <SectionCard title={t('Uses without a booking')} hint={String(measure.unbooked.length)} subtitle={t('Last 30 days. Not counted in the utilisation: book the slot, or ask the users of the resource to.')} scroll>
+            {measure.unbooked.length ? (
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t('Resource')}</Th>
+                    <Th>{t('From')}</Th>
+                    <Th>{t('To')}</Th>
+                    <Th>{t('Device')}</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {measure.unbooked.map((u) => (
+                    <tr key={`${u.resourceCode}-${u.from}`}>
+                      <Td>{u.resourceCode}</Td>
+                      <Td>{fmtInstant(new Date(u.from), lang)}</Td>
+                      <Td>{u.to ? fmtInstant(new Date(u.to), lang) : t('In progress')}</Td>
+                      <Td>{dataText(u.deviceLabel, lang)}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              <EmptyState>{t('No use without a booking.')}</EmptyState>
+            )}
+          </SectionCard>
+          <SectionCard title={t('Events received')} hint={String(measure.events.length)} subtitle={t('Last 30 days, newest first; kept as received.')} scroll>
+            {measure.events.length ? (
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t('When')}</Th>
+                    <Th>{t('Resource')}</Th>
+                    <Th>{t('Device')}</Th>
+                    <Th>{t('Event')}</Th>
+                    <Th>{t('Outcome')}</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {measure.events.map((e) => (
+                    <tr key={e.id}>
+                      <Td>{fmtInstant(new Date(e.at), lang)}</Td>
+                      <Td>{e.resourceCode}</Td>
+                      <Td>{dataText(e.device, lang)}</Td>
+                      <Td>{t(e.kind === 'start' ? 'Start' : 'Stop')}</Td>
+                      <Td>
+                        {t(OCCUPANCY_OUTCOME_LABEL[e.outcome as OccupancyOutcome] ?? e.outcome)}
+                        {e.bookingRef ? ` · ${e.bookingRef}${e.project ? ` · ${e.project}` : ''}` : ''}
+                        {e.note ? ` · ${t(e.note)}` : ''}
+                      </Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              <EmptyState>{t('No event received.')}</EmptyState>
+            )}
+          </SectionCard>
+        </>
       )}
     </>
   );

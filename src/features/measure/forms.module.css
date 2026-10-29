@@ -1,0 +1,45 @@
+/* Forms of the measured occupancy and the calendar subscriptions; the kiosk's buttons. */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.secret {
+  display: grid;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.code {
+  display: block;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-900);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.kiosk {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.kiosk > button {
+  min-height: 96px;
+  font-size: 24px;
+}
+
+.kiosk > span {
+  grid-column: 1 / -1;
+  font-size: 16px;
+}

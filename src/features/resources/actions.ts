@@ -411,7 +411,7 @@ export async function confirmBookingAction(id: string): Promise<ActionResult> {
     if (check.errors.length) return { ok: false, error: check.errors.map(issueText).join(' — ') };
     await tx.update(bookings).set({ status: 'confirmed', confirmedByName: v.name, confirmedAt: now, updatedAt: new Date() }).where(eq(bookings.id, id));
     await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, 'status: requested → confirmed', { entityType: 'booking', entityId: id, projectCode: row.b.projectCode }));
-    await notify(tx, [row.b.requestedByUserId], { kind: 'booking_confirmed', title: `Booking confirmed · ${row.b.ref}`, href: `/projects/${encodeURIComponent(row.b.projectCode)}` }, { except: v.userId, at: now });
+    await notify(tx, [row.b.requestedByUserId], { kind: 'booking_confirmed', title: `Booking confirmed · ${row.b.ref}`, href: `/projects/${encodeURIComponent(row.b.projectCode)}`, bookingId: row.b.id }, { except: v.userId, at: now });
     return { ok: true, warnings: check.warnings.map(issueText) };
   });
   if (r.ok) revalidate('/planning', '/my/schedule', '/');
@@ -433,7 +433,7 @@ export async function cancelBookingAction(_prev: ActionResult | null, fd: FormDa
     if (!canTransition(row.b.status, 'cancelled')) return { ok: false, error: 'This booking can no longer be cancelled' };
     await tx.update(bookings).set({ status: 'cancelled', cancelReason: reason, updatedAt: new Date() }).where(eq(bookings.id, id));
     await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, `status: ${row.b.status} → cancelled`, { entityType: 'booking', entityId: id, projectCode: row.b.projectCode, reason }));
-    await notify(tx, [row.b.requestedByUserId], { kind: 'booking_cancelled', title: `Booking cancelled · ${row.b.ref}`, href: `/projects/${encodeURIComponent(row.b.projectCode)}` }, { except: v.userId });
+    await notify(tx, [row.b.requestedByUserId], { kind: 'booking_cancelled', title: `Booking cancelled · ${row.b.ref}`, href: `/projects/${encodeURIComponent(row.b.projectCode)}`, bookingId: row.b.id }, { except: v.userId });
     return { ok: true };
   });
   if (r.ok) revalidate('/planning', '/my/schedule', '/');

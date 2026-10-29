@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-10-26",
+ "updated": "2026-10-29",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -58,6 +58,10 @@
   {
    "date": "2026-10-26",
    "text": "Analyse comparative avec les solutions du commerce (25 oct. 2026) : 13 items ajoutés (CR-071 à CR-083), 4 annotés (CR-007, CR-051, CR-060, CR-070)."
+  },
+  {
+   "date": "2026-10-29",
+   "text": "Livraison 7 : CR-071 (occupation mesurée par borne, agent, verrouillage ou badge) et CR-072 (e-mail SMTP ou Microsoft Graph, invitations et abonnements Outlook / Teams) faits ; X-8 et X-9 ajoutés, réponse par défaut appliquée."
   }
  ],
  "items": [
@@ -465,8 +469,9 @@
     "src/domain/utilisation.ts : occupation calculée d’après les réservations déclarées"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 7",
+    "note": "Bornes (/kiosk/<jeton>), API POST /api/occupancy pour agent, verrouillage ou badge, rapprochement automatique avec la réservation (début, fin, utilisation sans réservation non comptée), événements en ajout seul, onglet « Mesure de l’occupation » ; X-8 à confirmer. Reste : brancher le matériel des installations (D-1)."
    }
   },
   {
@@ -488,8 +493,9 @@
     "aucune génération .ics dans src/"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 7",
+    "note": "Transports smtp (relais du groupe) et graph (Microsoft Graph sendMail), invitations .ics jointes (REQUEST puis CANCEL), abonnements Outlook / Teams par personne ou par moyen avec ses droits ; X-9 à confirmer. Activation : relais SMTP ou application Graph à obtenir de la DSI."
    }
   },
   {
