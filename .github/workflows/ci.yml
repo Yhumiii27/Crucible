@@ -58,6 +58,15 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # The backup test runs pg_dump / pg_restore: the runner's newer client writes settings PostgreSQL 16 refuses
+      # (SET transaction_timeout); use the 16 client, as the deployment image does.
+      - name: PostgreSQL 16 client tools
+        run: |
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-16
+          echo /usr/lib/postgresql/16/bin >> "$GITHUB_PATH"
+
       - name: Unit tests (PostgreSQL)
         run: npm test
 
