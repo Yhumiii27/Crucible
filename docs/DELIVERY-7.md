@@ -79,4 +79,4 @@ maintenant des **appareils** qui le disent pour lui :
 - **Activation des e-mails** : le relais SMTP ou l’application Graph sont à demander à la DSI ; sans eux, `none` reste la
   valeur (la cloche seulement).
 - **Hors lot** : `npm audit` signale une faille de `zod` (< 4.6.6, épuisement mémoire sur de très grandes collections), déjà
-  présente avant cette livraison ; à mettre à jour dans un lot à part.
+  présente avant cette livraison ; corrigée le 30 oct. 2026 (zod 4.6.7).

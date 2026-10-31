@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-10-29",
+ "updated": "2026-10-30",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -62,6 +62,10 @@
   {
    "date": "2026-10-29",
    "text": "Livraison 7 : CR-071 (occupation mesurée par borne, agent, verrouillage ou badge) et CR-072 (e-mail SMTP ou Microsoft Graph, invitations et abonnements Outlook / Teams) faits ; X-8 et X-9 ajoutés, réponse par défaut appliquée."
+  },
+  {
+   "date": "2026-10-30",
+   "text": "Sécurité : zod 4.6.5 → 4.6.7 (avis GHSA-mrhx-c7xc-m3w5, épuisement mémoire sur de très grandes collections) ; plus aucune faille dans les dépendances de production (npm audit --omit=dev)."
   }
  ],
  "items": [
