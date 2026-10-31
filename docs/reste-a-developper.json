@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-10-30",
+ "updated": "2026-10-31",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -66,6 +66,10 @@
   {
    "date": "2026-10-30",
    "text": "Sécurité : zod 4.6.5 → 4.6.7 (avis GHSA-mrhx-c7xc-m3w5, épuisement mémoire sur de très grandes collections) ; plus aucune faille dans les dépendances de production (npm audit --omit=dev)."
+  },
+  {
+   "date": "2026-10-31",
+   "text": "Décision M-17 de Matrix appliquée (demande de Matrix du 30/10, acceptée le 31/10) : inventaire des échanges (docs/ECHANGES.md : 10 vues lues, 1 écriture par API chez Matrix, 4 vues publiées, aucune écriture reçue, aucun accès non conforme), règles reprises dans CLAUDE.md et les demandes à Matrix (plus de copie de vue, liens du registre matrix.liens, fonctions pub_ pour les écritures reçues)."
   }
  ],
  "items": [

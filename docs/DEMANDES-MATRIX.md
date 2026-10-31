@@ -7,6 +7,12 @@
 > le schéma (`crucible.table(…)`), verrous `hashtext('crucible.migrations')` et `hashtext('crucible.ecritures')`, journal
 > `crucible.__drizzle_migrations`.
 
+> **Depuis M-17 (30/10/2026, appliquée par Crucible le 31/10/2026, [`ECHANGES.md`](ECHANGES.md))** : plus de demande de
+> copie de vue. Les copies de M-4, M-7 et M-8 dans `partage/80-crucible.sql` seront retirées par le lot M17-3 de Matrix ;
+> les vues restent définies par les seules migrations de Crucible. Un nouvel échange se déclare comme un **lien** du
+> registre `matrix.liens` (lecteur, objet `schéma.pub_…`, nature `lecture` ou `execution`, justification) : par
+> `POST /api/liens` une fois livré (M17-4), d’ici là par une entrée courte dans le `REQUESTS.md` de Matrix.
+
 | # | Demande | Fichier Matrix |
 |---|---|---|
 | M-1 | Rôle `crucible_app` (`CRUCIBLE_APP_PASSWORD`, SCRAM, accordé à `matrix_admin`, `CONNECT` sur `epc2i`) | `infra/postgres/init/01-base-et-roles.sql` |
