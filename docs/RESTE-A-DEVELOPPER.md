@@ -1,6 +1,6 @@
 # Crucible — reste à développer
 
-Inventaire initial du 2026-10-22, mis à jour le 2026-10-30 (branche `claude/lucid-dirac-7bdq6x`). Il recense ce qu'il reste à développer, à brancher, à décider ou à mettre en production pour Crucible, aligné sur le plan de livraisons (`docs/PLAN.md`). Il est tenu à jour à chaque développement : un point passe « en cours » quand une livraison le prend, « fait » quand il est intégré et vérifié. Le détail est dans `docs/reste-a-developper.json` ; ce document et la page sont produits par `npm run remaining:page`.
+Inventaire initial du 2026-10-22, mis à jour le 2026-10-31 (branche `claude/lucid-dirac-7bdq6x`). Il recense ce qu'il reste à développer, à brancher, à décider ou à mettre en production pour Crucible, aligné sur le plan de livraisons (`docs/PLAN.md`). Il est tenu à jour à chaque développement : un point passe « en cours » quand une livraison le prend, « fait » quand il est intégré et vérifié. Le détail est dans `docs/reste-a-developper.json` ; ce document et la page sont produits par `npm run remaining:page`.
 
 **Lecture.** Priorité : Bloquant production, Prochaine étape, À décider (il faut d'abord trancher), Plus tard. Effort, pour un développeur qui connaît le code : S < 2 jours, M ≤ 1 semaine, L ≤ 3 semaines, XL > 3 semaines. Les identifiants entre parenthèses renvoient aux décisions (`docs/DECISIONS.md`) et aux demandes (`docs/DEMANDES-*.md`).
 
@@ -216,6 +216,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-10-31 — Décision M-17 de Matrix appliquée (demande de Matrix du 30/10, acceptée le 31/10) : inventaire des échanges (docs/ECHANGES.md : 10 vues lues, 1 écriture par API chez Matrix, 4 vues publiées, aucune écriture reçue, aucun accès non conforme), règles reprises dans CLAUDE.md et les demandes à Matrix (plus de copie de vue, liens du registre matrix.liens, fonctions pub_ pour les écritures reçues).
 - 2026-10-30 — Sécurité : zod 4.6.5 → 4.6.7 (avis GHSA-mrhx-c7xc-m3w5, épuisement mémoire sur de très grandes collections) ; plus aucune faille dans les dépendances de production (npm audit --omit=dev).
 - 2026-10-29 — Livraison 7 : CR-071 (occupation mesurée par borne, agent, verrouillage ou badge) et CR-072 (e-mail SMTP ou Microsoft Graph, invitations et abonnements Outlook / Teams) faits ; X-8 et X-9 ajoutés, réponse par défaut appliquée.
 - 2026-10-26 — Analyse comparative avec les solutions du commerce (25 oct. 2026) : 13 items ajoutés (CR-071 à CR-083), 4 annotés (CR-007, CR-051, CR-060, CR-070).
