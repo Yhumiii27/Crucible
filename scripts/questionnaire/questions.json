@@ -767,6 +767,18 @@
     "blocks": "L7"
   },
   {
+    "id": "X-10",
+    "group": "extra",
+    "title": "Lecture des autres outils (CR-060)",
+    "context": "Les jalons, absences et contrôles périodiques étaient saisis dans Crucible en plus de Keystone, Cursus et Vigie.",
+    "proposal": "Lecture toutes les heures (et à la demande) des vues accordées : jalons de Keystone des projets rattachés, datés par la fin de l’activité liée (sans date : écartés), criticité « interne » ; absences de Cursus validées et demandées ; contrôles de Vigie par le code de l’équipement, qui remplacent un contrôle saisi du même libellé. Ce qui est lu se modifie dans son outil seulement.",
+    "alts": [
+      "Absences validées seulement",
+      "Jalons de Keystone « contractuels »"
+    ],
+    "blocks": "L8"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

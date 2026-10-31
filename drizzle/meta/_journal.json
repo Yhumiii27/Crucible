@@ -99,6 +99,13 @@
       "when": 1793288279095,
       "tag": "0013_measure_append_only",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793479959788,
+      "tag": "0014_connectors_read",
+      "breakpoints": true
     }
   ]
 }

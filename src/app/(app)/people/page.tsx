@@ -69,7 +69,7 @@ export default async function PeoplePage() {
                       {p.absences.map((a) => (
                         <div key={a.id}>
                           {fmtDate(a.fromOn, lang)} → {fmtDate(a.toOn, lang)}
-                          {keeps && <> <RemoveAbsenceButton id={a.id} /></>}
+                          {a.source === 'cursus' ? <> <Tag size="sm" tone="outline">Cursus</Tag></> : keeps && <> <RemoveAbsenceButton id={a.id} /></>}
                         </div>
                       ))}
                       {!p.absences.length && <span className="text-muted">—</span>}

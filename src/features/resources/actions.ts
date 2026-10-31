@@ -206,6 +206,7 @@ export async function recordInspectionAction(_prev: ActionResult | null, fd: For
     if (!res || !(await managed(tx, v, res.facilityCode))) return REFUSED;
     facilityCode = res.facilityCode;
     const [before] = await tx.select().from(inspections).where(and(eq(inspections.resourceId, resourceId), eq(inspections.label, c.value.label)));
+    if (before?.source === 'vigie') return { ok: false, error: 'This inspection comes from Vigie: record it there' };
     const row = { ...c.value, resourceId, updatedByName: v.name, active: true, updatedAt: new Date() };
     await tx.insert(inspections).values(row).onConflictDoUpdate({ target: [inspections.resourceId, inspections.label], set: row });
     await writeAudit(tx, audit(v, 'Facilities', `Resource ${res.code}`, before ? `inspection: ${c.value.label} · ${before.lastOn} → ${c.value.lastOn}` : `inspection recorded: ${c.value.label} · ${c.value.lastOn}`, {

@@ -1,11 +1,12 @@
 import 'server-only';
 // Crucible's scheduled jobs: the schema backup (when CRUCIBLE_BACKUP_DIR is set) and the daily schema declaration to Matrix (when
-// MATRIX_URL or MATRIX_DECLARATIONS_DIR is set), and the daily run of the proposal engine (F-3: it proposes every day, a
-// person confirms), and from delivery 5 the e-mails of the notifications, the arbitration reminders, the weekly recap and the
-// weekly snapshots of the utilisation.
+// MATRIX_URL or MATRIX_DECLARATIONS_DIR is set), the hourly read of the other tools' views (CR-060), and the daily run of the
+// proposal engine (F-3: it proposes every day, a person confirms), and from delivery 5 the e-mails of the notifications, the
+// arbitration reminders, the weekly recap and the weekly snapshots of the utilisation.
 import path from 'node:path';
 import { backupSchema } from '@/server/backup';
 import { getConfig } from '@/server/config';
+import { readConnectors, reportLine } from '@/server/integrations/connectors';
 import { declareCrucibleSchema } from '@/server/integrations/matrix';
 import { matrixDeclarationEnabled } from '@/server/integrations/matrix/declare-schema';
 import type { PostgresHandle } from '@/server/db/postgres';
@@ -34,6 +35,16 @@ export function crucibleJobs(h: PostgresHandle): Job[] {
       enabled: matrixDeclarationEnabled(process.env),
       async run() {
         await declareCrucibleSchema((q) => h.pool.query(q).then((r) => r.rows as Record<string, unknown>[]));
+      },
+    },
+    {
+      // CR-060: Keystone milestones, Cursus absences and Vigie inspections, once their views are granted.
+      name: 'connectors-read',
+      everyMin: 60,
+      enabled: !!cfg.database,
+      async run() {
+        const reports = await h.db.transaction((tx) => readConnectors(tx, { name: 'Crucible (connectors)', userId: null, role: null }));
+        return reports.map(reportLine).join('; ');
       },
     },
     {

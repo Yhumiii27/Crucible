@@ -24,12 +24,12 @@ accordée par `has_table_privilege`). Toutes les vues sont accordées à `crucib
 | Vue | Outil | Usage | Lue par le code aujourd’hui | Demande d’origine |
 |---|---|---|---|---|
 | `keystone.pub_projets` | Keystone | projet Keystone rattaché à un projet R&D | prévu (écran Connecteurs) | K-1, S-1 |
-| `keystone.pub_jalons` | Keystone | jalons lus au lieu d’être saisis | prévu (saisie dans Crucible en attendant) | K-2 |
+| `keystone.pub_jalons` | Keystone | jalons lus au lieu d’être saisis | **oui**, toutes les heures (livraison 8, `src/server/integrations/connectors.ts`) | K-2 |
 | `cursus.pub_salaries` | Cursus | personnes qui conduisent les essais | prévu | CU-2, S-3 |
 | `cursus.pub_titres_detenus` | Cursus | habilitations des opérateurs | **oui** (`src/features/planning/actions.ts`, lecture des titres) | CU-2, S-3 |
-| `cursus.pub_absences` | Cursus | absences des opérateurs, sans motif | prévu | CU-1 |
+| `cursus.pub_absences` | Cursus | absences des opérateurs, sans motif | **oui**, toutes les heures (livraison 8) | CU-1 |
 | `codex.pub_documents` | Codex | protocoles et rapports référencés | prévu | CX-1, S-6 |
-| `vigie.pub_controles` | Vigie | contrôles réglementaires des moyens | prévu (saisie locale en attendant) | V-1, S-4 |
+| `vigie.pub_controles` | Vigie | contrôles réglementaires des moyens | **oui**, toutes les heures (livraison 8) | V-1, S-4 |
 | `vigie.pub_suspensions_essais` | Vigie | essais suspendus pendant une intervention extérieure | prévu | V-2, R-7 |
 | `matrix.pub_sites` | Matrix | sites des installations | prévu | M-6 |
 | `matrix.pub_filiales` | Matrix | entités qui partagent les installations | prévu | M-6 |

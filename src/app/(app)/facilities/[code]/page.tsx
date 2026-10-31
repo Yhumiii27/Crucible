@@ -105,7 +105,7 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
       {dueSoon && (
         <div className={st.next}>
           <span className={st.nextText}>
-            <strong>{t('Next step:')}</strong> {t('record the inspection')} « {dataText(dueSoon.label, lang)} » {t('of')} {dueSoon.resourceCode} ({t('due')} {fmtDate(dueSoon.dueOn, lang)}). {t('Until then, no slot of this resource can end after that date.')}
+            <strong>{t('Next step:')}</strong> {t(dueSoon.source === 'vigie' ? 'record in Vigie the inspection' : 'record the inspection')} « {dataText(dueSoon.label, lang)} » {t('of')} {dueSoon.resourceCode} ({t('due')} {fmtDate(dueSoon.dueOn, lang)}). {t('Until then, no slot of this resource can end after that date.')}
           </span>
           {tab !== 'inspections' && <Link className="btn btn-secondary" href={facilityTabHref(facility.code, 'inspections')}>{t('Periodic inspections')}</Link>}
         </div>
@@ -240,7 +240,7 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
                 {sheet.inspections.map((i) => (
                   <tr key={i.id}>
                     <Td>{i.resourceCode}</Td>
-                    <Td>{dataText(i.label, lang)}</Td>
+                    <Td>{dataText(i.label, lang)}{i.source === 'vigie' && <Tag tone="outline" size="sm" style={{ marginLeft: 8 }}>Vigie</Tag>}</Td>
                     <Td>{fmtDate(i.lastOn, lang)}</Td>
                     <Td>
                       {fmtDate(i.dueOn, lang)}
