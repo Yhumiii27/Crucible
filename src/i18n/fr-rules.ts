@@ -9,4 +9,9 @@ export const FR_RULES: [RegExp, string][] = [
   [/^Incident (AL-\d{4}-\d+)$/, 'Aléa $1'],
   [/^Scenario (S-\d{4}-\d+)$/, 'Scénario $1'],
   [/^(\d+) bookings moved$/, '$1 réservation(s) déplacée(s)'],
+  [/^(\d+) read$/, '$1 lu(s)'],
+  [/^(\d+) added$/, '$1 ajouté(s)'],
+  [/^(\d+) changed$/, '$1 modifié(s)'],
+  [/^(\d+) removed$/, '$1 retiré(s)'],
+  [/^(\d+) skipped$/, '$1 écarté(s)'],
 ];

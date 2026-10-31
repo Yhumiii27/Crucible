@@ -2,7 +2,7 @@
 // Administration forms (client islands of the server pages): each submits to its Server Function and shows the translated
 // result. The Server Functions do every check again.
 import { useActionState, useState, useTransition } from 'react';
-import { ActionForm, Result, Folded } from '@/components/app/ActionForm';
+import { ActionButton, ActionForm, Result, Folded } from '@/components/app/ActionForm';
 import { Button } from '@/components/ds/Button';
 import { Field, Input, Select } from '@/components/ds/Field';
 import { ROLE_KEYS, ROLE_LABEL, ROLE_SCOPE, type RoleKey } from '@/config/roles';
@@ -11,6 +11,7 @@ import { useI18n } from '@/i18n/client';
 import {
   addRoleAction, createEntityAction, createFacilityAction, createProjectAction, createSiteAction, createUserAction, removeRoleAction, setUserActiveAction,
 } from './actions';
+import { readConnectorsAction } from './connectors';
 import s from './forms.module.css';
 
 
@@ -189,4 +190,9 @@ export function NewProjectForm({ entities }: { entities: Ref[] }) {
       </label>
     </ActionForm>
   );
+}
+
+/** Reads the other tools' views now (CR-060). */
+export function ReadConnectorsButton() {
+  return <ActionButton run={readConnectorsAction} label="Read now" done="Read" variant="primary" />;
 }

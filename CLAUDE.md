@@ -100,6 +100,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `/api/calendar/<token>.ics` read with the owner's rights (`src/server/calendar.ts`). Device and feed tokens are shown once
   and stored as SHA-256 hashes (`src/server/http/tokens.ts`); their routes are `TOKEN_PATHS` of `src/domain/auth.ts` (no
   session).
+- **Delivery 8 (reading the other tools, CR-060) is done** (`docs/DELIVERY-8.md`, X-10 added): `keystone.pub_jalons`,
+  `cursus.pub_absences` and `vigie.pub_controles` are copied into Crucible's tables with their source (`keystone`, `cursus`,
+  `vigie`) every hour by the job `connectors-read` and on demand ("Read now", `/admin/connectors`), once granted
+  (`src/server/integrations/connectors.ts`; a view not readable is a state). A row read from another tool is changed there:
+  the Server Functions refuse it in Crucible.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

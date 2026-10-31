@@ -142,6 +142,7 @@ export async function removeAbsenceAction(id: string): Promise<ActionResult> {
     const [a] = await tx.select().from(personAbsences).where(eq(personAbsences.id, id));
     const p = a ? await keptPerson(tx, v, a.personId) : null;
     if (!a || !p) return REFUSED;
+    if (a.source === 'cursus') return { ok: false, error: 'This absence comes from Cursus: change it there' };
     await tx.delete(personAbsences).where(eq(personAbsences.id, id));
     await writeAudit(tx, audit(v, 'People', `Person ${p.name}`, `absence removed: ${a.fromOn} → ${a.toOn}`, { entityType: 'person', entityId: p.id }));
     return { ok: true };

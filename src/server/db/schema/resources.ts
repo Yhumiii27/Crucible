@@ -56,7 +56,7 @@ export const unavailabilities = crucible.table('unavailabilities', {
   ...timestamps,
 }, (t) => [index('unavailabilities_resource_idx').on(t.resourceId, t.startsAt)]);
 
-/** Periodic regulatory inspections of a resource (R-6), entered in Crucible until Vigie publishes them (S-4, V-1). */
+/** Periodic regulatory inspections of a resource (R-6), entered in Crucible or read from Vigie once it publishes them (S-4, V-1). */
 export const inspections = crucible.table('inspections', {
   id: id(),
   resourceId: uuid('resource_id').notNull().references(() => resources.id, { onDelete: 'cascade' }),
@@ -67,6 +67,10 @@ export const inspections = crucible.table('inspections', {
   active: boolean('active').notNull().default(true),
   updatedByName: text('updated_by_name').notNull(),
   ...timestamps,
+  /** `crucible` (entered here) or `vigie` (read from `vigie.pub_controles`, CR-060: changed in Vigie only). */
+  source: text('source').notNull().default('crucible'),
+  /** `vigie_ref` of the control, when read from Vigie. */
+  sourceRef: text('source_ref'),
 }, (t) => [unique('inspections_resource_label_uq').on(t.resourceId, t.label)]);
 
 /** Exclusion rules (R-2, R-3): of the resources named, at most `max_active` work at the same time. */
