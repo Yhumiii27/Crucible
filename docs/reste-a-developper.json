@@ -86,6 +86,10 @@
   {
    "date": "2026-11-01",
    "text": "Livraison 10 (CR-073, « lance le prochain point ») : plans de maintenance et d’étalonnage par moyen, interventions gardées telles qu’enregistrées, blocage des réservations à l’échéance dépassée, alertes aux responsables 14 jours avant. X-12 ajoutée (défaut appliqué). 378 tests."
+  },
+  {
+   "date": "2026-11-01",
+   "text": "Livraison 11 (CR-079, « lance le prochain point ») : limitation des tentatives sur la connexion, la recherche, les exports, l’assistant, les appareils et les abonnements ; dépassements journalisés. X-13 ajoutée (défaut appliqué). 383 tests."
   }
  ],
  "items": [
@@ -672,12 +676,13 @@
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "src/server/auth/ : aucun compteur de tentatives",
-    "deploy/compose.shared.yaml : middleware basicauth Traefik seulement"
+    "src/domain/rate-limit.ts : RATE_LIMITS",
+    "src/server/http/rate-limit.ts : hitRate, purgeRateCounters"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 11",
+    "note": "Fait le 1er nov. 2026 (DELIVERY-11.md, X-13) : connexion, recherche, exports, assistant, appareils et abonnements limités par personne ou par adresse ; compteurs en base ; premier dépassement journalisé."
    }
   },
   {

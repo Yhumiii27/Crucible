@@ -6,28 +6,28 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-11-01 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 17 faits, 4 en cours, 11 à faire, sur 32 points.
+**Avancement** : 18 faits, 4 en cours, 10 à faire, sur 32 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 2 | ≈ 8 |
-| À décider | 8 | ≈ 35 |
+| À décider | 7 | ≈ 34 |
 | Plus tard | 4 | ≈ 30 |
-| **Total** | **15** | **≈ 77** |
+| **Total** | **14** | **≈ 75** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 10 |
+| Non commencé | 9 |
 | Partiel | 0 |
 | Attend le responsable produit | 3 |
 | Attend un système externe | 2 |
 
 | Domaine | Bloquant production | Prochaine étape | À décider | Plus tard | Restants | Faits |
 |---|---:|---:|---:|---:|---:|---:|
-| Plateforme et mise en production | 1 | 0 | 2 | 1 | 4 | 1 |
+| Plateforme et mise en production | 1 | 0 | 1 | 1 | 3 | 2 |
 | Connexion, profils et visibilité | 0 | 0 | 0 | 0 | 0 | 2 |
 | Moyens d’essais, règles et réservations | 0 | 0 | 2 | 0 | 2 | 6 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
@@ -55,7 +55,6 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 - **CR-075** Formulaires avant, pendant et après la réservation (check-list sécurité, fiche d’essai, rapport d’incident) — Responsable produit (hors demande initiale)
 - **CR-076** Consommables et stock liés aux essais (quantités, péremption, alertes) — Responsable produit (hors demande initiale)
 - **CR-077** Rapports PDF et tableaux de bord exportables vers la BI — Responsable produit (hors demande initiale)
-- **CR-079** Limitation des tentatives (rate limiting applicatif) — Responsable produit (hors demande initiale)
 - **CR-080** Tests de bout en bout dans le navigateur — Responsable produit (hors demande initiale)
 - **CR-081** Résultats d’essais et cahier de laboratoire (ELN) rattachés à la réservation — Responsable produit (hors périmètre déclaré)
 
@@ -66,15 +65,11 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 
 ## 2. Liste détaillée par domaine
 
-### 2.1 Plateforme et mise en production (4 restants, 1 faits)
+### 2.1 Plateforme et mise en production (3 restants, 2 faits)
 
 **CR-007 · Mise en production : hébergement, Entra réel, serveur commun** — *Bloquant production · attend un système externe · effort M* · **en cours (Livraison 1)**  
 Hébergeur (T-6), inscription Entra, rôle et schéma créés par Matrix (M-1 à M-5). Analyse comparative du 25 oct. 2026 : prérequis bloquants confirmés (hébergement T-6, Entra réel, données D-1 à D-11, pilote). Écart P2 (niveau standard) : la bêta tourne en mode démo (CRUCIBLE_AUTH=demo, « voir en tant que ») derrière l’authentification HTTP de Coolify ; l’authentification réelle par Entra doit être en place avant tout usage hors démonstration. La limitation des tentatives côté application fait l’objet de CR-079.  
 *Avancement : Kit Coolify du serveur commun (deploy/compose.shared.yaml, EXPLOITATION.md § 4.1) essayé en local contre le socle de Matrix (rôle crucible_app posé à la main) : migrations, jeu de démonstration, santé, sauvegarde, authentification HTTP. Reste : rôle et partage côté Matrix (M-1 à M-5), mise en service dans Coolify, Entra réel. · Attend : Matrix, DSI · Sources : docs/DEMANDES-MATRIX.md, docs/EXPLOITATION.md*
-
-**CR-079 · Limitation des tentatives (rate limiting applicatif)** — *À décider · non commencé · effort S*  
-P2, standard. Limiter côté application les tentatives sur la connexion, la recherche globale, les exports et l’assistant (par session et par adresse), journaliser les dépassements. Aujourd’hui aucune limitation applicative ; la bêta repose sur l’authentification HTTP de Coolify (Traefik). L’authentification réelle est suivie dans CR-007.  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 **CR-080 · Tests de bout en bout dans le navigateur** — *À décider · non commencé · effort M*  
 P2, qualité. Parcours Playwright sur les écrans principaux (réservation refusée avec la règle citée, acceptation d’une proposition, scénario de reprise, panneau de l’assistant), joués en CI sur le port 3510. Aujourd’hui Playwright est installé mais aucun test de bout en bout n’existe ; seuls les tests unitaires et les contrôles de fumée HTTP tournent.  
@@ -87,6 +82,10 @@ P3, standard. Recette de l’interface sur téléphone (Mon planning, démarrer 
 **~~CR-004 · Socle repris (connexion, droits, audit, i18n, PostgreSQL, worker, sauvegardes, CI)~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 1)**  
 Socle d’Arche (lui-même repris de Keystone), PostgreSQL seul, schéma crucible.  
 *Avancement : 132 tests, build et 19 contrôles de fumée HTTP. · Sources : docs/SOCLE.md*
+
+**~~CR-079 · Limitation des tentatives (rate limiting applicatif)~~** — *À décider · non commencé · effort S* · **fait (Livraison 11)**  
+P2, standard. Limiter côté application les tentatives sur la connexion, la recherche globale, les exports et l’assistant (par session et par adresse), journaliser les dépassements. Aujourd’hui aucune limitation applicative ; la bêta repose sur l’authentification HTTP de Coolify (Traefik). L’authentification réelle est suivie dans CR-007.  
+*Avancement : Fait le 1er nov. 2026 (DELIVERY-11.md, X-13) : connexion, recherche, exports, assistant, appareils et abonnements limités par personne ou par adresse ; compteurs en base ; premier dépassement journalisé. · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 ### 2.2 Connexion, profils et visibilité (0 restants, 2 faits)
 
@@ -214,6 +213,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-01 — Livraison 11 (CR-079, « lance le prochain point ») : limitation des tentatives sur la connexion, la recherche, les exports, l’assistant, les appareils et les abonnements ; dépassements journalisés. X-13 ajoutée (défaut appliqué). 383 tests.
 - 2026-11-01 — Livraison 10 (CR-073, « lance le prochain point ») : plans de maintenance et d’étalonnage par moyen, interventions gardées telles qu’enregistrées, blocage des réservations à l’échéance dépassée, alertes aux responsables 14 jours avant. X-12 ajoutée (défaut appliqué). 378 tests.
 - 2026-11-01 — Livraison 9 (CR-078, « lance le prochain point ») : limites par moyen (temps libre entre deux réservations, prévenance minimale, durée maximale) contrôlées comme contraintes dures ; réservations répétées chaque semaine, toutes ou aucune. X-11 ajoutée (défaut appliqué). 371 tests.
 - 2026-11-01 — CR-060, suite (« lance le prochain point », choix « fin de CR-060 ») : les références Codex (protocoles, rapports, analyses de risque, justifications de substitution) affichent l’état de leur document lu dans codex.pub_documents — révision en vigueur, ou inconnu, obsolète, archivé, sans révision en vigueur. 362 tests.

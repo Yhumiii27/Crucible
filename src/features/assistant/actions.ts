@@ -5,6 +5,7 @@
 import type { ConversationView } from '@/domain/assistant-answer';
 import { askAssistant, assistantStatus, canUseAssistant, conversationView, latestConversation } from '@/server/assistant/service';
 import { getLang, getViewer } from '@/server/session';
+import { hitRate } from '@/server/http/rate-limit';
 
 export type AssistantState = { provider: 'local' | 'claude'; model: string | null; conversation: ConversationView | null };
 
@@ -20,5 +21,7 @@ export async function loadAssistantAction(conversationId: string | null): Promis
 export async function askAssistantAction(conversationId: string | null, question: string, page: string): Promise<{ ok: true; conversation: ConversationView } | { ok: false; error: string }> {
   const v = await getViewer();
   if (typeof question !== 'string' || typeof page !== 'string' || (conversationId !== null && typeof conversationId !== 'string')) return { ok: false, error: 'Write a question' };
+  // CR-079: at most 30 questions per person and 10 minutes.
+  if (!(await hitRate('assistant', v.userId, { name: v.name, userId: v.userId, role: v.role })).ok) return { ok: false, error: 'Too many questions: try again in a few minutes' };
   return askAssistant(v, await getLang(), { conversationId, question, page });
 }

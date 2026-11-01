@@ -11,6 +11,7 @@ import { parisParts } from '@/lib/dates';
 import { getDb } from '@/server/db/client';
 import { bookings, conflicts, incidents, projects, resources, scenarios, testNeeds } from '@/server/db/schema';
 import { visibleFacilities, visibleProjects } from '@/server/dal/visibility';
+import { hitRate } from '@/server/http/rate-limit';
 import { getI18n, getViewer } from '@/server/session';
 
 export interface SearchHit {
@@ -28,6 +29,8 @@ export async function searchAction(raw: unknown): Promise<SearchHit[]> {
   const q = typeof raw === 'string' ? raw.trim().slice(0, 80) : '';
   if (q.length < 2) return [];
   const [viewer, { lang }] = await Promise.all([getViewer(), getI18n()]);
+  // CR-079: at most 120 searches per person and minute; past it, no hit.
+  if (!(await hitRate('search', viewer.userId, { name: viewer.name, userId: viewer.userId, role: viewer.role })).ok) return [];
   if (viewer.role === 'admin') return [];
   const db = await getDb();
   const needle = q.toLowerCase();
