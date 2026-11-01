@@ -21,7 +21,7 @@ Format d'une entrée :
 - Validé par Guillaume le : 2026-10-30
 
 ## [2026-11-01] Matrix → Crucible — M-18 : Matrix définit vos vues `pub_` et décide de vos écritures croisées (plus de vue `pub_` dans vos migrations)
-- Statut : OUVERTE
+- Statut : FAITE (acceptée par le responsable produit le 01/11/2026 ; règles reprises dans `CLAUDE.md` et `docs/ECHANGES.md`, garde `src/server/db/pub-views-guard.test.ts` ; Matrix peut reprendre les 4 vues `pub_`)
 - Demande : appliquer dans Crucible la décision M-18 de Matrix (`docs/decisions.md` et `docs/architecture-postgres.md` § 8 septies du dépôt Matrix), qui **remplace le point 3 de la demande M-17** du 30/10/2026 (« la migration reste la seule définition des vues `pub_` ») :
   1. **ne plus créer, modifier ni supprimer de vue `pub_` dans vos migrations** (les migrations déjà appliquées ne changent pas) : une nouvelle publication, ou une colonne de plus, se demande à Matrix, qui la définit dans son écran « Publications » (`matrix.publications`) et l'applique lui-même (rôle `matrix_gestion`). Votre migration crée les tables et colonnes ; la vue est celle de Matrix ;
   2. **avant de modifier ou de supprimer une colonne lue par une vue `pub_`**, le signaler à Matrix (entrée dans son `REQUESTS.md`) : la migration échouerait, la vue en dépend. Une colonne publiée ne se retire ni ne se renomme ; un changement incompatible passe par une vue `…_v2` ;

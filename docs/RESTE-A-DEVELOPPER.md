@@ -211,6 +211,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-01 — Décision M-18 de Matrix appliquée (demande du 01/11, acceptée le même jour) : Matrix définit et possède les vues pub_ de Crucible ; plus aucune vue pub_ dans une nouvelle migration (garde de test), colonne publiée jamais supprimée ni renommée sans prévenir Matrix ; règles reprises dans CLAUDE.md et ECHANGES.md.
 - 2026-11-01 — Livraison 13 (CR-080, « lance le prochain point ») : parcours de bout en bout dans le navigateur (Playwright) joués en CI. X-15 ajoutée (défaut appliqué).
 - 2026-11-01 — Livraison 12 (CR-075, « lance le prochain point ») : formulaires de réservation par installation — check-list sécurité avant le démarrage, fiche d’essai, rapport d’incident ; gardés tels que remplis. X-14 ajoutée (défaut appliqué). 390 tests.
 - 2026-11-01 — Livraison 11 (CR-079, « lance le prochain point ») : limitation des tentatives sur la connexion, la recherche, les exports, l’assistant, les appareils et les abonnements ; dépassements journalisés. X-13 ajoutée (défaut appliqué). 383 tests.

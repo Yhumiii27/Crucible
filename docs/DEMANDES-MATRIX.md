@@ -13,6 +13,10 @@
 > registre `matrix.liens` (lecteur, objet `schéma.pub_…`, nature `lecture` ou `execution`, justification) : par
 > `POST /api/liens` une fois livré (M17-4), d’ici là par une entrée courte dans le `REQUESTS.md` de Matrix.
 
+> **Depuis M-18 (01/11/2026, appliquée par Crucible le même jour)** : Matrix définit et possède les vues `pub_` de Crucible
+> (écran « Publications ») ; une nouvelle vue ou une colonne de plus se demande à Matrix, et toute suppression ou
+> renommage d’une colonne d’une table publiée lui est signalé avant la migration.
+
 | # | Demande | Fichier Matrix |
 |---|---|---|
 | M-1 | Rôle `crucible_app` (`CRUCIBLE_APP_PASSWORD`, SCRAM, accordé à `matrix_admin`, `CONNECT` sur `epc2i`) | `infra/postgres/init/01-base-et-roles.sql` |
