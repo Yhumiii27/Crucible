@@ -90,6 +90,10 @@
   {
    "date": "2026-11-01",
    "text": "Livraison 11 (CR-079, « lance le prochain point ») : limitation des tentatives sur la connexion, la recherche, les exports, l’assistant, les appareils et les abonnements ; dépassements journalisés. X-13 ajoutée (défaut appliqué). 383 tests."
+  },
+  {
+   "date": "2026-11-01",
+   "text": "Livraison 12 (CR-075, « lance le prochain point ») : formulaires de réservation par installation — check-list sécurité avant le démarrage, fiche d’essai, rapport d’incident ; gardés tels que remplis. X-14 ajoutée (défaut appliqué). 390 tests."
   }
  ],
  "items": [
@@ -589,11 +593,13 @@
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "src/domain/needs.ts : références Codex des protocoles et rapports (liens seulement)"
+    "src/domain/booking-forms.ts, src/features/forms/actions.ts",
+    "src/features/resources/actions.ts : startBookingAction attend la check-list"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 12",
+    "note": "Fait le 1er nov. 2026 (DELIVERY-12.md, X-14) : check-list sécurité (obligatoire avant le démarrage à l’écran), fiche d’essai et rapport d’incident par installation, remplis depuis Mon planning, gardés tels que remplis."
    }
   },
   {

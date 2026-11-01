@@ -22,12 +22,15 @@ import { EquipmentForm } from '@/features/planning/forms';
 import { DeviceForm, RevokeDeviceButton } from '@/features/measure/forms';
 import { MaintenancePlanForm, MaintenanceRecordForm, WithdrawPlanButton } from '@/features/maintenance/forms';
 import { MAINTENANCE_KIND_LABEL } from '@/domain/maintenance';
+import { FORM_STAGES, FORM_STAGE_LABEL } from '@/domain/booking-forms';
+import { FormTemplateForm } from '@/features/forms/forms';
 import { DEVICE_KIND_LABEL, OCCUPANCY_OUTCOME_LABEL, type DeviceKind, type OccupancyOutcome } from '@/domain/occupancy';
 import { dataText } from '@/i18n/data-text';
 import { addDaysIso } from '@/lib/dates';
 import { fmtDate, fmtInstant } from '@/lib/format';
 import { businessNow, businessToday } from '@/server/clock';
 import { facilityMeasurement } from '@/server/occupancy';
+import { facilityForms } from '@/server/dal/forms';
 import { facilityMaintenance } from '@/server/dal/maintenance';
 import { facilityEquipment } from '@/server/dal/planning';
 import { facilitySheet } from '@/server/dal/resources';
@@ -46,6 +49,7 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
   const tab = isFacilityTab(sp.tab) ? sp.tab : 'resources';
   const [equipment, measure, maint] = await Promise.all([facilityEquipment(viewer, facility.code), tab === 'measurement' ? facilityMeasurement(viewer, facility.code, now) : null, facilityMaintenance(facility.code, today)]);
   const manager = managedFacilities(viewer.role, viewer.assignments).includes(facility.code);
+  const forms = tab === 'forms' ? await facilityForms(facility.code, new Date(now.getTime() - 30 * 86_400_000)) : null;
   const resRefs = sheet.resources.filter((r) => r.status !== 'retired').map((r) => ({ id: r.id, code: r.code }));
   const inService = sheet.resources.filter((r) => r.status === 'in_service').length;
   const validated = sheet.rules.filter((r) => r.status === 'validated');
@@ -351,6 +355,61 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
             ) : (
               <EmptyState>{t('No intervention recorded.')}</EmptyState>
             )}
+          </SectionCard>
+        </>
+      )}
+
+      {tab === 'forms' && forms && (
+        <>
+          {FORM_STAGES.map((stage) => {
+            const tpl = forms.templates.find((x) => x.stage === stage) ?? null;
+            return (
+              <SectionCard key={stage} title={t(FORM_STAGE_LABEL[stage])} hint={tpl ? `v${tpl.version}` : undefined}
+                subtitle={t(stage === 'before' ? 'Filled before the start: a test cannot be started on screen without it.' : stage === 'after' ? 'Filled once the test has started or is over.' : 'Filled while the test runs; the managers of the facility are told.')}>
+                {tpl ? (
+                  <>
+                    {!tpl.active && <Tag tone="outline" size="sm">{t('Not asked')}</Tag>}
+                    <ul>
+                      {tpl.items.map((it) => <li key={it.key}>{it.label}{it.kind === 'text' && <span className="text-muted"> · {t('written answer')}</span>}</li>)}
+                    </ul>
+                  </>
+                ) : <EmptyState>{t('No form asked.')}</EmptyState>}
+                {manager && (
+                  <Folded summary={tpl ? 'Change the form' : 'Create the form'} size="xs" variant="ghost" title={FORM_STAGE_LABEL[stage]}>
+                    <FormTemplateForm facilityCode={facility.code} stage={stage} items={tpl?.items ?? null} active={tpl?.active ?? true} />
+                  </Folded>
+                )}
+              </SectionCard>
+            );
+          })}
+          <SectionCard title={t('Forms filled over the last 30 days')} hint={String(forms.filled.length)} subtitle={t('Kept as filled: a form is never changed.')} scroll>
+            {forms.filled.length ? (
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t('Date')}</Th>
+                    <Th>{t('Booking')}</Th>
+                    <Th>{t('Form')}</Th>
+                    <Th>{t('Answers')}</Th>
+                    <Th>{t('Filled by')}</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {forms.filled.map((f) => (
+                    <tr key={f.id}>
+                      <Td valign="top" nowrap>{fmtInstant(f.createdAt, lang)}</Td>
+                      <Td valign="top">{f.ref}<div className="text-muted">{f.resourceCode}</div></Td>
+                      <Td valign="top">{t(FORM_STAGE_LABEL[f.stage])} <span className="text-muted">v{f.version}</span></Td>
+                      <Td valign="top">
+                        {f.items.filter((it) => it.kind === 'text').map((it) => <div key={it.key}><span className="text-muted">{it.label} :</span> {dataText(String(f.answers[it.key] ?? ''), lang)}</div>)}
+                        {f.items.some((it) => it.kind === 'check') && <div className="text-muted">{f.items.filter((it) => it.kind === 'check').length} {t('items ticked')}</div>}
+                      </Td>
+                      <Td valign="top">{f.filledByName}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : <EmptyState>{t('No form filled over the last 30 days.')}</EmptyState>}
           </SectionCard>
         </>
       )}

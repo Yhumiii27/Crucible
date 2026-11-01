@@ -5,7 +5,7 @@
 // holds the facility switcher (Keystone's project switcher: my facilities / all I see, search); its entries are the tabs of the
 // facility of the URL, else the last one used (cookie crucible-facility). At the bottom the "View as" switcher (demo mode) or
 // the account menu (Entra mode). The language toggle and the bell are in the page header.
-import { Buildings, CalendarX, CaretDown, CaretRight, CaretUpDown, Check, Eye, Flask, Gauge, MagnifyingGlass, Polygon, SealCheck, SignOut, Toolbox, Wrench } from '@phosphor-icons/react/dist/ssr';
+import { Buildings, CalendarX, CaretDown, CaretRight, CaretUpDown, Check, Eye, Flask, Gauge, ListChecks, MagnifyingGlass, Polygon, SealCheck, SignOut, Toolbox, Wrench } from '@phosphor-icons/react/dist/ssr';
 import type { Icon } from '@phosphor-icons/react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -61,7 +61,7 @@ export interface SidebarProps {
   badges?: Partial<Record<string, number>>;
 }
 
-const TAB_ICONS: Record<string, Icon> = { 'facility:resources': Flask, 'facility:calendar': CalendarX, 'facility:inspections': SealCheck, 'facility:maintenance': Wrench, 'facility:equipment': Toolbox, 'facility:measurement': Gauge };
+const TAB_ICONS: Record<string, Icon> = { 'facility:resources': Flask, 'facility:calendar': CalendarX, 'facility:inspections': SealCheck, 'facility:maintenance': Wrench, 'facility:forms': ListChecks, 'facility:equipment': Toolbox, 'facility:measurement': Gauge };
 
 const YEAR = 60 * 60 * 24 * 365;
 const setCookie = (name: string, value: string) => {
