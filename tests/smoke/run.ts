@@ -86,6 +86,10 @@ async function main(): Promise<void> {
   // Delivery 12: the booking forms of a facility, with the template forms for the manager.
   const formsTab = await get('/facilities/PDE?tab=forms', 'facility_manager');
   check(formsTab.status === 200 && formsTab.body.includes('Check-list sécurité') && formsTab.body.includes('Créer le formulaire'), 'facility: the booking forms tab');
+  // Delivery 14: the monthly report, its print button and its JSON export.
+  const report = await get('/reports?month=2026-10', 'rd_director');
+  check(report.status === 200 && report.body.includes('Rapport mensuel') && report.body.includes('Imprimer ou enregistrer en PDF') && report.body.includes('PDE-PIL'), 'report: the monthly report of the R&D director');
+  check((await get('/reports', 'project_lead')).status === 404, 'the monthly report is not in a project lead’s workspace');
   const conflictsPage = await get('/conflicts', 'coordinator');
   check(conflictsPage.status === 200 && conflictsPage.body.includes('C-2026-0001') && conflictsPage.body.includes('Recommandée') && conflictsPage.body.includes('Essai de sécurité ou réglementaire'), 'conflicts: the PDE sheet, its recommendation and the rule cited');
   check((await get('/conflicts', 'project_lead')).status === 404, 'conflicts are not in a project lead’s workspace');

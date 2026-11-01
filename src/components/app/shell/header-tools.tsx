@@ -2,7 +2,7 @@
 // Tools of the page header (Keystone's header islands, docs/spec/01 §5 there; delivery 5b): global search, the bell and its
 // latest notifications, the assistant's button (delivery 6), the status date, the language toggle, Export (CSV of the screen's current view, when it has one).
 // Strings arrive translated from the server, typed text as typed.
-import { Bell, CalendarBlank, Export, FileCsv, MagnifyingGlass } from '@phosphor-icons/react/dist/ssr';
+import { Bell, CalendarBlank, Export, FileCode, FileCsv, MagnifyingGlass } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -193,11 +193,13 @@ function LangToggle({ lang }: { lang: Lang }) {
 
 function ExportButton({ screen }: { screen: string | null }) {
   const { t } = useI18n();
-  const run = () => {
+  const run = (json = false) => {
     if (!screen) return;
-    // A download (Content-Disposition: attachment): the page stays.
+    // A download (Content-Disposition: attachment): the page stays. JSON (CR-077) for a BI tool.
+    const q = new URLSearchParams(window.location.search);
+    if (json) q.set('format', 'json');
     const a = document.createElement('a');
-    a.href = `/api/export/${encodeURIComponent(screen)}${window.location.search}`;
+    a.href = `/api/export/${encodeURIComponent(screen)}${q.size ? `?${q}` : ''}`;
     a.download = '';
     document.body.appendChild(a);
     a.click();
@@ -218,9 +220,14 @@ function ExportButton({ screen }: { screen: string | null }) {
     >
       <MenuHeader>{t('Export this view')}</MenuHeader>
       {screen ? (
-        <MenuItem icon={FileCsv} onClick={run}>
-          {t('CSV (Excel)')}
-        </MenuItem>
+        <>
+          <MenuItem icon={FileCsv} onClick={() => run()}>
+            {t('CSV (Excel)')}
+          </MenuItem>
+          <MenuItem icon={FileCode} onClick={() => run(true)}>
+            {t('JSON (BI tools)')}
+          </MenuItem>
+        </>
       ) : (
         <MenuEmpty>{t('Nothing to export on this screen')}</MenuEmpty>
       )}
@@ -233,7 +240,7 @@ export function HeaderTools({ items, unread, statusDate, lang, exportScreen, bel
 }) {
   const { t } = useI18n();
   return (
-    <div className={styles.actions}>
+    <div className={styles.actions} data-print-hide>
       <GlobalSearch />
       {assistant && <AssistantButton />}
       {bell && <Notifications items={items} unread={unread} />}

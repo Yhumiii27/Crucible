@@ -25,3 +25,16 @@ a:hover {
 button {
   font: inherit;
 }
+
+/* Print (CR-077): the menu, the assistant and the page actions stay on screen. */
+@media print {
+  aside,
+  [role='dialog'],
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+  }
+}

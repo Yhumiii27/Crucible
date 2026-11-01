@@ -78,7 +78,7 @@ test('the assistant answers in its panel', async ({ page, context, baseURL }) =>
 test('every screen of the coordinator’s menu opens', async ({ page, context, baseURL }) => {
   await actAs(context, baseURL!, 'coordinator');
   for (const path of ['/', '/planning', '/my/schedule', '/my/decisions', '/propose', '/conflicts', '/load', '/people', '/rules', '/incidents', '/notifications',
-    '/facilities/PDE', '/facilities/PDE?tab=maintenance', '/facilities/PDE?tab=forms', '/facilities/PDE?tab=measurement']) {
+    '/facilities/PDE', '/facilities/PDE?tab=maintenance', '/facilities/PDE?tab=forms', '/facilities/PDE?tab=measurement', '/reports']) {
     const res = await page.goto(path);
     expect(res?.status(), path).toBe(200);
     await expect(page.locator('h1').first(), path).toBeVisible();

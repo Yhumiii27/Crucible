@@ -839,6 +839,18 @@
     "blocks": "L13"
   },
   {
+    "id": "X-16",
+    "group": "extra",
+    "title": "Rapports PDF et exports pour la BI (CR-077)",
+    "context": "Le pilotage ne se lisait qu’à l’écran ; les exports n’étaient qu’en CSV.",
+    "proposal": "Un rapport mensuel par installation (heures ouvertes, réservé, réalisé, bloqué, non tenues, réservations du mois) imprimé ou enregistré en PDF par le navigateur ; tous les exports en CSV et en JSON ; alimentation automatique de la BI par la vue pub_occupation_hebdo de Matrix.",
+    "alts": [
+      "PDF produit par le serveur et envoyé chaque mois par e-mail",
+      "Flux BI à jeton"
+    ],
+    "blocks": "L14"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

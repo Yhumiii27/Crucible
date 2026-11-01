@@ -15,13 +15,15 @@ import { decisionQueue } from '@/server/dal/decisions';
 import { incidentsScreen } from '@/server/dal/incidents';
 import { DETAIL_WEEKS, loadScreen } from '@/server/dal/needs';
 import { conflictsScreen, proposeScreen } from '@/server/dal/planning';
+import { monthlyReport } from '@/server/dal/report';
 import { planningWeek } from '@/server/dal/resources';
+import { parseMonth } from '@/domain/report';
 import type { Viewer } from '@/server/viewer';
 
 export type Cell = string | number | null;
 
 /** Screens with an export. */
-export const EXPORTABLE = ['planning', 'load', 'propose', 'conflicts', 'incidents', 'decide'] as const;
+export const EXPORTABLE = ['planning', 'load', 'propose', 'conflicts', 'incidents', 'decide', 'report'] as const;
 export type ExportableScreen = (typeof EXPORTABLE)[number];
 export const isExportable = (v: string): v is ExportableScreen => (EXPORTABLE as readonly string[]).includes(v);
 
@@ -82,6 +84,15 @@ export async function exportRows(screen: ExportableScreen, viewer: Viewer, param
       const q = await decisionQueue(viewer);
       const kind = { conflict: 'Conflict', scenario: 'Scenario', proposals: 'Proposals', unplaced: 'Need not placed' } as const;
       return [[t('Kind'), t('Reference'), t('Details')], ...q.items.map((i) => [t(kind[i.kind]), i.ref, i.kind === 'conflict' ? `${i.subject} · ${i.needs.join(' / ')}` : i.kind === 'proposals' ? String(i.count) : i.kind === 'scenario' ? (i.incidentRef ?? '') : (i.projectCode ?? '')])];
+    }
+    case 'report': {
+      // CR-077: one line per resource of the monthly report (the month and facility of the screen).
+      const month = parseMonth(params.get('month')) ?? today.slice(0, 7);
+      const data = await monthlyReport(viewer, month, params.get('facility'));
+      return [
+        [t('Month'), t('Facility'), t('Resource'), t('Open hours'), t('Booked hours'), t('Booked %'), t('Realised hours'), t('Realised %'), t('Blocked hours'), t('Blocked %'), t('Not held')],
+        ...data.byFacility.flatMap((f) => f.lines.map((l) => [month, f.code, l.code, l.netOpenHours, l.bookedHours, l.bookedRate, l.realisedHours, l.realisedRate, l.blockedHours, l.blockedRate, l.noShows])),
+      ];
     }
   }
 }

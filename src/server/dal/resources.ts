@@ -250,6 +250,12 @@ export function resourceUsages(f: Awaited<ReturnType<typeof usageFacts>>, fromIs
   }));
 }
 
+/** Bookings of the visible resources between two instants, masked for the viewer (the monthly report, CR-077). */
+export async function bookingsBetween(viewer: Viewer, resourceIds: readonly string[], from: Date, to: Date): Promise<PlanBooking[]> {
+  const db = await getDb();
+  return bookingsFor(viewer, db, resourceIds, from, to);
+}
+
 /** Rules and agreements screen. */
 export async function rulesScreen(viewer: Viewer) {
   const db = await getDb();

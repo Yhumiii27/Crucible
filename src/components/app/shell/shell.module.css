@@ -92,3 +92,17 @@
     border-bottom: 1px solid var(--color-neutral-900);
   }
 }
+
+/* Print (CR-077: the monthly report saved as PDF): the page alone, on white, without the menu, the header tools and the page
+   actions (data-print-hide). */
+@media print {
+  .root {
+    display: block;
+    background: none;
+    color: #000;
+  }
+
+  .main {
+    padding: 0;
+  }
+}
