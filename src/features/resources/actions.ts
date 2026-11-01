@@ -6,7 +6,7 @@
 // the write lock), checks the hard constraints with the pure rules of src/domain/booking.ts, writes, audits and revalidates.
 import { and, desc, eq, gte, inArray, like, lt, ne } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { checkBooking, canMarkNoShow, canTransition, ISSUE_LABEL, slotInterval, type Issue } from '@/domain/booking';
+import { checkBooking, checkLimits, canMarkNoShow, canTransition, ISSUE_LABEL, slotInterval, type Issue } from '@/domain/booking';
 import { DEFAULT_HOURS, inspectionDueOn, isHhmm } from '@/domain/calendar';
 import { isIsoDate } from '@/domain/clock';
 import { parseHistory } from '@/domain/history-import';
@@ -34,6 +34,8 @@ const audit = (v: Viewer, area: string, objectRef: string, change: string, extra
   actorName: v.name, actorUserId: v.userId, actorRole: v.role, objectRef, change, area, ...extra,
 });
 /** "Exclusion rule · PDE-ONE-ZONE · PDE-ATM": translated segment by segment, references shown as typed. */
+/** Most weeks a request may repeat after its first one (CR-078): half a year of weekly tests. */
+const MAX_REPEAT_WEEKS = 25;
 const issueText = (i: Issue) => (i.ref ? `${ISSUE_LABEL[i.code]} · ${i.ref}` : ISSUE_LABEL[i.code]);
 const REFUSED: ActionResult = { ok: false, error: 'This action is not in your workspace' };
 
@@ -78,6 +80,32 @@ export async function setResourceStatusAction(resourceId: string, status: string
     if (res.status === status) return { ok: true };
     await tx.update(resources).set({ status: status as ResourceStatus, updatedAt: new Date() }).where(eq(resources.id, resourceId));
     await writeAudit(tx, audit(v, 'Facilities', `Resource ${res.code}`, `status: ${res.status} → ${status}`, { entityType: 'resource', entityId: res.id }));
+    return { ok: true };
+  });
+  if (r.ok) revalidate(`/facilities/${facilityCode}`, '/planning');
+  return r;
+}
+
+/**
+ * Limits of a booking of a resource (CR-078, X-11): free time between two bookings, least notice of a new request, longest
+ * booking — checked with the hard constraints from then on. The facility's coordinator or manager.
+ */
+export async function setResourceLimitsAction(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const v = await getViewer();
+  const c = checkLimits(fieldsOf(fd));
+  if (!c.ok) return c;
+  const resourceId = String(fd.get('resourceId') ?? '');
+  const db = await getDb();
+  let facilityCode = '';
+  const r = await db.transaction(async (tx): Promise<ActionResult> => {
+    const [res] = /^[0-9a-f-]{36}$/i.test(resourceId) ? await tx.select().from(resources).where(eq(resources.id, resourceId)) : [];
+    if (!res || !(await managed(tx, v, res.facilityCode))) return REFUSED;
+    facilityCode = res.facilityCode;
+    const before = { bufferMinutes: res.bufferMinutes, minNoticeHours: res.minNoticeHours, maxDays: res.maxDays };
+    await tx.update(resources).set({ ...c.value, updatedAt: new Date() }).where(eq(resources.id, resourceId));
+    await writeAudit(tx, audit(v, 'Facilities', `Resource ${res.code}`, `limits: ${c.value.bufferMinutes} min · ${c.value.minNoticeHours ?? '—'} h · ${c.value.maxDays ?? '—'} d`, {
+      entityType: 'resource', entityId: res.id, before, after: { ...c.value },
+    }));
     return { ok: true };
   });
   if (r.ok) revalidate(`/facilities/${facilityCode}`, '/planning');
@@ -330,7 +358,7 @@ async function contextOf(tx: Tx, res: typeof resources.$inferSelect, slot: { sta
     tx.select().from(entityAgreements).where(and(eq(entityAgreements.facilityCode, res.facilityCode), eq(entityAgreements.entityCode, entityCode))),
   ]);
   return {
-    resource: { id: res.id, code: res.code, status: res.status, capacity: res.capacity, granularity: res.granularity },
+    resource: { id: res.id, code: res.code, status: res.status, capacity: res.capacity, granularity: res.granularity, limits: { bufferMinutes: res.bufferMinutes, minNoticeHours: res.minNoticeHours, maxDays: res.maxDays } },
     hours: cal.hours.length ? cal.hours : DEFAULT_HOURS,
     closures: cal.closures,
     unavailabilities: unav.map((u) => ({ start: u.startsAt.getTime(), end: u.endsAt.getTime(), label: u.label })),
@@ -365,28 +393,50 @@ export async function requestBookingAction(_prev: ActionResult | null, fd: FormD
     if (!canRequestBooking(v.role, v.assignments, fac, proj)) return { ok: false, error: 'You may not book this resource for this project' };
     const slotIn = checkSlotInput(raw, res.granularity);
     if (!slotIn.ok) return slotIn;
+    const repeat = String(raw.repeatWeeks ?? '').trim() === '' ? 0 : Number(raw.repeatWeeks);
+    if (!Number.isInteger(repeat) || repeat < 0 || repeat > MAX_REPEAT_WEEKS) return { ok: false, error: 'Repeat: 0 to 25 more weeks' };
     const cal = (await calendarsOf(tx, [res.facilityCode])).get(res.facilityCode)!;
-    const slot = slotInterval(slotIn.value, res.granularity, cal.hours.length ? cal.hours : DEFAULT_HOURS, cal.closures);
-    if (!slot) return { ok: false, error: ISSUE_LABEL.outside_hours };
-    const check = checkBooking(slot, await contextOf(tx, res, slot, proj.entityCode, now));
-    if (check.errors.length) return { ok: false, error: check.errors.map(issueText).join(' — ') };
+    // The slot, then the same slot every following week (CR-078): each checked against every hard constraint, all or none.
+    const slots: { fromOn: string; start: number; end: number }[] = [];
+    const refused: string[] = [];
+    const warnings: Issue[] = [];
+    for (let k = 0; k <= repeat; k++) {
+      const s = { ...slotIn.value, fromOn: addDaysIso(slotIn.value.fromOn, 7 * k), toOn: addDaysIso(slotIn.value.toOn, 7 * k) };
+      const slot = slotInterval(s, res.granularity, cal.hours.length ? cal.hours : DEFAULT_HOURS, cal.closures);
+      if (!slot) {
+        refused.push(repeat ? `${s.fromOn} · ${ISSUE_LABEL.outside_hours}` : ISSUE_LABEL.outside_hours);
+        continue;
+      }
+      const ctx = await contextOf(tx, res, slot, proj.entityCode, now);
+      // The earlier slots of the series hold the resource as if confirmed: the series never competes with itself.
+      const series = slots.map((x, i) => ({ id: `series-${i}`, ref: `${s.fromOn}#${i}`, resourceId: res.id, resourceCode: res.code, start: x.start, end: x.end, status: 'confirmed' as const }));
+      const check = checkBooking(slot, { ...ctx, bookings: [...ctx.bookings, ...series], newRequest: true });
+      if (check.errors.length) refused.push(...(repeat ? [`${s.fromOn} · ${check.errors.map(issueText).join(' · ')}`] : check.errors.map(issueText)));
+      else slots.push({ fromOn: s.fromOn, ...slot });
+      warnings.push(...check.warnings.filter((w) => !warnings.some((x) => x.code === w.code && x.ref === w.ref)));
+    }
+    if (refused.length) return { ok: false, error: refused.join(' — ') };
     const needId = String(raw.needId ?? '') || null;
     if (needId) {
       const [need] = /^[0-9a-f-]{36}$/i.test(needId) ? await tx.select({ projectCode: testNeeds.projectCode, status: testNeeds.status }).from(testNeeds).where(eq(testNeeds.id, needId)) : [];
       if (!need || need.projectCode !== proj.code || need.status !== 'open') return { ok: false, error: 'Choose an open need of the project' };
     }
-    const ref = await nextRef(tx, parisParts(new Date(slot.start)).iso.slice(0, 4));
     const operators = String(raw.operators ?? '').trim().slice(0, 200) || null;
-    const [b] = await tx.insert(bookings).values({
-      ref, resourceId: res.id, projectCode: proj.code, entityCode: proj.entityCode, title: title.value, startsAt: new Date(slot.start), endsAt: new Date(slot.end),
-      setupMinutes: res.setupMinutes, teardownMinutes: res.teardownMinutes, status: 'requested', operators,
-      requestedByUserId: v.userId, requestedByName: v.name, requestedAt: now, needId,
-    }).returning({ id: bookings.id });
-    await writeAudit(tx, audit(v, 'Bookings', `Booking ${ref}`, `requested: ${res.code}`, {
-      entityType: 'booking', entityId: b.id, projectCode: proj.code,
-      after: { resource: res.code, start: new Date(slot.start).toISOString(), end: new Date(slot.end).toISOString(), needId, warnings: check.warnings.map((w) => w.code) },
-    }));
-    return { ok: true, warnings: check.warnings.map(issueText) };
+    let seriesRef: string | null = null;
+    for (const slot of slots) {
+      const ref = await nextRef(tx, parisParts(new Date(slot.start)).iso.slice(0, 4));
+      if (repeat && !seriesRef) seriesRef = ref;
+      const [b] = await tx.insert(bookings).values({
+        ref, resourceId: res.id, projectCode: proj.code, entityCode: proj.entityCode, title: title.value, startsAt: new Date(slot.start), endsAt: new Date(slot.end),
+        setupMinutes: res.setupMinutes, teardownMinutes: res.teardownMinutes, status: 'requested', operators,
+        requestedByUserId: v.userId, requestedByName: v.name, requestedAt: now, needId, seriesRef,
+      }).returning({ id: bookings.id });
+      await writeAudit(tx, audit(v, 'Bookings', `Booking ${ref}`, seriesRef ? `requested: ${res.code} · series ${seriesRef}` : `requested: ${res.code}`, {
+        entityType: 'booking', entityId: b.id, projectCode: proj.code,
+        after: { resource: res.code, start: new Date(slot.start).toISOString(), end: new Date(slot.end).toISOString(), needId, seriesRef, warnings: warnings.map((w) => w.code) },
+      }));
+    }
+    return { ok: true, warnings: [...(repeat ? [`${slots.length} bookings requested · series ${seriesRef}`] : []), ...warnings.map(issueText)] };
   });
   if (r.ok) revalidate('/planning', '/my/schedule', '/', '/my/needs', '/load', `/projects/${raw.projectCode}`);
   return r;

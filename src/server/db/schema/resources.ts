@@ -23,6 +23,12 @@ export const resources = crucible.table('resources', {
   status: text('status').$type<ResourceStatus>().notNull().default('in_service'),
   description: text('description'),
   ...timestamps,
+  /** Limits of a booking of the resource (CR-078, X-11), checked as hard constraints: free time kept between two bookings… */
+  bufferMinutes: integer('buffer_minutes').notNull().default(0),
+  /** …least notice of a new request, in hours (null = none beyond the entity's agreement)… */
+  minNoticeHours: integer('min_notice_hours'),
+  /** …and most calendar days a booking may span (null = no limit). */
+  maxDays: smallint('max_days'),
 }, (t) => [index('resources_facility_idx').on(t.facilityCode)]);
 
 /** Opening hours of a facility per ISO weekday (R-9); a weekday without a row is closed. */
@@ -143,4 +149,6 @@ export const bookings = crucible.table('bookings', {
   needId: uuid('need_id').references((): AnyPgColumn => testNeeds.id),
   /** Codex reference of the test report (P-4, S-6): Crucible keeps the reference, never the file. */
   codexRef: text('codex_ref'),
+  /** Reference of the first booking of a weekly series (CR-078), on every booking of the series; null = a single booking. */
+  seriesRef: text('series_ref'),
 }, (t) => [index('bookings_resource_idx').on(t.resourceId, t.startsAt), index('bookings_project_idx').on(t.projectCode)]);

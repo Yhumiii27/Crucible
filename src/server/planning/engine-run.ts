@@ -104,7 +104,10 @@ export async function engineInput(q: Q, today: string, now: Date): Promise<Engin
   const facilityOf = new Map(res.map((r) => [r.id, r.facilityCode]));
   const input: EngineInput = {
     today, now: now.getTime(), fromOn, toOn,
-    resources: res.map((r) => ({ id: r.id, code: r.code, facilityCode: r.facilityCode, capacity: r.capacity, status: r.status, granularity: r.granularity })),
+    resources: res.map((r) => ({
+      id: r.id, code: r.code, facilityCode: r.facilityCode, capacity: r.capacity, status: r.status, granularity: r.granularity,
+      limits: { bufferMinutes: r.bufferMinutes, minNoticeHours: r.minNoticeHours, maxDays: r.maxDays },
+    })),
     calendars: cal,
     unavailabilities: unav.map((u) => ({ resourceId: u.resourceId, start: ms(u.startsAt), end: ms(u.endsAt), label: u.label })),
     inspections: insp.map((i) => ({ resourceId: i.resourceId, label: i.label, dueOn: inspectionDueOn(i.lastOn, i.periodMonths) })),

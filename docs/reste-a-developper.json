@@ -78,6 +78,10 @@
   {
    "date": "2026-11-01",
    "text": "CR-060, suite (« lance le prochain point », choix « fin de CR-060 ») : les références Codex (protocoles, rapports, analyses de risque, justifications de substitution) affichent l’état de leur document lu dans codex.pub_documents — révision en vigueur, ou inconnu, obsolète, archivé, sans révision en vigueur. 362 tests."
+  },
+  {
+   "date": "2026-11-01",
+   "text": "Livraison 9 (CR-078, « lance le prochain point ») : limites par moyen (temps libre entre deux réservations, prévenance minimale, durée maximale) contrôlées comme contraintes dures ; réservations répétées chaque semaine, toutes ou aucune. X-11 ajoutée (défaut appliqué). 371 tests."
   }
  ],
  "items": [
@@ -631,20 +635,21 @@
    "description": "P2, standard (Skedda, Calpendo). Série de réservations (hebdomadaire, par campagne), temps tampon de préparation / remise en état entre deux réservations d’un même moyen, délai minimal d’anticipation et durée maximale propres à chaque moyen, contrôlés comme les autres contraintes dures. Aujourd’hui la prévenance n’existe que par accord d’entité (F-5) et chaque réservation est saisie une à une.",
    "category": "moyens_regles",
    "kind": "fonction",
-   "priority": "a_decider",
+   "priority": "prochaine_etape",
    "status": "non_commence",
-   "waiting_on": "Responsable produit (hors demande initiale)",
+   "waiting_on": "",
    "effort": "M",
    "sources": [
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "src/domain/booking.ts : checkBooking sans récurrence ni tampon",
-    "src/domain/needs.ts : prévenance de 10 jours ouvrés par entité (F-5)"
+    "src/domain/booking.ts : ResourceLimits, codes buffer, short_notice, too_long",
+    "src/features/resources/actions.ts : setResourceLimitsAction, série dans requestBookingAction"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 9",
+    "note": "Fait le 1er nov. 2026 (DELIVERY-9.md, X-11) : temps libre entre deux réservations, prévenance minimale et durée maximale par moyen, contraintes dures ; séries hebdomadaires (toutes ou aucune)."
    }
   },
   {

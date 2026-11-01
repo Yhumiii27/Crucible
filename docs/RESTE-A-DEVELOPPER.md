@@ -6,21 +6,21 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-11-01 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 15 faits, 4 en cours, 13 à faire, sur 32 points.
+**Avancement** : 16 faits, 4 en cours, 12 à faire, sur 32 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 2 | ≈ 8 |
-| À décider | 10 | ≈ 43 |
+| À décider | 9 | ≈ 39 |
 | Plus tard | 4 | ≈ 30 |
-| **Total** | **17** | **≈ 85** |
+| **Total** | **16** | **≈ 81** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 12 |
+| Non commencé | 11 |
 | Partiel | 0 |
 | Attend le responsable produit | 3 |
 | Attend un système externe | 2 |
@@ -29,7 +29,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 |---|---:|---:|---:|---:|---:|---:|
 | Plateforme et mise en production | 1 | 0 | 2 | 1 | 4 | 1 |
 | Connexion, profils et visibilité | 0 | 0 | 0 | 0 | 0 | 2 |
-| Moyens d’essais, règles et réservations | 0 | 0 | 4 | 0 | 4 | 4 |
+| Moyens d’essais, règles et réservations | 0 | 0 | 3 | 0 | 3 | 5 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
 | Aléas, scénarios et pilotage | 0 | 1 | 2 | 0 | 3 | 4 |
@@ -56,7 +56,6 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 - **CR-075** Formulaires avant, pendant et après la réservation (check-list sécurité, fiche d’essai, rapport d’incident) — Responsable produit (hors demande initiale)
 - **CR-076** Consommables et stock liés aux essais (quantités, péremption, alertes) — Responsable produit (hors demande initiale)
 - **CR-077** Rapports PDF et tableaux de bord exportables vers la BI — Responsable produit (hors demande initiale)
-- **CR-078** Réservations récurrentes, tampons entre réservations et délai d’anticipation minimal par moyen — Responsable produit (hors demande initiale)
 - **CR-079** Limitation des tentatives (rate limiting applicatif) — Responsable produit (hors demande initiale)
 - **CR-080** Tests de bout en bout dans le navigateur — Responsable produit (hors demande initiale)
 - **CR-081** Résultats d’essais et cahier de laboratoire (ELN) rattachés à la réservation — Responsable produit (hors périmètre déclaré)
@@ -100,7 +99,7 @@ Socle d’Arche (lui-même repris de Keystone), PostgreSQL seul, schéma crucibl
 Écritures validées côté serveur et auditées ; projets et classe de priorité par la direction R&D.  
 *Avancement : src/features/admin/. · Sources : docs/spec/05-ecrans.md*
 
-### 2.3 Moyens d’essais, règles et réservations (4 restants, 4 faits)
+### 2.3 Moyens d’essais, règles et réservations (3 restants, 5 faits)
 
 **CR-073 · Maintenance et étalonnage des moyens : plan, échéances, alertes, blocage, piste d’audit** — *À décider · non commencé · effort M*  
 P2, avancé (Calira Premium, LabVantage, Labguru). Plan de maintenance préventive et d’étalonnage par moyen (périodicité, prochaine échéance, prestataire), alertes avant l’échéance, blocage automatique des réservations à l’échéance dépassée, historique des interventions auditable. Aujourd’hui seuls les contrôles réglementaires périodiques existent (R-6, lecture Vigie V-1).  
@@ -112,10 +111,6 @@ P2, avancé (Calira). Formulaires configurables rattachés au type d’essai ou 
 
 **CR-076 · Consommables et stock liés aux essais (quantités, péremption, alertes)** — *À décider · non commencé · effort M*  
 P2, avancé (Labguru, QReserve). Consommables requis par type d’essai, quantités décomptées à la réservation ou à la fin de l’essai, lots et dates de péremption, alertes de seuil et de péremption, réservation signalée quand le stock manque. Aujourd’hui absent.  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
-
-**CR-078 · Réservations récurrentes, tampons entre réservations et délai d’anticipation minimal par moyen** — *À décider · non commencé · effort M*  
-P2, standard (Skedda, Calpendo). Série de réservations (hebdomadaire, par campagne), temps tampon de préparation / remise en état entre deux réservations d’un même moyen, délai minimal d’anticipation et durée maximale propres à chaque moyen, contrôlés comme les autres contraintes dures. Aujourd’hui la prévenance n’existe que par accord d’entité (F-5) et chaque réservation est saisie une à une.  
 *Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 **~~CR-010 · Moyens d’essais, zones du PDE, calendriers, indisponibilités, contrôles~~** — *Prochaine étape · non commencé · effort L* · **fait (Livraison 2)**  
@@ -133,6 +128,10 @@ Réservation refusée avec la règle citée ; planning des moyens ; « Mon plann
 **~~CR-071 · Occupation réelle mesurée automatiquement (kiosque, agent, interlock, badge)~~** — *Prochaine étape · non commencé · effort L* · **fait (Livraison 7)**  
 P1, différenciant (Agilent iLab Kiosk / Interlock, Calira LabTrack). Mesurer l’occupation réelle sans déclaration : pointage sur une borne à l’entrée du moyen, agent sur le PC du banc, verrouillage matériel (interlock) ou lecture de badge ; rapprochement automatique avec la réservation (démarrage, fin, non-tenue A-7). Aujourd’hui démarrer / terminer sont déclaratifs à l’écran (Mon planning), sans capteur ni pointage.  
 *Avancement : Bornes (/kiosk/<jeton>), API POST /api/occupancy pour agent, verrouillage ou badge, rapprochement automatique avec la réservation (début, fin, utilisation sans réservation non comptée), événements en ajout seul, onglet « Mesure de l’occupation » ; X-8 à confirmer. Reste : brancher le matériel des installations (D-1). · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+
+**~~CR-078 · Réservations récurrentes, tampons entre réservations et délai d’anticipation minimal par moyen~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 9)**  
+P2, standard (Skedda, Calpendo). Série de réservations (hebdomadaire, par campagne), temps tampon de préparation / remise en état entre deux réservations d’un même moyen, délai minimal d’anticipation et durée maximale propres à chaque moyen, contrôlés comme les autres contraintes dures. Aujourd’hui la prévenance n’existe que par accord d’entité (F-5) et chaque réservation est saisie une à une.  
+*Avancement : Fait le 1er nov. 2026 (DELIVERY-9.md, X-11) : temps libre entre deux réservations, prévenance minimale et durée maximale par moyen, contraintes dures ; séries hebdomadaires (toutes ou aucune). · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 ### 2.4 Besoins des projets et anticipation (0 restants, 1 faits)
 
@@ -216,6 +215,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-01 — Livraison 9 (CR-078, « lance le prochain point ») : limites par moyen (temps libre entre deux réservations, prévenance minimale, durée maximale) contrôlées comme contraintes dures ; réservations répétées chaque semaine, toutes ou aucune. X-11 ajoutée (défaut appliqué). 371 tests.
 - 2026-11-01 — CR-060, suite (« lance le prochain point », choix « fin de CR-060 ») : les références Codex (protocoles, rapports, analyses de risque, justifications de substitution) affichent l’état de leur document lu dans codex.pub_documents — révision en vigueur, ou inconnu, obsolète, archivé, sans révision en vigueur. 362 tests.
 - 2026-10-31 — Livraison 8 (CR-060, « lance le prochain point ») : jalons de Keystone, absences de Cursus et contrôles de Vigie lus toutes les heures dès que leurs vues sont accordées, et à la demande depuis l’écran Connecteurs ; plus de double saisie. X-10 ajoutée (défaut appliqué). 358 tests.
 - 2026-10-31 — Décision M-17 de Matrix appliquée (demande de Matrix du 30/10, acceptée le 31/10) : inventaire des échanges (docs/ECHANGES.md : 10 vues lues, 1 écriture par API chez Matrix, 4 vues publiées, aucune écriture reçue, aucun accès non conforme), règles reprises dans CLAUDE.md et les demandes à Matrix (plus de copie de vue, liens du registre matrix.liens, fonctions pub_ pour les écritures reçues).

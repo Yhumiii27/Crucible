@@ -779,6 +779,18 @@
     "blocks": "L8"
   },
   {
+    "id": "X-11",
+    "group": "extra",
+    "title": "Séries de réservations et limites par moyen (CR-078)",
+    "context": "Chaque réservation était saisie une à une ; seule la prévenance par entité existait, en avertissement.",
+    "proposal": "Le responsable d’installation règle par moyen un temps libre entre deux réservations, une prévenance minimale d’une nouvelle demande et une durée maximale, contrôlés comme contraintes dures ; une demande se répète chaque semaine (25 semaines de plus au plus), toutes les semaines demandées ou aucune.",
+    "alts": [
+      "Série : demander les semaines libres seulement",
+      "Limites en avertissement seulement"
+    ],
+    "blocks": "L9"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

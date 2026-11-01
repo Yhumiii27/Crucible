@@ -26,7 +26,7 @@ export async function slotFacts(tx: Tx, resourceId: string, slot: { start: numbe
   return {
     res,
     ctx: {
-      resource: { id: res.id, code: res.code, status: res.status, capacity: res.capacity, granularity: 'half_day' as const },
+      resource: { id: res.id, code: res.code, status: res.status, capacity: res.capacity, granularity: 'half_day' as const, limits: { bufferMinutes: res.bufferMinutes, minNoticeHours: res.minNoticeHours, maxDays: res.maxDays } },
       hours: cal.hours.length ? cal.hours : DEFAULT_HOURS, closures: cal.closures,
       unavailabilities: unav.map((u) => ({ start: u.startsAt.getTime(), end: u.endsAt.getTime(), label: u.label })),
       inspections: insp.map((i) => ({ label: i.label, dueOn: inspectionDueOn(i.lastOn, i.periodMonths) })),

@@ -107,6 +107,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   the Server Functions refuse it in Crucible. Codex references (protocols, reports, risk analyses, substitution justifications)
   show the state of their document read at display time from `codex.pub_documents` (`src/server/dal/codex.ts`,
   `CodexRef`; revision in force or a warning, never the title).
+- **Delivery 9 (series and limits of bookings, CR-078) is done** (`docs/DELIVERY-9.md`, X-11 added): per resource, free time
+  between two bookings (capacity 1), least notice of a new request (`BookingContext.newRequest`: requests and engine
+  proposals, never a move or an urgency) and longest booking in days spanned — hard constraints of `checkBooking`
+  (`ResourceLimits`), set by the facility manager (`setResourceLimitsAction`); a request repeats weekly (up to 25 more weeks,
+  all or none, `bookings.series_ref`).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 
