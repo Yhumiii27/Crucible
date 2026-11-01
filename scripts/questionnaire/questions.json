@@ -827,6 +827,18 @@
     "blocks": "L12"
   },
   {
+    "id": "X-15",
+    "group": "extra",
+    "title": "Parcours de bout en bout dans le navigateur (CR-080)",
+    "context": "Seuls les tests unitaires, d’intégration et le contrôle de fumée HTTP tournaient.",
+    "proposal": "Quatre parcours Playwright joués en CI à chaque demande de fusion : demande refusée par la règle du PDE, check-list avant le démarrage, assistant, menu du coordinateur ; rapport joint en cas d’échec.",
+    "alts": [
+      "Parcours joués la nuit seulement",
+      "Plus de parcours (propositions, scénarios)"
+    ],
+    "blocks": "L13"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

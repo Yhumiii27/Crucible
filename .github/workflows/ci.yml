@@ -1,7 +1,8 @@
 # Continuous integration (derived from Keystone's, R-016): on every pull request and every push to main — install, route
 # types, typecheck, lint, unit tests on a real PostgreSQL 16 (Crucible runs on PostgreSQL only: each test file creates its own
 # database), the migration and the demo seed of a schema shaped like the shared EPC2I server (`npm run db:local`), the
-# production build, then the smoke test against `next start`. A second job builds the deployment image.
+# production build, then the smoke test and the end-to-end journeys (Playwright, CR-080) against `next start`. A second job
+# builds the deployment image.
 name: CI
 
 on:
@@ -81,15 +82,29 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Smoke test (production server)
+      - name: Smoke test and end-to-end journeys (production server)
         run: |
           npx next start --port 3510 > next-start.log 2>&1 &
           for i in $(seq 1 60); do curl -sf http://127.0.0.1:3510/api/health > /dev/null && break; sleep 1; done
           npm run test:smoke
+          # CR-080: the journeys in Chromium, against the same server, after the smoke test (they change the database).
+          npx playwright install --with-deps chromium
+          npm run test:e2e
         env:
           DATABASE_URL: postgres://crucible_app:crucible-dev@127.0.0.1:5432/epc2i
           CRUCIBLE_CLOCK: '2026-10-22'
           CRUCIBLE_SMOKE_URL: http://127.0.0.1:3510
+          CRUCIBLE_E2E_URL: http://127.0.0.1:3510
+
+      - name: End-to-end report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
       - name: Server log
         if: failure()
