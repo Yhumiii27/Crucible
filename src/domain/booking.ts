@@ -8,7 +8,7 @@ import { parisInstant, parisParts } from '@/lib/dates';
 
 export type IssueCode =
   | 'not_in_service' | 'bad_interval' | 'in_past' | 'outside_hours' | 'unavailable' | 'inspection_due' | 'capacity' | 'exclusion'
-  | 'competing_request' | 'late_request' | 'proposed_rule' | 'buffer' | 'short_notice' | 'too_long';
+  | 'competing_request' | 'late_request' | 'proposed_rule' | 'buffer' | 'short_notice' | 'too_long' | 'maintenance_due';
 
 /** EN source sentence of each issue; the page shows it with its reference (a rule code, a booking reference…). */
 export const ISSUE_LABEL: Record<IssueCode, string> = {
@@ -26,6 +26,7 @@ export const ISSUE_LABEL: Record<IssueCode, string> = {
   buffer: 'Too close to another booking of the resource: free time is kept between two bookings',
   short_notice: 'Less notice than the resource asks for a new request',
   too_long: 'Longer than the resource allows for one booking',
+  maintenance_due: 'A maintenance or calibration falls due before the end of the slot',
 };
 
 export interface Issue {
@@ -101,6 +102,8 @@ export interface BookingContext {
   closures: readonly Closure[];
   unavailabilities: readonly (Interval & { label: string })[];
   inspections: readonly { label: string; dueOn: string }[];
+  /** Blocking maintenance and calibration plans of the resource, with their due date (CR-073); absent = none. */
+  maintenance?: readonly { label: string; dueOn: string }[];
   /** Bookings of the resource and of every resource sharing a rule with it, around the slot. */
   bookings: readonly BookingFacts[];
   rules: readonly RuleFacts[];
@@ -151,6 +154,7 @@ export function checkBooking(c: Candidate, ctx: BookingContext): { errors: Issue
   if (!fitsOpening(c, isoStart, isoEnd, ctx.hours, ctx.closures, r.granularity === 'half_day')) errors.push({ code: 'outside_hours', ref: null });
   for (const u of ctx.unavailabilities) if (overlaps(u, c)) errors.push({ code: 'unavailable', ref: u.label });
   for (const i of ctx.inspections) if (i.dueOn < isoEnd) errors.push({ code: 'inspection_due', ref: `${i.label} · ${i.dueOn}` });
+  for (const m of ctx.maintenance ?? []) if (m.dueOn < isoEnd) errors.push({ code: 'maintenance_due', ref: `${m.label} · ${m.dueOn}` });
 
   const others = ctx.bookings.filter((b) => b.id !== c.id);
   const holding = others.filter((b) => HOLDING.includes(b.status));

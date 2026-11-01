@@ -791,6 +791,18 @@
     "blocks": "L9"
   },
   {
+    "id": "X-12",
+    "group": "extra",
+    "title": "Maintenance et étalonnage des moyens (CR-073)",
+    "context": "Seuls les contrôles réglementaires existaient ; la maintenance se saisissait en indisponibilité.",
+    "proposal": "Plans par moyen (maintenance préventive ou étalonnage, périodicité, prestataire) tenus par le responsable d’installation ; interventions gardées telles qu’enregistrées ; un plan bloquant (par défaut) dont l’échéance est dépassée refuse les créneaux qui finissent après elle ; les responsables sont prévenus 14 jours avant.",
+    "alts": [
+      "Alerte seulement, jamais de blocage",
+      "Prévenir 30 jours avant"
+    ],
+    "blocks": "L10"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

@@ -112,6 +112,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   proposals, never a move or an urgency) and longest booking in days spanned — hard constraints of `checkBooking`
   (`ResourceLimits`), set by the facility manager (`setResourceLimitsAction`); a request repeats weekly (up to 25 more weeks,
   all or none, `bookings.series_ref`).
+- **Delivery 10 (maintenance and calibration, CR-073) is done** (`docs/DELIVERY-10.md`, X-12 added): plans per resource
+  (`maintenance_plans`, `src/domain/maintenance.ts`, due date computed), interventions append-only (`maintenance_records`,
+  triggers), Server Functions `src/features/maintenance/actions.ts` (facility managers), facility tab "maintenance"; a
+  blocking plan past due is the hard constraint `maintenance_due` of `checkBooking` (`BookingContext.maintenance`, loaded by
+  the requests, `slotFacts` and the engine); daily job `maintenance-reminders` (14 days ahead, once per due date).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

@@ -125,3 +125,10 @@ describe('limits of a resource (CR-078, X-11)', () => {
     expect(checkLimits({ maxDays: '1.5' }).ok).toBe(false);
   });
 });
+
+describe('maintenance and calibration due (CR-073)', () => {
+  it('a blocking plan due before the end of the slot refuses it, citing the plan', () => {
+    expect(checkBooking(tuesdayAm, ctx({ maintenance: [{ label: 'Load cell', dueOn: '2026-11-02' }] })).errors).toEqual([{ code: 'maintenance_due', ref: 'Load cell · 2026-11-02' }]);
+    expect(checkBooking(tuesdayAm, ctx({ maintenance: [{ label: 'Load cell', dueOn: '2026-11-04' }] })).errors).toEqual([]);
+  });
+});

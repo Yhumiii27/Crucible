@@ -52,6 +52,8 @@ export interface EngineInput {
   calendars: ReadonlyMap<string, { hours: readonly WeeklyHours[]; closures: readonly Closure[] }>;
   unavailabilities: readonly (Interval & { resourceId: string; label: string })[];
   inspections: readonly { resourceId: string; label: string; dueOn: string }[];
+  /** Blocking maintenance and calibration plans (CR-073). */
+  maintenance?: readonly { resourceId: string; label: string; dueOn: string }[];
   /** Bookings that hold a resource (confirmed, started, done): fixed. */
   bookings: readonly BookingFacts[];
   /** Exclusion rules (validated ones forbid, proposed ones only warn). */
@@ -169,10 +171,11 @@ function earliestBlock(input: EngineInput, r: EngineResource, need: EngineNeed, 
       hours: cal.hours, closures: cal.closures,
       unavailabilities: input.unavailabilities.filter((u) => u.resourceId === r.id),
       inspections: input.inspections.filter((x) => x.resourceId === r.id),
+      maintenance: (input.maintenance ?? []).filter((x) => x.resourceId === r.id),
       bookings: fixed, rules: input.rules, now: input.now, noticeWorkdays: null, newRequest: true,
     });
     if (check.errors.length) {
-      if (check.errors.every((e) => e.code === 'inspection_due')) reasons.add('inspection_due');
+      if (check.errors.every((e) => e.code === 'inspection_due' || e.code === 'maintenance_due')) reasons.add('inspection_due');
       else reasons.add('no_slot');
       continue;
     }
@@ -272,6 +275,7 @@ function traceResource(input: EngineInput, r: EngineResource, need: EngineNeed, 
       hours: cal.hours, closures: cal.closures,
       unavailabilities: input.unavailabilities.filter((u) => u.resourceId === r.id),
       inspections: input.inspections.filter((x) => x.resourceId === r.id),
+      maintenance: (input.maintenance ?? []).filter((x) => x.resourceId === r.id),
       bookings: fixed, rules: input.rules, now: input.now, noticeWorkdays: null, newRequest: true,
     });
     if (check.errors.length) {

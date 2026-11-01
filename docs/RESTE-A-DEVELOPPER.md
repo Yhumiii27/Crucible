@@ -6,21 +6,21 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-11-01 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 16 faits, 4 en cours, 12 à faire, sur 32 points.
+**Avancement** : 17 faits, 4 en cours, 11 à faire, sur 32 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 2 | ≈ 8 |
-| À décider | 9 | ≈ 39 |
+| À décider | 8 | ≈ 35 |
 | Plus tard | 4 | ≈ 30 |
-| **Total** | **16** | **≈ 81** |
+| **Total** | **15** | **≈ 77** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 11 |
+| Non commencé | 10 |
 | Partiel | 0 |
 | Attend le responsable produit | 3 |
 | Attend un système externe | 2 |
@@ -29,7 +29,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 |---|---:|---:|---:|---:|---:|---:|
 | Plateforme et mise en production | 1 | 0 | 2 | 1 | 4 | 1 |
 | Connexion, profils et visibilité | 0 | 0 | 0 | 0 | 0 | 2 |
-| Moyens d’essais, règles et réservations | 0 | 0 | 3 | 0 | 3 | 5 |
+| Moyens d’essais, règles et réservations | 0 | 0 | 2 | 0 | 2 | 6 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
 | Aléas, scénarios et pilotage | 0 | 1 | 2 | 0 | 3 | 4 |
@@ -51,7 +51,6 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 - **CR-003** Données à fournir D-1 à D-11 — Responsable produit et équipes R&D
 - **CR-051** Activer Claude pour l’assistant — DSI (fournisseur et région, I-3)
 - **CR-070** Pilote (4 semaines d’usage réel) — Atelier et données D-1 à D-11 ; DSI (hébergement T-6, inscription Entra) ; Matrix (M-6)
-- **CR-073** Maintenance et étalonnage des moyens : plan, échéances, alertes, blocage, piste d’audit — Responsable produit (hors demande initiale)
 - **CR-074** Refacturation interne : tarifs par moyen et par entité, coût des heures réservées et réelles, relevés par projet — Responsable produit (hors demande initiale)
 - **CR-075** Formulaires avant, pendant et après la réservation (check-list sécurité, fiche d’essai, rapport d’incident) — Responsable produit (hors demande initiale)
 - **CR-076** Consommables et stock liés aux essais (quantités, péremption, alertes) — Responsable produit (hors demande initiale)
@@ -99,11 +98,7 @@ Socle d’Arche (lui-même repris de Keystone), PostgreSQL seul, schéma crucibl
 Écritures validées côté serveur et auditées ; projets et classe de priorité par la direction R&D.  
 *Avancement : src/features/admin/. · Sources : docs/spec/05-ecrans.md*
 
-### 2.3 Moyens d’essais, règles et réservations (3 restants, 5 faits)
-
-**CR-073 · Maintenance et étalonnage des moyens : plan, échéances, alertes, blocage, piste d’audit** — *À décider · non commencé · effort M*  
-P2, avancé (Calira Premium, LabVantage, Labguru). Plan de maintenance préventive et d’étalonnage par moyen (périodicité, prochaine échéance, prestataire), alertes avant l’échéance, blocage automatique des réservations à l’échéance dépassée, historique des interventions auditable. Aujourd’hui seuls les contrôles réglementaires périodiques existent (R-6, lecture Vigie V-1).  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+### 2.3 Moyens d’essais, règles et réservations (2 restants, 6 faits)
 
 **CR-075 · Formulaires avant, pendant et après la réservation (check-list sécurité, fiche d’essai, rapport d’incident)** — *À décider · non commencé · effort M*  
 P2, avancé (Calira). Formulaires configurables rattachés au type d’essai ou au moyen : check-list sécurité à remplir avant de démarrer, fiche d’essai pendant, rapport de fin ou d’incident après ; réponses conservées en ajout seul et citées au journal. Aujourd’hui absent ; seul un lien vers le protocole et le rapport dans Codex.  
@@ -132,6 +127,10 @@ P1, différenciant (Agilent iLab Kiosk / Interlock, Calira LabTrack). Mesurer l�
 **~~CR-078 · Réservations récurrentes, tampons entre réservations et délai d’anticipation minimal par moyen~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 9)**  
 P2, standard (Skedda, Calpendo). Série de réservations (hebdomadaire, par campagne), temps tampon de préparation / remise en état entre deux réservations d’un même moyen, délai minimal d’anticipation et durée maximale propres à chaque moyen, contrôlés comme les autres contraintes dures. Aujourd’hui la prévenance n’existe que par accord d’entité (F-5) et chaque réservation est saisie une à une.  
 *Avancement : Fait le 1er nov. 2026 (DELIVERY-9.md, X-11) : temps libre entre deux réservations, prévenance minimale et durée maximale par moyen, contraintes dures ; séries hebdomadaires (toutes ou aucune). · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+
+**~~CR-073 · Maintenance et étalonnage des moyens : plan, échéances, alertes, blocage, piste d’audit~~** — *À décider · non commencé · effort M* · **fait (Livraison 10)**  
+P2, avancé (Calira Premium, LabVantage, Labguru). Plan de maintenance préventive et d’étalonnage par moyen (périodicité, prochaine échéance, prestataire), alertes avant l’échéance, blocage automatique des réservations à l’échéance dépassée, historique des interventions auditable. Aujourd’hui seuls les contrôles réglementaires périodiques existent (R-6, lecture Vigie V-1).  
+*Avancement : Fait le 1er nov. 2026 (DELIVERY-10.md, X-12) : plans de maintenance et d’étalonnage par moyen, interventions en ajout seul, blocage à l’échéance dépassée (plan bloquant), alertes 14 jours avant. · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 ### 2.4 Besoins des projets et anticipation (0 restants, 1 faits)
 
@@ -215,6 +214,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-01 — Livraison 10 (CR-073, « lance le prochain point ») : plans de maintenance et d’étalonnage par moyen, interventions gardées telles qu’enregistrées, blocage des réservations à l’échéance dépassée, alertes aux responsables 14 jours avant. X-12 ajoutée (défaut appliqué). 378 tests.
 - 2026-11-01 — Livraison 9 (CR-078, « lance le prochain point ») : limites par moyen (temps libre entre deux réservations, prévenance minimale, durée maximale) contrôlées comme contraintes dures ; réservations répétées chaque semaine, toutes ou aucune. X-11 ajoutée (défaut appliqué). 371 tests.
 - 2026-11-01 — CR-060, suite (« lance le prochain point », choix « fin de CR-060 ») : les références Codex (protocoles, rapports, analyses de risque, justifications de substitution) affichent l’état de leur document lu dans codex.pub_documents — révision en vigueur, ou inconnu, obsolète, archivé, sans révision en vigueur. 362 tests.
 - 2026-10-31 — Livraison 8 (CR-060, « lance le prochain point ») : jalons de Keystone, absences de Cursus et contrôles de Vigie lus toutes les heures dès que leurs vues sont accordées, et à la demande depuis l’écran Connecteurs ; plus de double saisie. X-10 ajoutée (défaut appliqué). 358 tests.

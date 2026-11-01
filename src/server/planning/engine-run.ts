@@ -8,6 +8,7 @@ import 'server-only';
 // Nothing here changes a booking: the engine proposes, a person decides.
 import { and, desc, eq, gte, inArray, like, lt, ne } from 'drizzle-orm';
 import { DEFAULT_HOURS, inspectionDueOn } from '@/domain/calendar';
+import { maintenanceDueOn } from '@/domain/maintenance';
 import { conflictDueOn, detectConflicts } from '@/domain/conflicts';
 import { proposePlan, type EngineInput, type EngineResult } from '@/domain/engine';
 import { loadForecast } from '@/domain/load';
@@ -16,7 +17,7 @@ import { PRIORITY_CRITERIA, type PriorityCriterion } from '@/domain/planning-voc
 import { addDaysIso, parisInstant, parisParts } from '@/lib/dates';
 import { writeAudit } from '@/server/db/helpers';
 import {
-  arbitrations, bookingEquipment, bookingStaff, bookings, conflicts, facilities, inspections, people, personAbsences, personSkills, planRuns, priorityRuleSets,
+  arbitrations, bookingEquipment, bookingStaff, bookings, conflicts, facilities, inspections, maintenancePlans, people, personAbsences, personSkills, planRuns, priorityRuleSets,
   projectMilestones, projects, proposals, resources, substitutions, testNeeds, testTypeEquipment, testTypeSkills, unavailabilities,
 } from '@/server/db/schema';
 import type { DB, Tx } from '@/server/db/types';
@@ -69,7 +70,7 @@ export async function engineInput(q: Q, today: string, now: Date): Promise<Engin
   const ids = res.map((r) => r.id);
   const cal = await calendarsOf(q, facs.map((f) => f.code));
   for (const c of cal.values()) if (!c.hours.length) c.hours = [...DEFAULT_HOURS];
-  const [unav, insp, held, needRows, ppl, sk, abs, tts, tte, subs] = await Promise.all([
+  const [unav, insp, held, needRows, ppl, sk, abs, tts, tte, subs, maint] = await Promise.all([
     ids.length ? q.select().from(unavailabilities).where(and(inArray(unavailabilities.resourceId, ids), lt(unavailabilities.startsAt, to), gte(unavailabilities.endsAt, from))) : [],
     q.select().from(inspections).where(eq(inspections.active, true)),
     q.select({ b: bookings, code: resources.code }).from(bookings).innerJoin(resources, eq(resources.id, bookings.resourceId))
@@ -83,6 +84,7 @@ export async function engineInput(q: Q, today: string, now: Date): Promise<Engin
     q.select().from(testTypeSkills),
     q.select().from(testTypeEquipment),
     q.select().from(substitutions).where(eq(substitutions.status, 'validated')),
+    q.select().from(maintenancePlans).where(and(eq(maintenancePlans.active, true), eq(maintenancePlans.blocking, true))),
   ]);
   const heldIds = held.map((h) => h.b.id);
   const [staffRows, equipRows, linked] = await Promise.all([
@@ -111,6 +113,7 @@ export async function engineInput(q: Q, today: string, now: Date): Promise<Engin
     calendars: cal,
     unavailabilities: unav.map((u) => ({ resourceId: u.resourceId, start: ms(u.startsAt), end: ms(u.endsAt), label: u.label })),
     inspections: insp.map((i) => ({ resourceId: i.resourceId, label: i.label, dueOn: inspectionDueOn(i.lastOn, i.periodMonths) })),
+    maintenance: maint.map((m) => ({ resourceId: m.resourceId, label: m.label, dueOn: maintenanceDueOn(m) })),
     bookings: held.map((h) => ({ id: h.b.id, ref: h.b.ref, resourceId: h.b.resourceId, resourceCode: h.code, start: ms(h.b.startsAt), end: ms(h.b.endsAt), status: h.b.status })),
     rules: rules.filter((r) => r.status !== 'retired').map((r) => ({ code: r.code, maxActive: r.maxActive, status: r.status, resourceIds: r.resourceIds })),
     needs: needRows.map((x) => ({
