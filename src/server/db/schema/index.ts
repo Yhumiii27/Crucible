@@ -7,3 +7,4 @@ export * from './incidents';
 export * from './assistant';
 export * from './measure';
 export * from './maintenance';
+export * from './forms';

@@ -134,6 +134,20 @@
       "when": 1793533709501,
       "tag": "0018_rate_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793542021242,
+      "tag": "0019_booking_forms",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793542022347,
+      "tag": "0020_booking_forms_append_only",
+      "breakpoints": true
     }
   ]
 }

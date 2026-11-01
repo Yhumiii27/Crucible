@@ -21,7 +21,7 @@ import { businessNow, businessToday } from '@/server/clock';
 import { getDb } from '@/server/db/client';
 import { writeAudit } from '@/server/db/helpers';
 import {
-  bookings, closures, entityAgreements, exclusionRuleResources, exclusionRules, facilities, facilityHours, facilityPartners, inspections, maintenancePlans, projects, resources, testNeeds, unavailabilities,
+  bookings, closures, entityAgreements, exclusionRuleResources, exclusionRules, facilities, facilityHours, facilityPartners, formResponses, formTemplates, inspections, maintenancePlans, projects, resources, testNeeds, unavailabilities,
 } from '@/server/db/schema';
 import type { Tx } from '@/server/db/types';
 import { calendarsOf, rulesOf } from '@/server/dal/resources';
@@ -503,6 +503,13 @@ export async function startBookingAction(id: string): Promise<ActionResult> {
     const row = await bookingFor(tx, id);
     if (!row || !operatedFacilities(v.role, v.assignments).includes(row.res.facilityCode)) return REFUSED;
     if (!canTransition(row.b.status, 'in_progress')) return { ok: false, error: 'This booking cannot be started' };
+    // CR-075: the facility's safety checklist is filled for the booking before the test starts.
+    const [checklist] = await tx.select({ id: formTemplates.id }).from(formTemplates)
+      .where(and(eq(formTemplates.facilityCode, row.res.facilityCode), eq(formTemplates.stage, 'before'), eq(formTemplates.active, true)));
+    if (checklist) {
+      const [filled] = await tx.select({ id: formResponses.id }).from(formResponses).where(and(eq(formResponses.bookingId, id), eq(formResponses.stage, 'before'))).limit(1);
+      if (!filled) return { ok: false, error: 'Fill the safety checklist before starting the test' };
+    }
     await tx.update(bookings).set({ status: 'in_progress', actualStartAt: now, updatedAt: new Date() }).where(eq(bookings.id, id));
     await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, 'status: confirmed → in_progress', { entityType: 'booking', entityId: id, projectCode: row.b.projectCode }));
     return { ok: true };

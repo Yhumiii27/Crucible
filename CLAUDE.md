@@ -121,6 +121,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   (`src/server/http/rate-limit.ts`, thresholds `RATE_LIMITS` in `src/domain/rate-limit.ts`, fixed windows in `rate_counters`)
   on the sign-in routes, the global search, the CSV exports, the assistant, `/api/occupancy` and `/api/calendar`; the address
   is the last `X-Forwarded-For` entry (`clientAddress`); the first excess of a window is audited (area "Security").
+- **Delivery 12 (booking forms, CR-075) is done** (`docs/DELIVERY-12.md`, X-14 added): per facility one template per stage
+  (`form_templates`: safety checklist `before`, test sheet `after`, incident report `incident`; items typed one per line,
+  `src/domain/booking-forms.ts`), kept by the facility managers on the facility tab "forms"; filled from "My schedule"
+  (`src/features/forms/actions.ts`, append-only `form_responses`); `startBookingAction` refuses a start until the active
+  safety checklist is filled (devices excepted); an incident report notifies the facility's managers.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

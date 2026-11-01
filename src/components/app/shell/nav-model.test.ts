@@ -24,6 +24,7 @@ describe('sidebar model (delivery 5b: themes, Facility section)', () => {
       ['facility:calendar', '/facilities/PDE?tab=calendar', false],
       ['facility:inspections', '/facilities/PDE?tab=inspections', true],
       ['facility:maintenance', '/facilities/PDE?tab=maintenance', false],
+      ['facility:forms', '/facilities/PDE?tab=forms', false],
       ['facility:equipment', '/facilities/PDE?tab=equipment', false],
       ['facility:measurement', '/facilities/PDE?tab=measurement', false],
     ]);

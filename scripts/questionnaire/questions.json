@@ -815,6 +815,18 @@
     "blocks": "L11"
   },
   {
+    "id": "X-14",
+    "group": "extra",
+    "title": "Formulaires avant, pendant et après la réservation (CR-075)",
+    "context": "Rien ne guidait la préparation, le compte rendu ni les incidents d’un essai.",
+    "proposal": "Par installation, un modèle par étape tenu par le responsable : check-list sécurité obligatoire avant le démarrage à l’écran, fiche d’essai, rapport d’incident (responsables prévenus) ; formulaires gardés tels que remplis ; le démarrage par un appareil n’attend pas la check-list.",
+    "alts": [
+      "Modèles par moyen plutôt que par installation",
+      "Check-list en avertissement seulement"
+    ],
+    "blocks": "L12"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",
