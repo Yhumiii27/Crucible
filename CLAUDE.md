@@ -126,6 +126,9 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `src/domain/booking-forms.ts`), kept by the facility managers on the facility tab "forms"; filled from "My schedule"
   (`src/features/forms/actions.ts`, append-only `form_responses`); `startBookingAction` refuses a start until the active
   safety checklist is filled (devices excepted); an incident report notifies the facility's managers.
+- **Delivery 13 (end-to-end journeys, CR-080) is done** (`docs/DELIVERY-13.md`, X-15 added): Playwright journeys in
+  `tests/e2e/` (`playwright.config.ts`, `npm run test:e2e`, French UI, demo cookie `crucible-role`), run by CI right after
+  the smoke test against the same production server; they change the database (run them on a fresh one locally).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

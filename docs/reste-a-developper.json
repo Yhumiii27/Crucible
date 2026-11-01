@@ -94,6 +94,10 @@
   {
    "date": "2026-11-01",
    "text": "Livraison 12 (CR-075, « lance le prochain point ») : formulaires de réservation par installation — check-list sécurité avant le démarrage, fiche d’essai, rapport d’incident ; gardés tels que remplis. X-14 ajoutée (défaut appliqué). 390 tests."
+  },
+  {
+   "date": "2026-11-01",
+   "text": "Livraison 13 (CR-080, « lance le prochain point ») : parcours de bout en bout dans le navigateur (Playwright) joués en CI. X-15 ajoutée (défaut appliqué)."
   }
  ],
  "items": [
@@ -705,12 +709,13 @@
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "package.json : @playwright/test 1.56.1 sans spécification",
-    "tests/smoke/run.ts : contrôles de fumée HTTP seulement"
+    "tests/e2e/journeys.spec.ts, playwright.config.ts",
+    ".github/workflows/ci.yml : npm run test:e2e"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 13",
+    "note": "Fait le 1er nov. 2026 (DELIVERY-13.md, X-15) : quatre parcours Playwright (demande refusée par la règle du PDE, check-list avant le démarrage, assistant, menu du coordinateur) joués en CI après le contrôle de fumée."
    }
   },
   {

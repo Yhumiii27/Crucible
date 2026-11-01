@@ -6,28 +6,28 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-11-01 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 19 faits, 4 en cours, 9 à faire, sur 32 points.
+**Avancement** : 20 faits, 4 en cours, 8 à faire, sur 32 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 2 | ≈ 8 |
-| À décider | 6 | ≈ 30 |
+| À décider | 5 | ≈ 26 |
 | Plus tard | 4 | ≈ 30 |
-| **Total** | **13** | **≈ 71** |
+| **Total** | **12** | **≈ 67** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 8 |
+| Non commencé | 7 |
 | Partiel | 0 |
 | Attend le responsable produit | 3 |
 | Attend un système externe | 2 |
 
 | Domaine | Bloquant production | Prochaine étape | À décider | Plus tard | Restants | Faits |
 |---|---:|---:|---:|---:|---:|---:|
-| Plateforme et mise en production | 1 | 0 | 1 | 1 | 3 | 2 |
+| Plateforme et mise en production | 1 | 0 | 0 | 1 | 2 | 3 |
 | Connexion, profils et visibilité | 0 | 0 | 0 | 0 | 0 | 2 |
 | Moyens d’essais, règles et réservations | 0 | 0 | 1 | 0 | 1 | 7 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
@@ -54,7 +54,6 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 - **CR-074** Refacturation interne : tarifs par moyen et par entité, coût des heures réservées et réelles, relevés par projet — Responsable produit (hors demande initiale)
 - **CR-076** Consommables et stock liés aux essais (quantités, péremption, alertes) — Responsable produit (hors demande initiale)
 - **CR-077** Rapports PDF et tableaux de bord exportables vers la BI — Responsable produit (hors demande initiale)
-- **CR-080** Tests de bout en bout dans le navigateur — Responsable produit (hors demande initiale)
 - **CR-081** Résultats d’essais et cahier de laboratoire (ELN) rattachés à la réservation — Responsable produit (hors périmètre déclaré)
 
 ### 1.3 Ce qui attend les autres applications
@@ -64,15 +63,11 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 
 ## 2. Liste détaillée par domaine
 
-### 2.1 Plateforme et mise en production (3 restants, 2 faits)
+### 2.1 Plateforme et mise en production (2 restants, 3 faits)
 
 **CR-007 · Mise en production : hébergement, Entra réel, serveur commun** — *Bloquant production · attend un système externe · effort M* · **en cours (Livraison 1)**  
 Hébergeur (T-6), inscription Entra, rôle et schéma créés par Matrix (M-1 à M-5). Analyse comparative du 25 oct. 2026 : prérequis bloquants confirmés (hébergement T-6, Entra réel, données D-1 à D-11, pilote). Écart P2 (niveau standard) : la bêta tourne en mode démo (CRUCIBLE_AUTH=demo, « voir en tant que ») derrière l’authentification HTTP de Coolify ; l’authentification réelle par Entra doit être en place avant tout usage hors démonstration. La limitation des tentatives côté application fait l’objet de CR-079.  
 *Avancement : Kit Coolify du serveur commun (deploy/compose.shared.yaml, EXPLOITATION.md § 4.1) essayé en local contre le socle de Matrix (rôle crucible_app posé à la main) : migrations, jeu de démonstration, santé, sauvegarde, authentification HTTP. Reste : rôle et partage côté Matrix (M-1 à M-5), mise en service dans Coolify, Entra réel. · Attend : Matrix, DSI · Sources : docs/DEMANDES-MATRIX.md, docs/EXPLOITATION.md*
-
-**CR-080 · Tests de bout en bout dans le navigateur** — *À décider · non commencé · effort M*  
-P2, qualité. Parcours Playwright sur les écrans principaux (réservation refusée avec la règle citée, acceptation d’une proposition, scénario de reprise, panneau de l’assistant), joués en CI sur le port 3510. Aujourd’hui Playwright est installé mais aucun test de bout en bout n’existe ; seuls les tests unitaires et les contrôles de fumée HTTP tournent.  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 **CR-082 · Mobile : réservation et pointage depuis le téléphone, hors ligne à l’atelier** — *Plus tard · non commencé · effort M*  
 P3, standard. Recette de l’interface sur téléphone (Mon planning, démarrer / terminer, cloche), écrans allégés pour l’atelier et le PDE, fonctionnement hors ligne avec resynchronisation. Aujourd’hui l’application web est responsive mais n’a pas été recettée sur mobile et ne fonctionne pas hors ligne.  
@@ -85,6 +80,10 @@ Socle d’Arche (lui-même repris de Keystone), PostgreSQL seul, schéma crucibl
 **~~CR-079 · Limitation des tentatives (rate limiting applicatif)~~** — *À décider · non commencé · effort S* · **fait (Livraison 11)**  
 P2, standard. Limiter côté application les tentatives sur la connexion, la recherche globale, les exports et l’assistant (par session et par adresse), journaliser les dépassements. Aujourd’hui aucune limitation applicative ; la bêta repose sur l’authentification HTTP de Coolify (Traefik). L’authentification réelle est suivie dans CR-007.  
 *Avancement : Fait le 1er nov. 2026 (DELIVERY-11.md, X-13) : connexion, recherche, exports, assistant, appareils et abonnements limités par personne ou par adresse ; compteurs en base ; premier dépassement journalisé. · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+
+**~~CR-080 · Tests de bout en bout dans le navigateur~~** — *À décider · non commencé · effort M* · **fait (Livraison 13)**  
+P2, qualité. Parcours Playwright sur les écrans principaux (réservation refusée avec la règle citée, acceptation d’une proposition, scénario de reprise, panneau de l’assistant), joués en CI sur le port 3510. Aujourd’hui Playwright est installé mais aucun test de bout en bout n’existe ; seuls les tests unitaires et les contrôles de fumée HTTP tournent.  
+*Avancement : Fait le 1er nov. 2026 (DELIVERY-13.md, X-15) : quatre parcours Playwright (demande refusée par la règle du PDE, check-list avant le démarrage, assistant, menu du coordinateur) joués en CI après le contrôle de fumée. · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 ### 2.2 Connexion, profils et visibilité (0 restants, 2 faits)
 
@@ -212,6 +211,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-01 — Livraison 13 (CR-080, « lance le prochain point ») : parcours de bout en bout dans le navigateur (Playwright) joués en CI. X-15 ajoutée (défaut appliqué).
 - 2026-11-01 — Livraison 12 (CR-075, « lance le prochain point ») : formulaires de réservation par installation — check-list sécurité avant le démarrage, fiche d’essai, rapport d’incident ; gardés tels que remplis. X-14 ajoutée (défaut appliqué). 390 tests.
 - 2026-11-01 — Livraison 11 (CR-079, « lance le prochain point ») : limitation des tentatives sur la connexion, la recherche, les exports, l’assistant, les appareils et les abonnements ; dépassements journalisés. X-13 ajoutée (défaut appliqué). 383 tests.
 - 2026-11-01 — Livraison 10 (CR-073, « lance le prochain point ») : plans de maintenance et d’étalonnage par moyen, interventions gardées telles qu’enregistrées, blocage des réservations à l’échéance dépassée, alertes aux responsables 14 jours avant. X-12 ajoutée (défaut appliqué). 378 tests.
