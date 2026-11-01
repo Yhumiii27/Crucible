@@ -10,6 +10,7 @@ export const FR_RULES: [RegExp, string][] = [
   [/^Scenario (S-\d{4}-\d+)$/, 'Scénario $1'],
   [/^(\d+) bookings moved$/, '$1 réservation(s) déplacée(s)'],
   [/^(\d+) read$/, '$1 lu(s)'],
+  [/^rev\. (\S+) in force$/, 'rév. $1 en vigueur'],
   [/^(\d+) added$/, '$1 ajouté(s)'],
   [/^(\d+) changed$/, '$1 modifié(s)'],
   [/^(\d+) removed$/, '$1 retiré(s)'],

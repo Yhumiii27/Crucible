@@ -28,7 +28,7 @@ accordée par `has_table_privilege`). Toutes les vues sont accordées à `crucib
 | `cursus.pub_salaries` | Cursus | personnes qui conduisent les essais | prévu | CU-2, S-3 |
 | `cursus.pub_titres_detenus` | Cursus | habilitations des opérateurs | **oui** (`src/features/planning/actions.ts`, lecture des titres) | CU-2, S-3 |
 | `cursus.pub_absences` | Cursus | absences des opérateurs, sans motif | **oui**, toutes les heures (livraison 8) | CU-1 |
-| `codex.pub_documents` | Codex | protocoles et rapports référencés | prévu | CX-1, S-6 |
+| `codex.pub_documents` | Codex | protocoles et rapports référencés | **oui**, à l’affichage (état et révision en vigueur, jamais le titre ; `src/server/dal/codex.ts`) | CX-1, S-6 |
 | `vigie.pub_controles` | Vigie | contrôles réglementaires des moyens | **oui**, toutes les heures (livraison 8) | V-1, S-4 |
 | `vigie.pub_suspensions_essais` | Vigie | essais suspendus pendant une intervention extérieure | prévu | V-2, R-7 |
 | `matrix.pub_sites` | Matrix | sites des installations | prévu | M-6 |

@@ -104,7 +104,9 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `cursus.pub_absences` and `vigie.pub_controles` are copied into Crucible's tables with their source (`keystone`, `cursus`,
   `vigie`) every hour by the job `connectors-read` and on demand ("Read now", `/admin/connectors`), once granted
   (`src/server/integrations/connectors.ts`; a view not readable is a state). A row read from another tool is changed there:
-  the Server Functions refuse it in Crucible.
+  the Server Functions refuse it in Crucible. Codex references (protocols, reports, risk analyses, substitution justifications)
+  show the state of their document read at display time from `codex.pub_documents` (`src/server/dal/codex.ts`,
+  `CodexRef`; revision in force or a warning, never the title).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

@@ -4,6 +4,7 @@
 // edit them here.
 import { notFound } from 'next/navigation';
 import { Folded } from '@/components/app/ActionForm';
+import { CodexRef } from '@/components/app/CodexRef';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
@@ -19,6 +20,7 @@ import { NeedsTable } from '@/features/needs/needs-table';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate, fmtSlot } from '@/lib/format';
 import { businessToday } from '@/server/clock';
+import { codexLookup } from '@/server/dal/codex';
 import { projectSheet } from '@/server/dal/needs';
 import { getI18n, getViewer } from '@/server/session';
 
@@ -30,6 +32,7 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[code
   if (!sheet) notFound();
   const { project, manage } = sheet;
   const runs = operatedFacilities(viewer.role, viewer.assignments);
+  const codex = await codexLookup(sheet.bookings.map((b) => b.codexRef));
   const milestones = sheet.milestones.map((m) => ({ id: m.id, projectCode: m.projectCode, label: dataText(m.label, lang), dueOn: m.dueOn, criticality: m.criticality }));
   const resources = sheet.choices.resources.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang) }));
   const testTypes = sheet.choices.testTypes.map((x) => ({ ...x, name: dataText(x.name, lang) }));
@@ -112,7 +115,8 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[code
                   </Td>
                   <Td valign="top"><Tag size="sm" tone={b.status === 'confirmed' || b.status === 'in_progress' ? 'accent' : b.status === 'requested' ? 'outline' : 'neutral'}>{t(BOOKING_STATUS_LABEL[b.status])}</Tag></Td>
                   <Td valign="top">
-                    {b.status === 'done' && (manage || runs.includes(b.facilityCode)) ? <ReportRefForm bookingId={b.id} codexRef={b.codexRef} /> : (b.codexRef ?? '—')}
+                    {b.status === 'done' && (manage || runs.includes(b.facilityCode)) ? <ReportRefForm bookingId={b.id} codexRef={b.codexRef} /> : !b.codexRef && '—'}
+                    {b.codexRef && <div className="text-muted"><CodexRef refText={b.codexRef} lookup={codex} t={t} /></div>}
                   </Td>
                 </tr>
               ))}
