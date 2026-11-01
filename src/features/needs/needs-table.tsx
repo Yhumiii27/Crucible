@@ -1,11 +1,13 @@
 // Table of test needs (project sheet, "My test needs"): level, resource, window, length, how much is booked, late requests
-// (F-5), and the change form for those who enter the project's needs.
+// (F-5), the state in Codex of the protocol referenced (CR-060), and the change form for those who enter the project's needs.
+import { CodexRef } from '@/components/app/CodexRef';
 import { EmptyState } from '@/components/app/EmptyState';
 import { Tag } from '@/components/ds/Tag';
 import { Table, Td, Th } from '@/components/ds/Table';
 import { NEED_LEVEL_LABEL, NEED_STATUS_LABEL } from '@/domain/needs';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate } from '@/lib/format';
+import { codexLookup } from '@/server/dal/codex';
 import type { NeedRow } from '@/server/dal/needs';
 import { getI18n } from '@/server/session';
 import { EditNeed, type MilestoneRef, type ResourceRef, type TestTypeRef } from './forms';
@@ -20,6 +22,7 @@ export async function NeedsTable({ needs, manage, edit, showProject }: {
 }) {
   const { t, lang } = await getI18n();
   if (!needs.length) return <EmptyState>{t('No test need yet.')}</EmptyState>;
+  const codex = await codexLookup(needs.map((n) => n.codexRef));
   const canEdit = (n: NeedRow) => n.status === 'open' && (typeof manage === 'function' ? manage(n) : manage);
   return (
     <Table>
@@ -48,7 +51,7 @@ export async function NeedsTable({ needs, manage, edit, showProject }: {
               <Td valign="top">
                 {dataText(n.title, lang)}
                 {n.milestoneLabel && <div className="text-muted">{t('Milestone')} · {dataText(n.milestoneLabel, lang)}</div>}
-                {n.codexRef && <div className="text-muted">{t('Protocol')} · {n.codexRef}</div>}
+                {n.codexRef && <div className="text-muted">{t('Protocol')} · <CodexRef refText={n.codexRef} lookup={codex} t={t} /></div>}
                 {canEdit(n) && (
                   <EditNeed {...edit} projects={edit.projects.filter((p) => p.code === n.projectCode)} need={{
                     id: n.id, projectCode: n.projectCode, level: n.level, title: n.title, resourceId: n.resourceId, halfDays: n.halfDays, earliestOn: n.earliestOn,

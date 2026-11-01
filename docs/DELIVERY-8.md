@@ -21,10 +21,25 @@ lisent qu’un endroit. Une ligne lue se modifie **dans son outil**, jamais dans
 Une vue absente ou non accordée est un **état**, pas une erreur : rien n’est lu ni changé, la saisie dans Crucible continue.
 Chaque lecture qui change quelque chose est écrite au journal (objet = la vue, compteurs ajoutés / modifiés / retirés).
 
+## 1 bis. État des références Codex (1er nov. 2026)
+
+Suite de CR-060 (« lance le prochain point », choix « fin de CR-060 »). Les références Codex restent saisies dans Crucible
+(Codex héberge tous les documents) ; dès que `codex.pub_documents` est lisible, Crucible lit **à l’affichage** (rien n’est
+copié) le document que chaque référence désigne, par son identifiant ou un ancien numéro (casse et espaces ignorés), et
+affiche à côté :
+
+- « rév. B en vigueur » quand le document a une révision en vigueur ;
+- un avertissement sinon : **Inconnu de Codex**, **Obsolète dans Codex**, **Archivé dans Codex**, **Aucune révision en
+  vigueur dans Codex**.
+
+Où : protocole des besoins d’essai (Mes besoins, fiche projet), rapport des réservations terminées (fiche projet), analyse
+de risque des règles d’exclusion et justification des substitutions (Règles). Jamais le titre du document : sa
+confidentialité est celle de Codex (D10), la référence suffit. Sans la vue, la référence seule, comme avant. Règles pures
+`src/domain/codex.ts`, lecture `src/server/dal/codex.ts`, affichage `src/components/app/CodexRef.tsx` ; 4 tests de plus
+(362 au total).
+
 ## 2. Ce qui reste
 
-- `codex.pub_documents` : les références Codex restent saisies ; afficher l’état et la révision des documents référencés
-  viendra avec l’écran des dossiers d’essai.
 - `vigie.pub_suspensions_essais` (V-2) : pas encore publiée par Vigie.
 - `keystone.pub_projets`, `cursus.pub_salaries`, `matrix.pub_sites`, `pub_filiales` : le rattachement reste saisi
   (code Keystone d’un projet, matricule d’une personne) ; leur lecture viendra avec les données D-1 à D-11.

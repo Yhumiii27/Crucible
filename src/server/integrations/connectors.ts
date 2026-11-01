@@ -15,7 +15,7 @@ import 'server-only';
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { writeAudit } from '@/server/db/helpers';
 import { inspections, people, personAbsences, projectMilestones, projects, resources, testNeeds } from '@/server/db/schema';
-import type { Tx } from '@/server/db/types';
+import type { DB, Tx } from '@/server/db/types';
 
 export const READ_VIEWS = ['keystone.pub_jalons', 'cursus.pub_absences', 'vigie.pub_controles'] as const;
 export type ReadView = (typeof READ_VIEWS)[number];
@@ -40,7 +40,7 @@ export interface ReadBy {
 }
 
 /** Whether crucible_app may read `schema.view` (catalogue only: never reads the view itself). */
-export async function viewReadable(tx: Tx, qualified: string): Promise<boolean> {
+export async function viewReadable(tx: DB | Tx, qualified: string): Promise<boolean> {
   const [schema, name] = qualified.split('.');
   const r = await tx.execute(sql`
     select coalesce(bool_and(has_schema_privilege(n.oid, 'USAGE') and has_table_privilege(c.oid, 'SELECT')), false) as ok

@@ -161,5 +161,9 @@
   "not readable yet": "pas encore lisible",
   "This absence comes from Cursus: change it there": "Cette absence vient de Cursus : modifiez-la dans Cursus",
   "This inspection comes from Vigie: record it there": "Ce contrôle vient de Vigie : enregistrez-le dans Vigie",
-  "record in Vigie the inspection": "enregistrer dans Vigie le contrôle"
+  "record in Vigie the inspection": "enregistrer dans Vigie le contrôle",
+  "No revision in force in Codex": "Aucune révision en vigueur dans Codex",
+  "Obsolete in Codex": "Obsolète dans Codex",
+  "Archived in Codex": "Archivé dans Codex",
+  "Unknown in Codex": "Inconnu de Codex"
 }

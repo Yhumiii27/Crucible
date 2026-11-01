@@ -6,6 +6,7 @@
 // R-4) and the versions of the priority rules (published by the R&D director, A-1, A-2).
 import { notFound } from 'next/navigation';
 import { Folded } from '@/components/app/ActionForm';
+import { CodexRef } from '@/components/app/CodexRef';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
@@ -20,6 +21,7 @@ import { TestTypeActiveButton, TestTypeForm } from '@/features/needs/forms';
 import { AgreementForm, ProposeRuleForm, RetireRuleForm, ValidateRuleButton } from '@/features/resources/forms';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate } from '@/lib/format';
+import { codexLookup } from '@/server/dal/codex';
 import { testTypeCatalogue } from '@/server/dal/needs';
 import { planningRules } from '@/server/dal/planning';
 import { rulesScreen } from '@/server/dal/resources';
@@ -29,6 +31,7 @@ export default async function RulesPage() {
   const [{ t, lang }, viewer] = await Promise.all([getI18n(), getViewer()]);
   if (!canSee(viewer.role, 'rules')) notFound();
   const [data, types, plan] = await Promise.all([rulesScreen(viewer), testTypeCatalogue(), planningRules()]);
+  const codex = await codexLookup([...data.rules.map((r) => r.codexRef), ...plan.substitutions.map(({ s: x }) => x.codexRef)]);
   const editTypes = canEditTestTypes(viewer.role);
   const safety = viewer.role === 'safety';
   const mine = managedFacilities(viewer.role, viewer.assignments);
@@ -59,7 +62,7 @@ export default async function RulesPage() {
                   <Td valign="top">
                     <div>{dataText(r.label, lang)}</div>
                     <div className="text-muted">{dataText(r.motive, lang)}</div>
-                    {r.codexRef && <div className="text-muted">Codex {r.codexRef}</div>}
+                    {r.codexRef && <div className="text-muted">Codex <CodexRef refText={r.codexRef} lookup={codex} t={t} /></div>}
                   </Td>
                   <Td valign="top">{r.resourceCodes.join(', ')}</Td>
                   <Td valign="top" align="right" numeric>{r.maxActive}</Td>
@@ -188,7 +191,7 @@ export default async function RulesPage() {
                   <tr key={x.id}>
                     <Td valign="top">{x.testTypeCode}</Td>
                     <Td valign="top">{resourceCode}</Td>
-                    <Td valign="top">{dataText(x.conditions, lang)}<div className="text-muted">{x.codexRef} · {t('Technical referent')} {x.technicalReferent}{x.hazardous ? ` · ${t('Hazardous matter')}` : ''}</div></Td>
+                    <Td valign="top">{dataText(x.conditions, lang)}<div className="text-muted"><CodexRef refText={x.codexRef} lookup={codex} t={t} /> · {t('Technical referent')} {x.technicalReferent}{x.hazardous ? ` · ${t('Hazardous matter')}` : ''}</div></Td>
                     <Td valign="top">
                       <div>{t('Host facility')} : {x.hostValidatedByName ?? '—'}</div>
                       {x.hazardous && <div>{t('Safety officer')} : {x.safetyValidatedByName ?? '—'}</div>}
