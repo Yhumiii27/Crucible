@@ -98,6 +98,10 @@
   {
    "date": "2026-11-01",
    "text": "Livraison 13 (CR-080, « lance le prochain point ») : parcours de bout en bout dans le navigateur (Playwright) joués en CI. X-15 ajoutée (défaut appliqué)."
+  },
+  {
+   "date": "2026-11-01",
+   "text": "Décision M-18 de Matrix appliquée (demande du 01/11, acceptée le même jour) : Matrix définit et possède les vues pub_ de Crucible ; plus aucune vue pub_ dans une nouvelle migration (garde de test), colonne publiée jamais supprimée ni renommée sans prévenir Matrix ; règles reprises dans CLAUDE.md et ECHANGES.md."
   }
  ],
  "items": [

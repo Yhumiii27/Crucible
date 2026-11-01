@@ -1,9 +1,13 @@
-# Échanges de Crucible avec les autres outils (décision M-17 de Matrix)
+# Échanges de Crucible avec les autres outils (décisions M-17 et M-18 de Matrix)
 
 > 31 oct. 2026. Demande de Matrix du 30/10/2026 (`REQUESTS.md`), acceptée par le responsable produit le 31/10/2026.
 > Décision M-17 : Matrix décide de chaque accès d’un outil aux données d’un autre et PostgreSQL l’applique (dépôt Matrix,
 > `docs/decisions.md` et `docs/architecture-postgres.md` § 8 sexies). Relevé fait sur `main` de Crucible (`c3da68f`) :
 > requêtes SQL vers d’autres schémas, appels HTTP vers les autres outils, vues et fonctions des migrations.
+>
+> **1er nov. 2026 — M-18** (demande de Matrix du même jour, acceptée par le responsable produit) : Matrix **définit et
+> possède** les vues `pub_` de Crucible (écran « Publications », `matrix.publications`, rôle `matrix_gestion`) et décide des
+> écritures croisées ; cela remplace R3 ci-dessous (« la migration reste la seule définition »).
 
 ## 1. Règles appliquées par Crucible
 
@@ -11,7 +15,7 @@
 |---|---|---|
 | R1 | Chaque table a un seul outil écrivain, son propriétaire. | `crucible_app` n’écrit que dans le schéma `crucible`. |
 | R2 | Lecture chez un autre outil par ses vues `pub_` seulement, jamais par ses tables. | Toutes les lectures du § 2 sont des vues `pub_`. |
-| R3 | Une vue `pub_` n’est définie que dans la migration de son propriétaire ; Matrix ne la recopie plus, il contrôle son contrat. | Les vues `pub_` de Crucible (§ 4) ne sont définies que dans `drizzle/`. Plus aucune demande de copie à Matrix. |
+| R3 (M-18) | Matrix définit et possède les vues `pub_` de chaque outil ; une migration crée les tables et les colonnes, jamais une vue `pub_`. | Les migrations `0002`, `0005` et `0009` qui ont créé les vues restent telles qu’appliquées (une base locale neuve les a encore) ; aucune nouvelle migration ne crée, remplace, modifie ni supprime de vue `pub_`, ni ne supprime ou renomme une colonne d’une table lue par une vue publiée sans prévenir Matrix — contrôlé par `src/server/db/pub-views-guard.test.ts`. Une nouvelle publication, ou une colonne de plus, se demande à Matrix. |
 | R4 | Écriture chez un autre outil par son API ou par une fonction `pub_` qu’il fournit, jamais par `INSERT`, `UPDATE` ou `DELETE`. | Seule écriture aujourd’hui : la déclaration du schéma à Matrix, par son API (§ 3). |
 | R5 | Le registre `matrix.liens` est la seule source des droits entre outils. | Un nouveau besoin se déclare comme un lien (§ 5), plus comme une copie de vue. |
 | R6 | Les référentiels de Matrix (sites, filiales, zones, organigramme) s’écrivent par les fonctions de Matrix. | Crucible ne crée ni site ni entité chez Matrix ; s’il en a besoin, il passera par `matrix.pub_creer_…`. |
@@ -50,7 +54,7 @@ d’ailleurs : `crucible_app` n’a aucun droit d’écriture ailleurs.
 
 ## 4. Ce que les autres lisent chez Crucible
 
-| Vue (migration de Crucible) | Lecteurs (registre de Matrix) | Contenu |
+| Vue (créée par la migration de Crucible, reprise par Matrix, M-18) | Lecteurs (registre de Matrix) | Contenu |
 |---|---|---|
 | `crucible.pub_journal` (`0002_share_journal`) | Matrix | journal d’audit (D18) |
 | `crucible.pub_moyens` (`0005_share_resources`) | Keystone, Vigie, Matrix | moyens d’essai |
@@ -58,9 +62,10 @@ d’ailleurs : `crucible_app` n’a aucun droit d’écriture ailleurs.
 | `crucible.pub_occupation_hebdo` (`0009_share_weekly`) | Matrix | instantanés hebdomadaires d’occupation (X-4) |
 
 Ce sont des contrats : jamais de colonne retirée, renommée, déplacée ou de type changé ; une nouvelle colonne va en fin de
-vue, sinon une vue `_v2`. Depuis M-17, la sonde de Matrix contrôle leur forme ; la migration de Crucible en est la seule
-définition. Les copies que Matrix en garde dans `partage/80-crucible.sql` (demandes M-4, M-7, M-8) disparaîtront avec son
-lot M17-3 ; d’ici là, elles restent en place et ne changent rien.
+vue, sinon une vue `_v2`. Depuis M-18, Matrix les reprend (`partage/14-reprise-publications.sql` : propriétaire
+`matrix_gestion`, mêmes nom, colonnes, commentaire et lecteurs) et en est la seule définition. Tables qu’elles lisent :
+`audit_entries`, `bookings`, `resources`, `facilities`, `projects`, `weekly_snapshots` — avant de supprimer ou renommer une
+de leurs colonnes, une entrée dans le `REQUESTS.md` de Matrix (la migration échouerait : la vue en dépend).
 
 ## 5. Ce que les autres écrivent chez Crucible
 
@@ -79,8 +84,9 @@ demanderait un essai, ou Vigie qui suspendrait un moyen), Crucible lui fournira 
 
 ## 6. Un nouvel échange
 
-1. Le propriétaire publie la vue ou la fonction `pub_` dans **sa** migration (si c’est Crucible : migration générée,
-   contrat ci-dessus).
+1. Une **vue** `pub_` se demande à Matrix, qui la définit (M-18) ; une **fonction** `pub_` d’écriture reste créée par la
+   migration de l’outil qui reçoit l’écriture (si c’est Crucible : contrat du § 5), son exécution est un lien « écriture »
+   décidé dans Matrix.
 2. Le lecteur déclare le **lien** dans le registre de Matrix : `POST /api/liens` avec le jeton de l’outil quand Matrix
    l’aura livré (lot M17-4) ; en attendant, une entrée courte dans le `REQUESTS.md` de Matrix : **lecteur**, **objet**
    (`schéma.pub_…`), **nature** (`lecture` ou `execution`), **justification** — toujours après la note détaillée et le
@@ -91,4 +97,5 @@ demanderait un essai, ou Vigie qui suspendrait un moyen), Crucible lui fournira 
 ## 7. Constat pour Matrix
 
 Aucun accès non conforme : toutes les lectures passent par des vues `pub_`, la seule écriture chez un autre outil passe par
-une API. Rien à corriger dans Crucible pendant la transition (lots M17-1 à M17-5 de Matrix).
+une API. Rien à corriger dans Crucible pendant la transition (lots M17-1 à M17-5 de Matrix). M-18 : Crucible a repris les
+règles (1er nov. 2026) ; Matrix peut reprendre ses 4 vues `pub_`.

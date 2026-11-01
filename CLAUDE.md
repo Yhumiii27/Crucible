@@ -140,14 +140,18 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   never writes on its own and never proposes an unvalidated substitution or touches a safety rule.
 - Crucible writes only in its schema (`crucible`, role `crucible_app`, T-1) and reads other tools only through their
   `pub_` views. Its own `pub_` views are contracts: never drop or rename a column; new columns go at the end.
-- **Access between tools is decided by Matrix (M-17, applied 31 Oct 2026; inventory `docs/ECHANGES.md`)**: a `pub_` view
-  is defined only in its owner's migration (never ask Matrix to copy one into `partage/`); Crucible writes in another tool
-  only through its API or a `pub_` function it provides, never by `INSERT` / `UPDATE` / `DELETE`; a tool that must write in
-  Crucible gets an API or a migration's `crucible.pub_<verb>_<object>` function (`SECURITY DEFINER`,
-  `SET search_path = crucible, pg_temp`, caller from `session_user`, Crucible's rules, lock and audit applied,
-  `REVOKE EXECUTE … FROM PUBLIC`, signature never changed; it never confirms or moves a booking). A new exchange is declared
-  as a link of Matrix's registry (`matrix.liens`: reader, `schema.pub_…` object, `lecture` | `execution`, reason) — through
-  `POST /api/liens` once Matrix ships it, until then a short entry in Matrix's `REQUESTS.md`, after the owner's « validé ».
+- **Access between tools is decided by Matrix (M-17, 31 Oct 2026; M-18, 1 Nov 2026; inventory `docs/ECHANGES.md`)**: Matrix
+  defines and owns every `pub_` view (screen "Publications", role `matrix_gestion`): a new migration never creates, replaces,
+  alters or drops a `pub_` view (the three that did, 0002, 0005, 0009, stay as applied), and never drops or renames a column
+  of a table a published view reads without an entry in Matrix's `REQUESTS.md` first (`src/server/db/pub-views-guard.test.ts`);
+  a new publication or column is asked of Matrix. Crucible writes in another tool only through its API or a `pub_` function
+  it provides, never by `INSERT` / `UPDATE` / `DELETE`; a tool that must write in Crucible gets an API or a migration's
+  `crucible.pub_<verb>_<object>` function (`SECURITY DEFINER`, `SET search_path = crucible, pg_temp`, caller from
+  `session_user`, Crucible's rules, lock and audit applied, `REVOKE EXECUTE … FROM PUBLIC`, signature never changed; it never
+  confirms or moves a booking), executed through a "write" link decided in Matrix. A need elsewhere (read a view, execute a
+  function) is declared as a link of Matrix's registry (`matrix.liens`: reader, `schema.pub_…` object, `lecture` |
+  `execution`, reason) — Matrix's screen "Links between tools" or a short entry in its `REQUESTS.md`, after the owner's
+  « validé ».
 - Copy only the **platform** (T-4: as adapted by Arche, origin commits recorded in `docs/SOCLE.md`), never business modules.
 - Pure rules (calendars, hard constraints, conflicts, load, engine) live in `src/domain/` with value tests; indicators are
   computed, never stored; one business clock.
