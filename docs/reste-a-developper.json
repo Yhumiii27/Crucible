@@ -102,6 +102,10 @@
   {
    "date": "2026-11-01",
    "text": "Décision M-18 de Matrix appliquée (demande du 01/11, acceptée le même jour) : Matrix définit et possède les vues pub_ de Crucible ; plus aucune vue pub_ dans une nouvelle migration (garde de test), colonne publiée jamais supprimée ni renommée sans prévenir Matrix ; règles reprises dans CLAUDE.md et ECHANGES.md."
+  },
+  {
+   "date": "2026-11-01",
+   "text": "Livraison 14 (CR-077, « lance le prochain point ») : rapport mensuel imprimable en PDF, exports CSV et JSON pour la BI. X-16 ajoutée (défaut appliqué). 397 tests."
   }
  ],
  "items": [
@@ -645,12 +649,13 @@
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "src/app/api/export/[screen]/route.ts : export CSV uniquement",
-    "vue crucible.pub_occupation_hebdo (instantanés hebdomadaires) seule exposée"
+    "src/app/(app)/reports/page.tsx, src/server/dal/report.ts",
+    "src/app/api/export/[screen]/route.ts : format=json"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 14",
+    "note": "Fait le 1er nov. 2026 (DELIVERY-14.md, X-16) : rapport mensuel /reports imprimable en PDF ; exports CSV et JSON ; BI automatique par pub_occupation_hebdo."
    }
   },
   {

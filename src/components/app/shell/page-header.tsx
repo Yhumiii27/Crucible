@@ -71,7 +71,7 @@ export async function PageHeader({ screen, title, crumbs = [], crumbData, aside,
         <HeaderTools items={items} unread={notes.unread} statusDate={fmtDate(today, lang)} lang={lang} bell={bell} assistant={bell} exportScreen={isExportable(screen) && !outside ? screen : null} />
       </header>
       {(toolbar || (primary && !outside)) && (
-        <div className={styles.pageBar}>
+        <div className={styles.pageBar} data-print-hide>
           <div className={styles.toolbar}>{toolbar}</div>
           {!outside && primary && <div className={styles.actions}>{primary}</div>}
         </div>

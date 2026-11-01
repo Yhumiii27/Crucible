@@ -129,6 +129,10 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - **Delivery 13 (end-to-end journeys, CR-080) is done** (`docs/DELIVERY-13.md`, X-15 added): Playwright journeys in
   `tests/e2e/` (`playwright.config.ts`, `npm run test:e2e`, French UI, demo cookie `crucible-role`), run by CI right after
   the smoke test against the same production server; they change the database (run them on a fresh one locally).
+- **Delivery 14 (reports and BI exports, CR-077) is done** (`docs/DELIVERY-14.md`, X-16 added): screen `/reports` (monthly
+  report: utilisation per resource and facility from `resourceUsages`, bookings of the month masked; `src/domain/report.ts`,
+  `src/server/dal/report.ts`), printed or saved as PDF by the browser (print CSS hides the shell: `aside`, `[data-print-hide]`,
+  dialogs); every export also in JSON (`/api/export/<screen>?format=json`, menu "JSON (BI tools)").
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 
