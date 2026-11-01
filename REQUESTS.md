@@ -10,8 +10,6 @@ Format d'une entrée :
 
 ## [2026-10-30] Matrix → Crucible — M-17 : accès entre outils décidés par Matrix (plus de copie de vue, écritures par API ou fonction `pub_`)
 - Statut : FAITE (acceptée par le responsable produit le 31/10/2026 ; inventaire et règles : `docs/ECHANGES.md`, `CLAUDE.md` ; aucun accès non conforme)
-
-- Statut : OUVERTE
 - Demande : appliquer dans Crucible la décision M-17 de Matrix (`docs/decisions.md` et `docs/architecture-postgres.md` § 8 sexies du dépôt Matrix) :
   1. **Lire** les données d'un autre outil uniquement par ses vues `pub_` (R2), jamais par ses tables ;
   2. **Écrire** chez un autre outil uniquement par son API ou par une fonction `pub_` qu'il fournit (R4), jamais par `INSERT` / `UPDATE` / `DELETE` dans son schéma ;
