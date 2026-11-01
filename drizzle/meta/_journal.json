@@ -113,6 +113,20 @@
       "when": 1793531423050,
       "tag": "0015_booking_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793532535195,
+      "tag": "0016_maintenance",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793532536238,
+      "tag": "0017_maintenance_append_only",
+      "breakpoints": true
     }
   ]
 }

@@ -79,7 +79,10 @@ async function main(): Promise<void> {
   check(conn.status === 200 && conn.body.includes('crucible.pub_reservations') && conn.body.includes('Pas encore publiée'), 'connectors: published views and the views not published yet');
   // Delivery 4: people, engine, conflicts, substitutions, priority rules.
   const propose = await get('/propose', 'coordinator');
-  check(propose.status === 200 && propose.body.includes('R-2026-0001') && propose.body.includes('Lancer le moteur') && propose.body.includes('Un contrôle réglementaire arrive à échéance'), 'proposals: the demo run, its proposals and the need blocked by the inspection');
+  check(propose.status === 200 && propose.body.includes('R-2026-0001') && propose.body.includes('Lancer le moteur') && propose.body.includes('Un contrôle, une maintenance ou un étalonnage arrive à échéance'), 'proposals: the demo run, its proposals and the need blocked by the inspection');
+  // Delivery 10: the maintenance tab of a facility, with its plan form for the manager.
+  const maintTab = await get('/facilities/PDE?tab=maintenance', 'facility_manager');
+  check(maintTab.status === 200 && maintTab.body.includes('Maintenance et étalonnage') && maintTab.body.includes('Ajouter un plan de maintenance'), 'facility: the maintenance and calibration tab');
   const conflictsPage = await get('/conflicts', 'coordinator');
   check(conflictsPage.status === 200 && conflictsPage.body.includes('C-2026-0001') && conflictsPage.body.includes('Recommandée') && conflictsPage.body.includes('Essai de sécurité ou réglementaire'), 'conflicts: the PDE sheet, its recommendation and the rule cited');
   check((await get('/conflicts', 'project_lead')).status === 404, 'conflicts are not in a project lead’s workspace');

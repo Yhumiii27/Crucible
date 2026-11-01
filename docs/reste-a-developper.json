@@ -82,6 +82,10 @@
   {
    "date": "2026-11-01",
    "text": "Livraison 9 (CR-078, « lance le prochain point ») : limites par moyen (temps libre entre deux réservations, prévenance minimale, durée maximale) contrôlées comme contraintes dures ; réservations répétées chaque semaine, toutes ou aucune. X-11 ajoutée (défaut appliqué). 371 tests."
+  },
+  {
+   "date": "2026-11-01",
+   "text": "Livraison 10 (CR-073, « lance le prochain point ») : plans de maintenance et d’étalonnage par moyen, interventions gardées telles qu’enregistrées, blocage des réservations à l’échéance dépassée, alertes aux responsables 14 jours avant. X-12 ajoutée (défaut appliqué). 378 tests."
   }
  ],
  "items": [
@@ -535,12 +539,14 @@
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "src/features/resources/actions.ts : recordInspectionAction (contrôles réglementaires seulement)",
-    "src/domain/resources.ts : indisponibilités de maintenance saisies à la main"
+    "src/domain/maintenance.ts, src/features/maintenance/actions.ts",
+    "src/domain/booking.ts : code maintenance_due",
+    "src/server/notify/jobs.ts : remindMaintenance"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 10",
+    "note": "Fait le 1er nov. 2026 (DELIVERY-10.md, X-12) : plans de maintenance et d’étalonnage par moyen, interventions en ajout seul, blocage à l’échéance dépassée (plan bloquant), alertes 14 jours avant."
    }
   },
   {

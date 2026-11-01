@@ -4,7 +4,8 @@ import 'server-only';
 // inspections around the slot. Used when a proposal becomes a booking and when a scenario moves one.
 import { and, eq, gte, inArray, lt, ne } from 'drizzle-orm';
 import { DEFAULT_HOURS, inspectionDueOn } from '@/domain/calendar';
-import { bookings, inspections, resources, unavailabilities } from '@/server/db/schema';
+import { maintenanceDueOn } from '@/domain/maintenance';
+import { bookings, inspections, maintenancePlans, resources, unavailabilities } from '@/server/db/schema';
 import type { Tx } from '@/server/db/types';
 import { calendarsOf, rulesOf } from '@/server/dal/resources';
 
@@ -16,12 +17,13 @@ export async function slotFacts(tx: Tx, resourceId: string, slot: { start: numbe
   const related = [...new Set([res.id, ...rules.flatMap((r) => r.resourceIds)])];
   const from = new Date(slot.start - 86_400_000);
   const to = new Date(slot.end + 86_400_000);
-  const [bk, unav, insp] = await Promise.all([
+  const [bk, unav, insp, maint] = await Promise.all([
     tx.select({ id: bookings.id, ref: bookings.ref, resourceId: bookings.resourceId, resourceCode: resources.code, start: bookings.startsAt, end: bookings.endsAt, status: bookings.status })
       .from(bookings).innerJoin(resources, eq(resources.id, bookings.resourceId))
       .where(and(inArray(bookings.resourceId, related), lt(bookings.startsAt, to), gte(bookings.endsAt, from), ne(bookings.status, 'cancelled'))),
     tx.select().from(unavailabilities).where(and(eq(unavailabilities.resourceId, res.id), lt(unavailabilities.startsAt, to), gte(unavailabilities.endsAt, from))),
     tx.select().from(inspections).where(and(eq(inspections.resourceId, res.id), eq(inspections.active, true))),
+    tx.select().from(maintenancePlans).where(and(eq(maintenancePlans.resourceId, res.id), eq(maintenancePlans.active, true), eq(maintenancePlans.blocking, true))),
   ]);
   return {
     res,
@@ -30,6 +32,7 @@ export async function slotFacts(tx: Tx, resourceId: string, slot: { start: numbe
       hours: cal.hours.length ? cal.hours : DEFAULT_HOURS, closures: cal.closures,
       unavailabilities: unav.map((u) => ({ start: u.startsAt.getTime(), end: u.endsAt.getTime(), label: u.label })),
       inspections: insp.map((i) => ({ label: i.label, dueOn: inspectionDueOn(i.lastOn, i.periodMonths) })),
+      maintenance: maint.map((m) => ({ label: m.label, dueOn: maintenanceDueOn(m) })),
       bookings: bk.map((b) => ({ ...b, start: b.start.getTime(), end: b.end.getTime() })),
       rules: rules.map((r) => ({ code: r.code, maxActive: r.maxActive, status: r.status, resourceIds: r.resourceIds })),
     },

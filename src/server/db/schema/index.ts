@@ -6,3 +6,4 @@ export * from './planning';
 export * from './incidents';
 export * from './assistant';
 export * from './measure';
+export * from './maintenance';

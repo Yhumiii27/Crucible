@@ -29,5 +29,6 @@ export const NOTIFICATION_KINDS = {
   conflict: 'Conflict to arbitrate',
   conflict_overdue: 'Arbitration overdue',
   recap: 'Your tests of the next two weeks',
+  maintenance_due: 'Maintenance or calibration due',
 } as const;
 export type NotificationKind = keyof typeof NOTIFICATION_KINDS;

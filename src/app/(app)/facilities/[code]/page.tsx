@@ -20,12 +20,15 @@ import {
 } from '@/features/resources/forms';
 import { EquipmentForm } from '@/features/planning/forms';
 import { DeviceForm, RevokeDeviceButton } from '@/features/measure/forms';
+import { MaintenancePlanForm, MaintenanceRecordForm, WithdrawPlanButton } from '@/features/maintenance/forms';
+import { MAINTENANCE_KIND_LABEL } from '@/domain/maintenance';
 import { DEVICE_KIND_LABEL, OCCUPANCY_OUTCOME_LABEL, type DeviceKind, type OccupancyOutcome } from '@/domain/occupancy';
 import { dataText } from '@/i18n/data-text';
 import { addDaysIso } from '@/lib/dates';
 import { fmtDate, fmtInstant } from '@/lib/format';
 import { businessNow, businessToday } from '@/server/clock';
 import { facilityMeasurement } from '@/server/occupancy';
+import { facilityMaintenance } from '@/server/dal/maintenance';
 import { facilityEquipment } from '@/server/dal/planning';
 import { facilitySheet } from '@/server/dal/resources';
 import { getI18n, getViewer } from '@/server/session';
@@ -41,7 +44,7 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
   if (!sheet) notFound();
   const { facility } = sheet;
   const tab = isFacilityTab(sp.tab) ? sp.tab : 'resources';
-  const [equipment, measure] = await Promise.all([facilityEquipment(viewer, facility.code), tab === 'measurement' ? facilityMeasurement(viewer, facility.code, now) : null]);
+  const [equipment, measure, maint] = await Promise.all([facilityEquipment(viewer, facility.code), tab === 'measurement' ? facilityMeasurement(viewer, facility.code, now) : null, facilityMaintenance(facility.code, today)]);
   const manager = managedFacilities(viewer.role, viewer.assignments).includes(facility.code);
   const resRefs = sheet.resources.filter((r) => r.status !== 'retired').map((r) => ({ id: r.id, code: r.code }));
   const inService = sheet.resources.filter((r) => r.status === 'in_service').length;
@@ -49,7 +52,9 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
   // Next step: the earliest inspection overdue or due within 30 days (R-10: a slot ending after it is refused).
   const dueSoon = [...sheet.inspections].filter((i) => i.dueOn <= addDaysIso(today, 30)).sort((a, b) => a.dueOn.localeCompare(b.dueOn))[0] ?? null;
   const unavailableNow = sheet.unavailabilities.filter((u) => u.endsAt > new Date()).length;
-  const badge: Partial<Record<string, number>> = { inspections: sheet.inspections.filter((i) => i.dueOn <= addDaysIso(today, 30)).length, equipment: equipment.length, calendar: unavailableNow };
+  const badge: Partial<Record<string, number>> = {
+    inspections: sheet.inspections.filter((i) => i.dueOn <= addDaysIso(today, 30)).length, maintenance: maint.plans.filter((p) => p.state !== 'ok').length, equipment: equipment.length, calendar: unavailableNow,
+  };
 
   const primary = (
     <>
@@ -71,6 +76,9 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
       )}
       {tab === 'inspections' && manager && resRefs.length > 0 && (
         <Folded summary="Record an inspection" variant="primary" size="md"><InspectionForm resources={resRefs} today={today} /></Folded>
+      )}
+      {tab === 'maintenance' && manager && resRefs.length > 0 && (
+        <Folded summary="Add a maintenance or calibration plan" variant="primary" size="md"><MaintenancePlanForm resources={resRefs} today={today} /></Folded>
       )}
       {tab === 'equipment' && manager && (
         <Folded summary="Add mobile equipment" variant="primary" size="md"><EquipmentForm facilityCode={facility.code} /></Folded>
@@ -263,6 +271,88 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
             <EmptyState>{t('No inspection recorded.')}</EmptyState>
           )}
         </SectionCard>
+      )}
+
+      {tab === 'maintenance' && (
+        <>
+          <SectionCard title={t('Maintenance & calibration')} hint={String(maint.plans.length)} subtitle={t('A blocking plan past its due date forbids any slot ending after it; the managers are told 14 days before.')} scroll>
+            {maint.plans.length ? (
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t('Resource')}</Th>
+                    <Th>{t('Intervention')}</Th>
+                    <Th align="right">{t('Every (months)')}</Th>
+                    <Th>{t('Last intervention')}</Th>
+                    <Th>{t('Due')}</Th>
+                    <Th>{t('Provider')}</Th>
+                    <Th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {maint.plans.map((p) => (
+                    <tr key={p.id}>
+                      <Td valign="top">{p.resourceCode}</Td>
+                      <Td valign="top">
+                        {dataText(p.label, lang)}
+                        <div className="text-muted">{t(MAINTENANCE_KIND_LABEL[p.kind])}{p.blocking ? ` · ${t('Blocks the bookings')}` : ` · ${t('Alert only')}`}</div>
+                      </Td>
+                      <Td valign="top" align="right" numeric>{p.periodMonths}</Td>
+                      <Td valign="top">{fmtDate(p.lastOn, lang)}</Td>
+                      <Td valign="top">
+                        {fmtDate(p.dueOn, lang)}
+                        {p.state === 'overdue' ? <Tag tone="accent" size="sm" style={{ marginLeft: 8 }}>{t('Overdue')}</Tag> : p.state === 'soon' ? <Tag tone="outline" size="sm" style={{ marginLeft: 8 }}>{t('Due within 14 days')}</Tag> : null}
+                      </Td>
+                      <Td valign="top">{p.provider ? dataText(p.provider, lang) : <span className="text-muted">—</span>}</Td>
+                      <Td valign="top" align="right">
+                        {manager && (
+                          <>
+                            <Folded summary="Record an intervention" size="xs" variant="ghost"><MaintenanceRecordForm planId={p.id} today={today} /></Folded>
+                            <WithdrawPlanButton planId={p.id} />
+                          </>
+                        )}
+                      </Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              <EmptyState>{t('No maintenance or calibration plan.')}</EmptyState>
+            )}
+          </SectionCard>
+          <SectionCard title={t('Interventions of the last 12 months')} hint={String(maint.records.length)} subtitle={t('Kept as recorded: an intervention is never changed.')} scroll>
+            {maint.records.length ? (
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t('Done on')}</Th>
+                    <Th>{t('Resource')}</Th>
+                    <Th>{t('Intervention')}</Th>
+                    <Th>{t('Provider')}</Th>
+                    <Th>{t('Recorded by')}</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {maint.records.map((r) => (
+                    <tr key={r.id}>
+                      <Td valign="top">{fmtDate(r.doneOn, lang)}</Td>
+                      <Td valign="top">{r.resourceCode}</Td>
+                      <Td valign="top">
+                        {dataText(r.label, lang)}
+                        {r.codexRef && <div className="text-muted">Codex {r.codexRef}</div>}
+                        {r.note && <div className="text-muted">{dataText(r.note, lang)}</div>}
+                      </Td>
+                      <Td valign="top">{r.provider ? dataText(r.provider, lang) : '—'}</Td>
+                      <Td valign="top">{r.recordedByName}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              <EmptyState>{t('No intervention recorded.')}</EmptyState>
+            )}
+          </SectionCard>
+        </>
       )}
 
       {tab === 'equipment' && (

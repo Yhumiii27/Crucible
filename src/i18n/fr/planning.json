@@ -82,7 +82,6 @@
   "Oldest request first": "Demande la plus ancienne d’abord",
   "No resource in service for this test": "Aucun moyen en service pour cet essai",
   "No free slot in the horizon": "Aucun créneau libre dans l’horizon",
-  "A regulatory inspection falls due: renew it first": "Un contrôle réglementaire arrive à échéance : le renouveler d’abord",
   "No qualified person available": "Aucune personne habilitée disponible",
   "The mobile equipment is not available": "L’équipement mobile n’est pas disponible",
   "People & skills": "Personnes et compétences",
@@ -159,5 +158,6 @@
   "Portable tensile rig, samples up to 20 kN.": "Banc de traction portable, éprouvettes jusqu’à 20 kN.",
   "Starting order (A-2)": "Ordre de départ (A-2)",
   "Proposals processed": "Propositions traitées",
-  "margin": "marge"
+  "margin": "marge",
+  "An inspection, a maintenance or a calibration falls due: do it first": "Un contrôle, une maintenance ou un étalonnage arrive à échéance : le faire d’abord"
 }

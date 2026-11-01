@@ -35,7 +35,7 @@ export const PRIORITY_CRITERION_LABEL: Record<PriorityCriterion, string> = {
 export const UNPLACED_REASON_LABEL = {
   no_resource: 'No resource in service for this test',
   no_slot: 'No free slot in the horizon',
-  inspection_due: 'A regulatory inspection falls due: renew it first',
+  inspection_due: 'An inspection, a maintenance or a calibration falls due: do it first',
   no_staff: 'No qualified person available',
   no_equipment: 'The mobile equipment is not available',
 } as const;
