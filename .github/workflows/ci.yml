@@ -87,9 +87,11 @@ jobs:
           npx next start --port 3510 > next-start.log 2>&1 &
           for i in $(seq 1 60); do curl -sf http://127.0.0.1:3510/api/health > /dev/null && break; sleep 1; done
           npm run test:smoke
-          # CR-080: the journeys in Chromium, against the same server, after the smoke test (they change the database).
-          npx playwright install --with-deps chromium
-          npm run test:e2e
+          # CR-080: the journeys in Chromium, against the same server, after the smoke test (they change the database). They
+          # run in Playwright's own image for the pinned version (browser and system libraries included): the runner's Ubuntu
+          # is newer than what Playwright 1.56 can equip.
+          docker run --rm --network host --ipc host -v "$PWD:/work" -w /work -e CRUCIBLE_E2E_URL -e CI=true \
+            mcr.microsoft.com/playwright:v1.56.1-noble npx playwright test
         env:
           DATABASE_URL: postgres://crucible_app:crucible-dev@127.0.0.1:5432/epc2i
           CRUCIBLE_CLOCK: '2026-10-22'

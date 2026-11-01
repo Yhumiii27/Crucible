@@ -20,9 +20,10 @@ avec le jeu de démonstration et la date d’affaires du jeudi 22 octobre 2026 (
 
 ## 2. Où ils tournent
 
-- **CI** : dans l’étape du serveur de production, après le contrôle de fumée (les parcours modifient la base) :
-  `npx playwright install --with-deps chromium` puis `npm run test:e2e` ; en cas d’échec, le rapport, les captures et les
-  traces sont joints au run (`playwright-report`, 7 jours).
+- **CI** : dans l’étape du serveur de production, après le contrôle de fumée (les parcours modifient la base), dans l’image
+  officielle de Playwright pour la version figée (`mcr.microsoft.com/playwright:v1.56.1-noble`, navigateur et bibliothèques
+  compris : l’Ubuntu du runner, 26.04, est plus récent que ce que Playwright 1.56 sait équiper) ; en cas d’échec, le
+  rapport, les captures et les traces sont joints au run (`playwright-report`, 7 jours).
 - **Poste local** : base neuve (`npm run db:local`, migration avec `CRUCIBLE_SEED=demo`), build, serveur sur le port 3510
   avec `CRUCIBLE_CLOCK=2026-10-22`, puis `npm run test:e2e` (`CRUCIBLE_E2E_URL` pour un autre serveur, `PW_CHROMIUM_PATH`
   pour un autre Chromium).
