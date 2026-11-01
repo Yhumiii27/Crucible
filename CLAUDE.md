@@ -117,6 +117,10 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   triggers), Server Functions `src/features/maintenance/actions.ts` (facility managers), facility tab "maintenance"; a
   blocking plan past due is the hard constraint `maintenance_due` of `checkBooking` (`BookingContext.maintenance`, loaded by
   the requests, `slotFacts` and the engine); daily job `maintenance-reminders` (14 days ahead, once per due date).
+- **Delivery 11 (limits of attempts, CR-079) is done** (`docs/DELIVERY-11.md`, X-13 added): `hitRate(bucket, key)`
+  (`src/server/http/rate-limit.ts`, thresholds `RATE_LIMITS` in `src/domain/rate-limit.ts`, fixed windows in `rate_counters`)
+  on the sign-in routes, the global search, the CSV exports, the assistant, `/api/occupancy` and `/api/calendar`; the address
+  is the last `X-Forwarded-For` entry (`clientAddress`); the first excess of a window is audited (area "Security").
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

@@ -1,9 +1,9 @@
 import 'server-only';
 // Crucible's scheduled jobs: the schema backup (when CRUCIBLE_BACKUP_DIR is set) and the daily schema declaration to Matrix (when
 // MATRIX_URL or MATRIX_DECLARATIONS_DIR is set), the hourly read of the other tools' views (CR-060), the daily maintenance
-// reminders (CR-073), and the daily run of the proposal engine (F-3: it proposes every day, a person confirms), and from
-// delivery 5 the e-mails of the notifications, the arbitration reminders, the weekly recap and the weekly snapshots of the
-// utilisation.
+// reminders (CR-073), the daily purge of the counts of the limits of attempts (CR-079), and the daily run of the proposal
+// engine (F-3: it proposes every day, a person confirms), and from delivery 5 the e-mails of the notifications, the arbitration
+// reminders, the weekly recap and the weekly snapshots of the utilisation.
 import path from 'node:path';
 import { backupSchema } from '@/server/backup';
 import { getConfig } from '@/server/config';
@@ -12,6 +12,7 @@ import { declareCrucibleSchema } from '@/server/integrations/matrix';
 import { matrixDeclarationEnabled } from '@/server/integrations/matrix/declare-schema';
 import type { PostgresHandle } from '@/server/db/postgres';
 import { businessNow, businessToday } from '@/server/clock';
+import { purgeRateCounters } from '@/server/http/rate-limit';
 import { remindMaintenance, remindOverdueArbitrations, weeklyRecap } from '@/server/notify/jobs';
 import { sendPendingMail } from '@/server/notify/mail';
 import { runEngine } from '@/server/planning/engine-run';
@@ -83,6 +84,15 @@ export function crucibleJobs(h: PostgresHandle): Job[] {
       enabled: !!cfg.database,
       async run() {
         return `${await remindMaintenance(h.db, await businessToday())} notices`;
+      },
+    },
+    {
+      // CR-079: counts of the limits of attempts kept one day.
+      name: 'rate-counters-purge',
+      everyMin: 1440,
+      enabled: !!cfg.database,
+      async run() {
+        return `${await purgeRateCounters(h.db)} counts removed`;
       },
     },
     {

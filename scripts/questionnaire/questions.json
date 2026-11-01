@@ -803,6 +803,18 @@
     "blocks": "L10"
   },
   {
+    "id": "X-13",
+    "group": "extra",
+    "title": "Limitation des tentatives (CR-079)",
+    "context": "Aucune limite dans l’application ; la bêta reposait sur l’authentification HTTP de Coolify.",
+    "proposal": "Connexion 30 par adresse et 10 minutes, recherche 120 par personne et minute, exports et questions à l’assistant 30 par personne et 10 minutes, appareils et abonnements limités par adresse ; premier dépassement journalisé.",
+    "alts": [
+      "Limites au niveau du proxy seulement",
+      "Seuils plus bas"
+    ],
+    "blocks": "L11"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

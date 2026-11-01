@@ -1,6 +1,6 @@
 // Platform tables copied from Keystone (docs/SOCLE.md): settings, the append-only audit trail (trigger in the initial
 // migration) and the activity feed.
-import { index, jsonb, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { index, integer, jsonb, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { crucible } from './_schema';
 import { id } from './_common';
 import { projects, users } from './organisation';
@@ -59,3 +59,11 @@ export const jobRuns = crucible.table('job_runs', {
   lastStatus: text('last_status').$type<'ok' | 'error'>(),
   lastError: text('last_error'),
 });
+
+/** Counts of requests per bucket, key (account or address) and fixed window (CR-079); old windows purged daily. */
+export const rateCounters = crucible.table('rate_counters', {
+  bucket: text('bucket').notNull(),
+  key: text('key').notNull(),
+  windowStart: timestamp('window_start', { withTimezone: true }).notNull(),
+  count: integer('count').notNull().default(0),
+}, (t) => [primaryKey({ name: 'rate_counters_pk', columns: [t.bucket, t.key, t.windowStart] }), index('rate_counters_window_idx').on(t.windowStart)]);
