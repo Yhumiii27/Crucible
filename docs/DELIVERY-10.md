@@ -36,5 +36,5 @@ l’installation entretient elle-même ou fait faire.
   pures (échéance, état, saisie), contrainte `maintenance_due`, intégration (`src/features/maintenance/actions.test.ts` :
   droits, refus d’un créneau après l’échéance, intervention en ajout seul qui déplace l’échéance, plan d’alerte sans blocage,
   notification unique par échéance, retrait).
-- Production build and `npm run test:smoke` (one more check: the maintenance tab).
+- Build de production et `npm run test:smoke` : un contrôle de plus (l’onglet Maintenance et étalonnage).
 - Migrations `0016_maintenance` (générée) et `0017_maintenance_append_only` (déclencheurs). Les vues `pub_` ne changent pas.
