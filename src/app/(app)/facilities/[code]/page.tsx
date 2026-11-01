@@ -16,7 +16,7 @@ import { canSee } from '@/config/screens';
 import { GRANULARITY_LABEL, RESOURCE_KIND_LABEL, RESOURCE_STATUS_LABEL, RULE_STATUS_LABEL, UNAVAILABILITY_KIND_LABEL } from '@/domain/resources';
 import { managedFacilities } from '@/domain/rights';
 import {
-  AcquisitionForm, ClosureForm, HoursForm, InspectionForm, NewResourceForm, RemoveUnavailabilityButton, ResourceStatusSelect, UnavailabilityForm,
+  AcquisitionForm, ClosureForm, HoursForm, InspectionForm, LimitsForm, NewResourceForm, RemoveUnavailabilityButton, ResourceStatusSelect, UnavailabilityForm,
 } from '@/features/resources/forms';
 import { EquipmentForm } from '@/features/planning/forms';
 import { DeviceForm, RevokeDeviceButton } from '@/features/measure/forms';
@@ -132,6 +132,7 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
                     <Th>{t('Booked by')}</Th>
                     <Th align="right">{t('Capacity')}</Th>
                     <Th align="right">{t('Preparation · restoring (min)')}</Th>
+                    <Th>{t('Booking limits')}</Th>
                     <Th>{t('Status')}</Th>
                     <Th />
                   </tr>
@@ -144,6 +145,14 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
                       <Td>{t(GRANULARITY_LABEL[r.granularity])}</Td>
                       <Td align="right" numeric>{r.capacity}</Td>
                       <Td align="right" numeric>{r.setupMinutes} · {r.teardownMinutes}</Td>
+                      <Td>
+                        {r.bufferMinutes || r.minNoticeHours || r.maxDays ? (
+                          <div className={st.cellSub}>
+                            {[r.bufferMinutes ? `${t('Free time')} ${r.bufferMinutes} min` : null, r.minNoticeHours ? `${t('Notice')} ${r.minNoticeHours} h` : null, r.maxDays ? `${t('At most')} ${r.maxDays} ${t('d')}` : null].filter(Boolean).join(' · ')}
+                          </div>
+                        ) : <span className="text-muted">—</span>}
+                        {manager && <Folded summary="Change the limits" size="xs" variant="ghost"><LimitsForm resourceId={r.id} limits={{ bufferMinutes: r.bufferMinutes, minNoticeHours: r.minNoticeHours, maxDays: r.maxDays }} /></Folded>}
+                      </Td>
                       <Td>{manager ? <ResourceStatusSelect resourceId={r.id} status={r.status} /> : t(RESOURCE_STATUS_LABEL[r.status])}</Td>
                       <Td align="right"><Link href={`/planning?facility=${encodeURIComponent(facility.code)}`}>{t('Planning')}</Link></Td>
                     </tr>

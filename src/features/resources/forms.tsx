@@ -10,7 +10,7 @@ import { useI18n } from '@/i18n/client';
 import {
   addClosureAction, addUnavailabilityAction, setAcquisitionAction, cancelBookingAction, confirmBookingAction, createResourceAction, finishBookingAction, importHistoryAction,
   markNoShowAction, proposeRuleAction, recordInspectionAction, removeUnavailabilityAction, requestBookingAction, retireRuleAction, setAgreementAction,
-  setFacilityHoursAction, setResourceStatusAction, startBookingAction, validateRuleAction,
+  setFacilityHoursAction, setResourceLimitsAction, setResourceStatusAction, startBookingAction, validateRuleAction,
 } from './actions';
 import s from './forms.module.css';
 
@@ -87,6 +87,25 @@ export function AcquisitionForm({ facilityCode, value }: { facilityCode: string;
       <input type="hidden" name="facilityCode" value={facilityCode} />
       <Field label={t('Acquisition cost (k€)')} htmlFor={`acq-${facilityCode}`}>
         <Input id={`acq-${facilityCode}`} name="acquisitionKeur" type="number" min={0} step={1} defaultValue={value ?? ''} />
+      </Field>
+    </ActionForm>
+  );
+}
+
+/** Limits of a booking of a resource (CR-078): free time between bookings, least notice, longest booking. */
+export function LimitsForm({ resourceId, limits }: { resourceId: string; limits: { bufferMinutes: number; minNoticeHours: number | null; maxDays: number | null } }) {
+  const { t } = useI18n();
+  return (
+    <ActionForm action={setResourceLimitsAction} submit="Save" done="Limits saved">
+      <input type="hidden" name="resourceId" value={resourceId} />
+      <Field label={t('Free time between two bookings (min)')} htmlFor={`lim-buf-${resourceId}`}>
+        <Input id={`lim-buf-${resourceId}`} name="bufferMinutes" type="number" min={0} max={1440} step={1} defaultValue={limits.bufferMinutes} />
+      </Field>
+      <Field label={t('Least notice of a new request (hours)')} htmlFor={`lim-not-${resourceId}`}>
+        <Input id={`lim-not-${resourceId}`} name="minNoticeHours" type="number" min={1} max={2160} step={1} defaultValue={limits.minNoticeHours ?? ''} />
+      </Field>
+      <Field label={t('Longest booking (days)')} htmlFor={`lim-max-${resourceId}`}>
+        <Input id={`lim-max-${resourceId}`} name="maxDays" type="number" min={1} max={366} step={1} defaultValue={limits.maxDays ?? ''} />
       </Field>
     </ActionForm>
   );
@@ -305,6 +324,9 @@ export function RequestBookingForm({ resources, projects, today, needs = [] }: {
       )}
       <Field label={t('Operators')} htmlFor="rq-ops">
         <Input id="rq-ops" name="operators" />
+      </Field>
+      <Field label={t('Repeat the following weeks')} htmlFor="rq-rep" hint={t('Same slot every week: each one is checked, all are requested or none.')}>
+        <Input id="rq-rep" name="repeatWeeks" type="number" min={0} max={25} step={1} defaultValue={0} />
       </Field>
     </ActionForm>
   );

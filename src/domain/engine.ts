@@ -6,7 +6,7 @@
 // a VALIDATED substitute (never another one, R-4), then late, on the block that ends first. It never moves a booking: it only
 // proposes (F-3). Same input, same proposals. Pure.
 import { addDaysIso, parisParts } from '@/lib/dates';
-import { checkBooking, type BookingFacts, type IssueCode, type RuleFacts } from './booking';
+import { checkBooking, type BookingFacts, type IssueCode, type ResourceLimits, type RuleFacts } from './booking';
 import { halfDays, overlaps, type Closure, type Interval, type WeeklyHours } from './calendar';
 import type { MilestoneCriticality } from './needs';
 import type { PriorityClass } from './organisation';
@@ -21,6 +21,8 @@ export interface EngineResource {
   capacity: number;
   status: ResourceStatus;
   granularity: Granularity;
+  /** Limits of a booking of the resource (CR-078). */
+  limits?: ResourceLimits;
 }
 
 export interface EngineNeed extends PriorityFacts {
@@ -163,11 +165,11 @@ function earliestBlock(input: EngineInput, r: EngineResource, need: EngineNeed, 
     // A test runs over consecutive open half-days: a weekend (and a bank holiday next to it) may fall inside, a shutdown may not.
     if (slots.slice(i, i + n - 1).some((s, k) => slots[i + k + 1].start - s.end > MAX_GAP_MS)) continue;
     const check = checkBooking(block, {
-      resource: { id: r.id, code: r.code, status: r.status, capacity: r.capacity, granularity: 'half_day' },
+      resource: { id: r.id, code: r.code, status: r.status, capacity: r.capacity, granularity: 'half_day', limits: r.limits },
       hours: cal.hours, closures: cal.closures,
       unavailabilities: input.unavailabilities.filter((u) => u.resourceId === r.id),
       inspections: input.inspections.filter((x) => x.resourceId === r.id),
-      bookings: fixed, rules: input.rules, now: input.now, noticeWorkdays: null,
+      bookings: fixed, rules: input.rules, now: input.now, noticeWorkdays: null, newRequest: true,
     });
     if (check.errors.length) {
       if (check.errors.every((e) => e.code === 'inspection_due')) reasons.add('inspection_due');
@@ -266,11 +268,11 @@ function traceResource(input: EngineInput, r: EngineResource, need: EngineNeed, 
       continue;
     }
     const check = checkBooking(block, {
-      resource: { id: r.id, code: r.code, status: r.status, capacity: r.capacity, granularity: 'half_day' },
+      resource: { id: r.id, code: r.code, status: r.status, capacity: r.capacity, granularity: 'half_day', limits: r.limits },
       hours: cal.hours, closures: cal.closures,
       unavailabilities: input.unavailabilities.filter((u) => u.resourceId === r.id),
       inspections: input.inspections.filter((x) => x.resourceId === r.id),
-      bookings: fixed, rules: input.rules, now: input.now, noticeWorkdays: null,
+      bookings: fixed, rules: input.rules, now: input.now, noticeWorkdays: null, newRequest: true,
     });
     if (check.errors.length) {
       const e = check.errors[0];

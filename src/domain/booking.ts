@@ -8,7 +8,7 @@ import { parisInstant, parisParts } from '@/lib/dates';
 
 export type IssueCode =
   | 'not_in_service' | 'bad_interval' | 'in_past' | 'outside_hours' | 'unavailable' | 'inspection_due' | 'capacity' | 'exclusion'
-  | 'competing_request' | 'late_request' | 'proposed_rule';
+  | 'competing_request' | 'late_request' | 'proposed_rule' | 'buffer' | 'short_notice' | 'too_long';
 
 /** EN source sentence of each issue; the page shows it with its reference (a rule code, a booking reference…). */
 export const ISSUE_LABEL: Record<IssueCode, string> = {
@@ -23,6 +23,9 @@ export const ISSUE_LABEL: Record<IssueCode, string> = {
   competing_request: 'Another request competes for this slot',
   late_request: 'Late request: less notice than agreed',
   proposed_rule: 'An exclusion rule awaiting validation concerns this slot',
+  buffer: 'Too close to another booking of the resource: free time is kept between two bookings',
+  short_notice: 'Less notice than the resource asks for a new request',
+  too_long: 'Longer than the resource allows for one booking',
 };
 
 export interface Issue {
@@ -37,6 +40,42 @@ export interface ResourceFacts {
   status: ResourceStatus;
   capacity: number;
   granularity: Granularity;
+  /** Limits of a booking of the resource (CR-078); absent = none. */
+  limits?: ResourceLimits;
+}
+
+/** Limits a facility manager sets on a resource (CR-078, X-11). */
+export interface ResourceLimits {
+  /** Free time kept between two bookings of a resource of capacity 1 (restoring, cleaning). */
+  bufferMinutes: number;
+  /** Least notice of a new request, in hours; null = none. */
+  minNoticeHours: number | null;
+  /** Most calendar days a booking may span; null = no limit. */
+  maxDays: number | null;
+}
+
+export const NO_LIMITS: ResourceLimits = { bufferMinutes: 0, minNoticeHours: null, maxDays: null };
+
+/** Checks the limits typed by a facility manager. */
+export function checkLimits(raw: Record<string, unknown>): { ok: true; value: ResourceLimits } | { ok: false; error: string } {
+  const num = (k: string) => {
+    const s = String(raw[k] ?? '').trim();
+    return s === '' ? null : Number(s);
+  };
+  const buffer = num('bufferMinutes') ?? 0;
+  const notice = num('minNoticeHours');
+  const days = num('maxDays');
+  if (!Number.isInteger(buffer) || buffer < 0 || buffer > 1440) return { ok: false, error: 'Free time between bookings: 0 to 1,440 minutes' };
+  if (notice !== null && (!Number.isInteger(notice) || notice < 1 || notice > 2160)) return { ok: false, error: 'Least notice: 1 to 2,160 hours, or empty' };
+  if (days !== null && (!Number.isInteger(days) || days < 1 || days > 366)) return { ok: false, error: 'Longest booking: 1 to 366 days, or empty' };
+  return { ok: true, value: { bufferMinutes: buffer, minNoticeHours: notice, maxDays: days } };
+}
+
+/** Calendar days a slot spans (Paris days, first and last included). */
+export function spannedDays(slot: { start: number; end: number }): number {
+  const a = parisParts(new Date(slot.start)).iso;
+  const b = parisParts(new Date(slot.end - 1)).iso;
+  return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86_400_000) + 1;
 }
 
 export interface BookingFacts {
@@ -69,6 +108,9 @@ export interface BookingContext {
   now: number;
   /** Working days of notice agreed for the requesting entity (A-3, F-5); null = none asked. */
   noticeWorkdays: number | null;
+  /** A new request (a person's request, a proposal of the engine): the resource's least notice applies (CR-078); not to a
+   * booking checked again, moved by a recovery scenario or an urgency (A-8). */
+  newRequest?: boolean;
 }
 
 export interface Candidate {
@@ -122,6 +164,14 @@ export function checkBooking(c: Candidate, ctx: BookingContext): { errors: Issue
     const by = [...new Set(partners.filter((b) => overlaps(b, c)).map((b) => b.resourceCode))].sort().join(', ');
     if (rule.status === 'validated') errors.push({ code: 'exclusion', ref: `${rule.code} · ${by}` });
     else warnings.push({ code: 'proposed_rule', ref: `${rule.code} · ${by}` });
+  }
+  const lim = r.limits ?? NO_LIMITS;
+  if (lim.maxDays != null && spannedDays(c) > lim.maxDays) errors.push({ code: 'too_long', ref: `${lim.maxDays} d` });
+  if (ctx.newRequest && lim.minNoticeHours != null && c.start < ctx.now + lim.minNoticeHours * 3_600_000) errors.push({ code: 'short_notice', ref: `${lim.minNoticeHours} h` });
+  if (lim.bufferMinutes > 0 && r.capacity === 1) {
+    const gap = lim.bufferMinutes * 60_000;
+    const near = mine.filter((b) => !overlaps(b, c) && b.start < c.end + gap && b.end > c.start - gap);
+    if (near.length) errors.push({ code: 'buffer', ref: `${lim.bufferMinutes} min · ${near.map((b) => b.ref).join(', ')}` });
   }
   for (const b of others) if (b.status === 'requested' && b.resourceId === r.id && overlaps(b, c)) warnings.push({ code: 'competing_request', ref: b.ref });
   if (ctx.noticeWorkdays != null && ctx.noticeWorkdays > 0) {

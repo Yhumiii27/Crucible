@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parisInstant } from '@/lib/dates';
 import { DEFAULT_HOURS } from './calendar';
-import { canMarkNoShow, canTransition, checkBooking, slotInterval, type BookingContext, type BookingFacts } from './booking';
+import { canMarkNoShow, canTransition, checkBooking, checkLimits, slotInterval, spannedDays, type BookingContext, type BookingFacts } from './booking';
 
 const at = (iso: string, hhmm: string) => parisInstant(iso, hhmm).getTime();
 const zone = (id: string) => ({ id, code: id, status: 'in_service' as const, capacity: 1, granularity: 'half_day' as const });
@@ -86,5 +86,42 @@ describe('slots, transitions and no-shows', () => {
     expect(canMarkNoShow(b, at('2026-10-22', '08:59'))).toBe(false);
     expect(canMarkNoShow(b, at('2026-10-22', '09:00'))).toBe(true);
     expect(canMarkNoShow({ ...b, status: 'in_progress' }, at('2026-10-22', '12:00'))).toBe(false);
+  });
+});
+
+describe('limits of a resource (CR-078, X-11)', () => {
+  const limited = (limits: { bufferMinutes: number; minNoticeHours: number | null; maxDays: number | null }) => ({ ...zone('PDE-PIL'), limits });
+  const pm = { start: at('2026-11-03', '12:00'), end: at('2026-11-03', '17:00') };
+
+  it('free time between two bookings: the next half-day is refused, the day after passes; not on a room of two places', () => {
+    const held = [booking('B-9', 'PDE-PIL', tuesdayAm.start, tuesdayAm.end)];
+    const r = checkBooking(pm, ctx({ bookings: held, resource: limited({ bufferMinutes: 60, minNoticeHours: null, maxDays: null }) }));
+    expect(r.errors).toEqual([{ code: 'buffer', ref: '60 min · B-9' }]);
+    expect(checkBooking({ start: at('2026-11-04', '07:00'), end: at('2026-11-04', '12:00') }, ctx({ bookings: held, resource: limited({ bufferMinutes: 60, minNoticeHours: null, maxDays: null }) })).errors).toEqual([]);
+    expect(checkBooking(pm, ctx({ bookings: held, resource: { ...limited({ bufferMinutes: 60, minNoticeHours: null, maxDays: null }), capacity: 2 } })).errors).toEqual([]);
+    // A request does not hold the resource: no free time owed to it.
+    expect(checkBooking(pm, ctx({ bookings: [booking('B-8', 'PDE-PIL', tuesdayAm.start, tuesdayAm.end, 'requested')], resource: limited({ bufferMinutes: 60, minNoticeHours: null, maxDays: null }) })).errors).toEqual([]);
+  });
+
+  it('least notice: only for a new request; a booking checked again or moved is not refused', () => {
+    const res = limited({ bufferMinutes: 0, minNoticeHours: 24 * 14, maxDays: null });
+    expect(checkBooking(tuesdayAm, ctx({ resource: res, newRequest: true })).errors).toEqual([{ code: 'short_notice', ref: '336 h' }]);
+    expect(checkBooking(tuesdayAm, ctx({ resource: res })).errors).toEqual([]);
+    expect(checkBooking({ start: at('2026-11-10', '07:00'), end: at('2026-11-10', '12:00') }, ctx({ resource: res, newRequest: true })).errors).toEqual([]);
+  });
+
+  it('longest booking, in calendar days spanned', () => {
+    const res = limited({ bufferMinutes: 0, minNoticeHours: null, maxDays: 2 });
+    expect(spannedDays({ start: at('2026-11-03', '07:00'), end: at('2026-11-05', '17:00') })).toBe(3);
+    expect(checkBooking({ start: at('2026-11-03', '07:00'), end: at('2026-11-04', '17:00') }, ctx({ resource: res })).errors).toEqual([]);
+    expect(checkBooking({ start: at('2026-11-03', '07:00'), end: at('2026-11-05', '17:00') }, ctx({ resource: res })).errors).toEqual([{ code: 'too_long', ref: '2 d' }]);
+  });
+
+  it('limits typed by a manager', () => {
+    expect(checkLimits({ bufferMinutes: '30', minNoticeHours: '', maxDays: '5' })).toEqual({ ok: true, value: { bufferMinutes: 30, minNoticeHours: null, maxDays: 5 } });
+    expect(checkLimits({})).toEqual({ ok: true, value: { bufferMinutes: 0, minNoticeHours: null, maxDays: null } });
+    expect(checkLimits({ bufferMinutes: '-1' }).ok).toBe(false);
+    expect(checkLimits({ minNoticeHours: '0' }).ok).toBe(false);
+    expect(checkLimits({ maxDays: '1.5' }).ok).toBe(false);
   });
 });
