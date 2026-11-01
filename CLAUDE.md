@@ -50,16 +50,63 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in
   step with it and rebuild the page with `npm run questionnaire:page`. 22 Oct 2026: 56 defaults confirmed, P-2 answered
   (above); the data D-1 to D-11 are still to come. Delivery 2 added F-10, R-10, P-7, delivery 3 F-11, F-12, F-13, S-7,
-  delivery 4 R-11, A-9, F-14 (defaults applied).
+  delivery 4 R-11, A-9, F-14, delivery 5 P-8, P-9, A-10, F-15, delivery 6 I-5, I-6 (confirmed 23 Oct 2026), pilot P-10, X-7 (defaults applied).
 - **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
   run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
   and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
   as `url`).
 - **Requests sent to other repos** (22 Oct 2026, validated by the owner): Keystone K-2 `pub_jalons` (Keystone#22, merged),
   Cursus CU-1 `pub_absences` (Cursus#15, merged), Vigie V-1 `pub_controles` (Vigie#12), Matrix M-7 (copy `pub_moyens`,
-  `pub_reservations` into `partage/80-crucible.sql`, Matrix#17).
-- Next: delivery 5 (incidents and recovery scenarios, before / after per project, what-if simulations, urgencies, notifications,
-  weekly snapshots), see `docs/PLAN.md`.
+  `pub_reservations` into `partage/80-crucible.sql`, Matrix#17); Matrix M-8 (copy `pub_occupation_hebdo`, grant to
+  `matrix_app`), validated 23 Oct 2026, added to the same PR Matrix#17 (merged 23 Oct 2026).
+- **Delivery 5 (incidents, scenarios, full steering) is done** (`docs/DELIVERY-5.md`): incidents (breakdown → unavailability,
+  absence; `AL-AAAA-NNNN`) and their recovery scenario computed at once (`src/domain/recovery.ts`, `src/server/planning/scenarios.ts`:
+  only the confirmed bookings touched move; before / after per project), accepted by the coordinator of every facility touched or
+  the R&D director (every move checked again, A-10), what-if simulations (never applied), urgencies (A-8: displaced bookings go
+  after the urgent test), notifications — bell and e-mail by the worker (`src/server/notify/`, `CRUCIBLE_MAIL_TRANSPORT`, F-15),
+  arbitration reminders, weekly recap —, weekly snapshots kept once per completed week (`snapshots.ts`, view
+  `pub_occupation_hebdo`), value of the unused capacity (facility acquisition cost, P-8) and delays due to the resources (P-9) on
+  `/dashboard`. Screens `/incidents`, `/notifications`.
+- **Delivery 5b (interface faithful to Keystone) is done** (`docs/DELIVERY-5b.md`, mockups validated 23 Oct 2026,
+  https://claude.ai/artifact/NCPJzxcCPuXWFxPL36CvJS; X-5, X-6): menu by theme with ⌘K page search and counts, a Facility section
+  with the facility switcher and the sheet's tabs (`src/config/facility-tabs.ts`), Keystone's page header (`header-tools.tsx`:
+  global search `src/server/actions/search.ts` under U-3, bell, status date, FR/EN, CSV export `src/app/api/export/[screen]`),
+  every form in a side panel (`Folded` of `ActionForm.tsx`), "To decide" (`/my/decisions`, `src/server/dal/decisions.ts`), load
+  heat map (`src/features/load/`). New screens follow the same layout: page actions as `PageHeader primary`, filters and period
+  navigation as `toolbar` (`PeriodNav`, `Segmented` with `href`), no form shown open in a page.
+- **Delivery 6 (AI assistant) is done** (`docs/DELIVERY-6.md`; I-1 to I-4 applied, I-5 and I-6 added): a conversation panel on every
+  screen (`src/features/assistant/panel.tsx`, mounted once in the app layout; "Why?" / "Explain" shortcuts on proposals and
+  conflicts). It reads with the asker's rights through the lookups of `src/server/assistant/facts.ts` (engine trace `traceNeed`
+  in `src/domain/engine.ts`, conflict sheet, validated alternatives, load risks, what-if built and dropped, need draft checked
+  like the form) and writes nothing in the planning: a need draft opens the needs form (`/my/needs?draft=`), arbitration minutes
+  open the decision (`/conflicts?turn=`), and the person's write cites the exchange in the audit trail (`citationOf`). Without a
+  provider (default) rule-based templates answer (`src/server/assistant/local.ts`, `src/domain/assistant-intents.ts`); Claude
+  (`src/server/assistant/claude.ts`) only with `CRUCIBLE_AI=claude` and `ANTHROPIC_API_KEY`, once the IT department has validated
+  the provider (I-3); the `external` audience never names a confidential project (I-4). Exchanges are append-only
+  (`assistant_conversations`, `assistant_turns`); Claude's messages are resent verbatim on the next turns. Never give the
+  assistant a tool that writes.
+- **Pilot prepared** (23 Oct 2026, `docs/PILOTE.md`; P-10, X-7 added; I-5, I-6 confirmed): screen `/pilot` (`src/domain/pilot.ts`,
+  `src/server/dal/pilot.ts`, `src/features/pilot/`): the R&D director sets the first day, length and facilities (app_settings
+  `crucible.pilot`, audited), a checklist of the start computed from what is recorded, and the reference measure (weeks before
+  the start, from the imported history) compared with the pilot so far (X-2; usage shared with the dashboard through
+  `resourceUsages`). The start waits on outside prerequisites: the workshop and the data D-1 to D-11, hosting (T-6), the Entra
+  registration, M-6 (Matrix). Claude's activation waits on the IT department (I-3).
+- **Delivery 7 (measured occupancy, Outlook / Teams calendars) is done** (`docs/DELIVERY-7.md`; CR-071 and CR-072 of the
+  comparative analysis, X-8 and X-9 added): occupancy devices (kiosk `/kiosk/<token>`, `POST /api/occupancy` with a Bearer
+  device token for a bench agent, an interlock or a badge reader; `src/domain/occupancy.ts` matches each start / stop to the
+  booking of the resource, else a use without a booking, never counted; events append-only; facility tab "measurement"); real
+  e-mail (`CRUCIBLE_MAIL_TRANSPORT` smtp | graph, `src/server/notify/mail.ts`, nodemailer composes the MIME), calendar
+  invitations attached to booking notifications (`notifications.booking_id`, `src/domain/ics.ts`), subscription feeds
+  `/api/calendar/<token>.ics` read with the owner's rights (`src/server/calendar.ts`). Device and feed tokens are shown once
+  and stored as SHA-256 hashes (`src/server/http/tokens.ts`); their routes are `TOKEN_PATHS` of `src/domain/auth.ts` (no
+  session).
+- **Delivery 8 (reading the other tools, CR-060) is done** (`docs/DELIVERY-8.md`, X-10 added): `keystone.pub_jalons`,
+  `cursus.pub_absences` and `vigie.pub_controles` are copied into Crucible's tables with their source (`keystone`, `cursus`,
+  `vigie`) every hour by the job `connectors-read` and on demand ("Read now", `/admin/connectors`), once granted
+  (`src/server/integrations/connectors.ts`; a view not readable is a state). A row read from another tool is changed there:
+  the Server Functions refuse it in Crucible. Codex references (protocols, reports, risk analyses, substitution justifications)
+  show the state of their document read at display time from `codex.pub_documents` (`src/server/dal/codex.ts`,
+  `CodexRef`; revision in force or a warning, never the title).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 
@@ -71,6 +118,14 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   never writes on its own and never proposes an unvalidated substitution or touches a safety rule.
 - Crucible writes only in its schema (`crucible`, role `crucible_app`, T-1) and reads other tools only through their
   `pub_` views. Its own `pub_` views are contracts: never drop or rename a column; new columns go at the end.
+- **Access between tools is decided by Matrix (M-17, applied 31 Oct 2026; inventory `docs/ECHANGES.md`)**: a `pub_` view
+  is defined only in its owner's migration (never ask Matrix to copy one into `partage/`); Crucible writes in another tool
+  only through its API or a `pub_` function it provides, never by `INSERT` / `UPDATE` / `DELETE`; a tool that must write in
+  Crucible gets an API or a migration's `crucible.pub_<verb>_<object>` function (`SECURITY DEFINER`,
+  `SET search_path = crucible, pg_temp`, caller from `session_user`, Crucible's rules, lock and audit applied,
+  `REVOKE EXECUTE … FROM PUBLIC`, signature never changed; it never confirms or moves a booking). A new exchange is declared
+  as a link of Matrix's registry (`matrix.liens`: reader, `schema.pub_…` object, `lecture` | `execution`, reason) — through
+  `POST /api/liens` once Matrix ships it, until then a short entry in Matrix's `REQUESTS.md`, after the owner's « validé ».
 - Copy only the **platform** (T-4: as adapted by Arche, origin commits recorded in `docs/SOCLE.md`), never business modules.
 - Pure rules (calendars, hard constraints, conflicts, load, engine) live in `src/domain/` with value tests; indicators are
   computed, never stored; one business clock.

@@ -3,6 +3,8 @@
 // S-6). A project outside the viewer's visibility does not exist (404). Those who enter the project's needs (canManageNeeds)
 // edit them here.
 import { notFound } from 'next/navigation';
+import { Folded } from '@/components/app/ActionForm';
+import { CodexRef } from '@/components/app/CodexRef';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
@@ -18,6 +20,7 @@ import { NeedsTable } from '@/features/needs/needs-table';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate, fmtSlot } from '@/lib/format';
 import { businessToday } from '@/server/clock';
+import { codexLookup } from '@/server/dal/codex';
 import { projectSheet } from '@/server/dal/needs';
 import { getI18n, getViewer } from '@/server/session';
 
@@ -29,13 +32,24 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[code
   if (!sheet) notFound();
   const { project, manage } = sheet;
   const runs = operatedFacilities(viewer.role, viewer.assignments);
+  const codex = await codexLookup(sheet.bookings.map((b) => b.codexRef));
   const milestones = sheet.milestones.map((m) => ({ id: m.id, projectCode: m.projectCode, label: dataText(m.label, lang), dueOn: m.dueOn, criticality: m.criticality }));
   const resources = sheet.choices.resources.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang) }));
   const testTypes = sheet.choices.testTypes.map((x) => ({ ...x, name: dataText(x.name, lang) }));
   const links = [project.keystoneCode && `Keystone ${project.keystoneCode}`, project.codexProgramCode && `Codex ${project.codexProgramCode}`].filter(Boolean).join(' · ');
   return (
     <>
-      <PageHeader screen="project" title={dataText(project.name, lang)} crumbs={['Projects']} crumbData={project.code} />
+      <PageHeader screen="project" title={dataText(project.name, lang)} crumbs={['Projects']} crumbData={project.code}
+        primary={manage ? (
+          <>
+            <Folded summary="Add a milestone" size="md"><MilestoneForm projectCode={project.code} /></Folded>
+            <Folded summary="Record a need" variant="primary" size="md">
+              <p className="text-muted">{t('A request is made at least 10 working days before the test (F-5); a late request is accepted when there is room, and counted.')}</p>
+              <NeedForm projects={[{ code: project.code, name: dataText(project.name, lang) }]} milestones={milestones} resources={resources} testTypes={testTypes} today={today} />
+            </Folded>
+          </>
+        ) : undefined}
+      />
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', fontSize: 13 }}>
         <span>{dataText(project.entityName, lang)}</span>
         <Tag size="sm">{t(PRIORITY_CLASS_LABEL[project.priorityClass])}</Tag>
@@ -70,17 +84,11 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[code
         ) : (
           <EmptyState>{t('No milestone yet.')}</EmptyState>
         )}
-        {manage && <MilestoneForm projectCode={project.code} />}
       </SectionCard>
 
       <SectionCard title={t('Test needs')} hint={String(sheet.needs.filter((n) => n.status === 'open').length)} subtitle={t('Forecasts and requests; the part not booked yet is the load the forecast counts.')} scroll>
         <NeedsTable needs={sheet.needs} manage={manage} edit={{ projects: [{ code: project.code, name: dataText(project.name, lang) }], milestones, resources, testTypes, today }} />
       </SectionCard>
-      {manage && (
-        <SectionCard title={t('Record a need')} subtitle={t('A request is made at least 10 working days before the test (F-5); a late request is accepted when there is room, and counted.')}>
-          <NeedForm projects={[{ code: project.code, name: dataText(project.name, lang) }]} milestones={milestones} resources={resources} testTypes={testTypes} today={today} />
-        </SectionCard>
-      )}
 
       <SectionCard title={t('Bookings')} hint={String(sheet.bookings.length)} scroll>
         {sheet.bookings.length ? (
@@ -107,7 +115,8 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[code
                   </Td>
                   <Td valign="top"><Tag size="sm" tone={b.status === 'confirmed' || b.status === 'in_progress' ? 'accent' : b.status === 'requested' ? 'outline' : 'neutral'}>{t(BOOKING_STATUS_LABEL[b.status])}</Tag></Td>
                   <Td valign="top">
-                    {b.status === 'done' && (manage || runs.includes(b.facilityCode)) ? <ReportRefForm bookingId={b.id} codexRef={b.codexRef} /> : (b.codexRef ?? '—')}
+                    {b.status === 'done' && (manage || runs.includes(b.facilityCode)) ? <ReportRefForm bookingId={b.id} codexRef={b.codexRef} /> : !b.codexRef && '—'}
+                    {b.codexRef && <div className="text-muted"><CodexRef refText={b.codexRef} lookup={codex} t={t} /></div>}
                   </Td>
                 </tr>
               ))}

@@ -1,12 +1,19 @@
 // Resource planning (docs/spec/05 "Planning des moyens"): the week of every resource the viewer sees, by half-day — held,
 // requested, blocked by a validated exclusion rule (P-2: one zone of the PDE at a time), unavailable or closed —, the bookings
 // of the week with the actions the viewer may take, the request form, and the history import for the coordinator (F-9).
-// What a booking is for is shown only to those who may see its project (U-3).
+// What a booking is for is shown only to those who may see its project (U-3). Delivery 5b (Keystone's layout): the facility
+// filter and the week navigation under the header, the request and the history import in side panels, the week's figures, and
+// a warning for a request that a validated exclusion rule will refuse at confirmation.
+import { Warning } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Folded } from '@/components/app/ActionForm';
 import { EmptyState } from '@/components/app/EmptyState';
+import { KpiGrid, KpiTile } from '@/components/app/Kpi';
+import { PeriodNav } from '@/components/app/PeriodNav';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
+import { Segmented } from '@/components/ds/Segmented';
 import { Tag } from '@/components/ds/Tag';
 import { Table, Td, Th } from '@/components/ds/Table';
 import { canSee } from '@/config/screens';
@@ -33,7 +40,18 @@ export default async function PlanningPage({ searchParams }: PageProps<'/plannin
   if (!canSee(viewer.role, 'planning')) notFound();
   const asked = typeof sp.week === 'string' && isIsoDate(sp.week) ? sp.week : today;
   const monday = mondayOf(asked);
-  const week = await planningWeek(viewer, monday);
+  const all = await planningWeek(viewer, monday);
+  const only = typeof sp.facility === 'string' && all.facilities.some((f) => f.code === sp.facility) ? sp.facility : null;
+  const week = only ? { ...all, facilities: all.facilities.filter((f) => f.code === only), resources: all.resources.filter((r) => r.facilityCode === only), plan: all.plan.filter((b) => b.facilityCode === only) } : all;
+  const href = (o: { week?: string; facility?: string | null }) => {
+    const q = new URLSearchParams();
+    const w = o.week ?? monday;
+    if (w !== mondayOf(today)) q.set('week', w);
+    const f = o.facility === undefined ? only : o.facility;
+    if (f) q.set('facility', f);
+    const qs = q.toString();
+    return `/planning${qs ? `?${qs}` : ''}`;
+  };
   const days = Array.from({ length: 5 }, (_, i) => addDaysIso(monday, i));
   const grid = weekGrid({ monday, resources: week.resources, calendars: week.calendars, bookings: week.plan, unavailabilities: week.unavailabilities, rules: week.rules });
   const byId = new Map(week.plan.map((b) => [b.id, b]));
@@ -45,16 +63,78 @@ export default async function PlanningPage({ searchParams }: PageProps<'/plannin
   const what = (b: PlanBooking) => (b.projectCode ? `${b.projectCode} · ${dataText(b.title ?? '', lang)}` : b.confidential ? t('Booked (confidential)') : `${t('Booked')} · ${b.entityCode}`);
   const short = (b: PlanBooking) => b.projectCode ?? (b.confidential ? t('Confidential') : b.entityCode);
   const dayLabel = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', { weekday: 'short', day: '2-digit', month: '2-digit' });
+  const cells = [...grid.values()].flat();
+  const blockedHalves = cells.filter((c) => c.state === 'blocked').length;
+  const unavailableHalves = cells.filter((c) => c.state === 'unavailable').length;
+  const requested = week.plan.filter((b) => b.status === 'requested');
+  // A request on a half-day a validated rule blocks will be refused at confirmation: say so now.
+  const refused = requested.flatMap((b) => {
+    const c = (grid.get(b.resourceId) ?? []).find((x) => x.state === 'blocked' && x.bookingIds.includes(b.id));
+    return c ? [{ b, rule: c.reason?.split(' · ')[0] ?? '' }] : [];
+  });
+  const counts = new Map<string, number>();
+  for (const r of all.resources) counts.set(r.facilityCode, (counts.get(r.facilityCode) ?? 0) + 1);
+  const canRequest = bookable.length > 0 && choices.projects.length > 0;
 
   return (
     <>
-      <PageHeader screen="planning" />
-      <div className={s.nav}>
-        <Link href={`/planning?week=${addDaysIso(monday, -7)}`}>← {t('Previous week')}</Link>
-        <strong>{t('Week of')} {fmtDate(monday, lang)}</strong>
-        <Link href={`/planning?week=${addDaysIso(monday, 7)}`}>{t('Next week')} →</Link>
-        {monday !== mondayOf(today) && <Link href="/planning">{t('This week')}</Link>}
-      </div>
+      <PageHeader
+        screen="planning"
+        crumbs={['Planning']}
+        toolbar={
+          <>
+            {all.facilities.length > 1 && (
+              <Segmented
+                label={t('Facility')}
+                value={only ?? 'all'}
+                options={[
+                  { value: 'all', label: t('All'), count: all.resources.length, href: href({ facility: null }) },
+                  ...all.facilities.map((f) => ({ value: f.code, label: dataText(f.name, lang), count: counts.get(f.code) ?? 0, href: href({ facility: f.code }) })),
+                ]}
+              />
+            )}
+            <PeriodNav
+              back={{ href: href({ week: addDaysIso(monday, -7) }), label: t('Previous week') }}
+              current={monday !== mondayOf(today) ? { href: href({ week: mondayOf(today) }), label: t('This week') } : null}
+              forward={{ href: href({ week: addDaysIso(monday, 7) }), label: t('Next week') }}
+              period={`${fmtDate(monday, lang)} → ${fmtDate(addDaysIso(monday, 4), lang)}`}
+            />
+          </>
+        }
+        primary={
+          <>
+            {viewer.role === 'coordinator' && (
+              <Folded summary="Import the history" size="md">
+                <p className="text-muted">{t('Past bookings of your facilities, for the reference measure of the utilisation (F-9).')}</p>
+                <ImportHistoryForm />
+              </Folded>
+            )}
+            {canRequest && (
+              <Folded summary="Request a slot" variant="primary" size="md">
+                <p className="text-muted">{t('Every hard constraint is checked: opening hours, unavailabilities, inspections, capacity, validated exclusion rules. A manager of the facility then confirms.')}</p>
+                <RequestBookingForm resources={bookable.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang), granularity: r.granularity }))} projects={choices.projects.map((p) => ({ code: p.code, name: dataText(p.name, lang) }))} today={today}
+                  needs={needs.map((n) => ({ ...n, title: dataText(n.title, lang) }))} />
+              </Folded>
+            )}
+          </>
+        }
+      />
+
+      <KpiGrid min={190}>
+        <KpiTile label={t('Bookings of the week')} value={week.plan.length} size="lg" sub={`${week.plan.length - requested.length} ${t('held')} · ${requested.length} ${t('requested')}`} />
+        <KpiTile label={t('Requests to confirm')} value={requested.length} size="lg" sub={refused.length ? `${refused.length} ${t('refused by a rule at confirmation')}` : t('None refused by a rule')} />
+        <KpiTile label={t('Blocked by a rule')} value={blockedHalves} size="lg" sub={t('free half-days a validated rule forbids')} />
+        <KpiTile label={t('Unavailable')} value={unavailableHalves} size="lg" sub={t('half-days: breakdowns, maintenance, inspections')} />
+      </KpiGrid>
+
+      {refused.map(({ b, rule }) => (
+        <div key={b.id} className={s.warning} role="note">
+          <Warning size={18} className={s.warnIcon} />
+          <span className={s.warnText}>
+            <strong>{b.ref}</strong> · {b.resourceCode} · {fmtSlot(b.start, b.end, lang)} — {t('this request overlaps a half-day blocked by a validated exclusion rule: it will be refused at confirmation')} ({rule}).
+          </span>
+        </div>
+      ))}
 
       <SectionCard title={t('Resources by half-day')} actions={
         <div className={s.legend}>
@@ -165,18 +245,6 @@ export default async function PlanningPage({ searchParams }: PageProps<'/plannin
         )}
       </SectionCard>
 
-      {bookable.length > 0 && choices.projects.length > 0 && (
-        <SectionCard title={t('Request a slot')} subtitle={t('Every hard constraint is checked: opening hours, unavailabilities, inspections, capacity, validated exclusion rules. A manager of the facility then confirms.')}>
-          <RequestBookingForm resources={bookable.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang), granularity: r.granularity }))} projects={choices.projects.map((p) => ({ code: p.code, name: dataText(p.name, lang) }))} today={today}
-            needs={needs.map((n) => ({ ...n, title: dataText(n.title, lang) }))} />
-        </SectionCard>
-      )}
-
-      {viewer.role === 'coordinator' && (
-        <SectionCard title={t('Import the history')} subtitle={t('Past bookings of your facilities, for the reference measure of the utilisation (F-9).')}>
-          <ImportHistoryForm />
-        </SectionCard>
-      )}
     </>
   );
 }

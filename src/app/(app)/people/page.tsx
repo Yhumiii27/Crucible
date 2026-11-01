@@ -3,6 +3,7 @@
 // their facilities; the skill catalogue is kept by the coordinator and the R&D director, who may read the titles held from
 // Cursus once its view is granted (skills mapped to a Cursus title, people with a matricule).
 import { notFound } from 'next/navigation';
+import { Folded } from '@/components/app/ActionForm';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
@@ -27,7 +28,13 @@ export default async function PeoplePage() {
   const skillOpts = data.skills.filter((s) => s.active).map((s) => ({ value: s.code, label: `${s.code} · ${dataText(s.name, lang)}` }));
   return (
     <>
-      <PageHeader screen="people" />
+      <PageHeader screen="people"
+        primary={mine.length > 0 ? (
+          <Folded summary="Add a person" variant="primary" size="md">
+            <PersonForm entities={refs.entities.map((e) => ({ value: e.code, label: dataText(e.name, lang) }))} facilities={mine.map((f) => ({ value: f, label: f }))} />
+          </Folded>
+        ) : undefined}
+      />
       <SectionCard title={t('People who run the tests')} hint={String(data.people.length)} subtitle={t('The engine assigns people holding the skills a test type asks, present and on one test at a time (F-7).')} scroll>
         {data.people.length ? (
           <Table>
@@ -56,17 +63,17 @@ export default async function PeoplePage() {
                           {keeps && s.source !== 'cursus' && <> <RemoveSkillButton personId={p.id} skillCode={s.skillCode} /></>}
                         </div>
                       ))}
-                      {keeps && <PersonSkillForm personId={p.id} skills={skillOpts} />}
+                      {keeps && <Folded summary="Give a skill" size="xs" variant="ghost"><PersonSkillForm personId={p.id} skills={skillOpts} /></Folded>}
                     </Td>
                     <Td valign="top">
                       {p.absences.map((a) => (
                         <div key={a.id}>
                           {fmtDate(a.fromOn, lang)} → {fmtDate(a.toOn, lang)}
-                          {keeps && <> <RemoveAbsenceButton id={a.id} /></>}
+                          {a.source === 'cursus' ? <> <Tag size="sm" tone="outline">Cursus</Tag></> : keeps && <> <RemoveAbsenceButton id={a.id} /></>}
                         </div>
                       ))}
                       {!p.absences.length && <span className="text-muted">—</span>}
-                      {keeps && <AbsenceForm personId={p.id} />}
+                      {keeps && <Folded summary="Add an absence" size="xs" variant="ghost"><AbsenceForm personId={p.id} /></Folded>}
                     </Td>
                   </tr>
                 );
@@ -75,9 +82,6 @@ export default async function PeoplePage() {
           </Table>
         ) : (
           <EmptyState>{t('No person yet.')}</EmptyState>
-        )}
-        {mine.length > 0 && (
-          <PersonForm entities={refs.entities.map((e) => ({ value: e.code, label: dataText(e.name, lang) }))} facilities={mine.map((f) => ({ value: f, label: f }))} />
         )}
       </SectionCard>
 
@@ -102,8 +106,10 @@ export default async function PeoplePage() {
         </Table>
         {canEditSkills(viewer.role) && (
           <>
-            <SkillForm />
-            <div><CursusSyncButton /></div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <Folded summary="Add a skill"><SkillForm /></Folded>
+              <CursusSyncButton />
+            </div>
           </>
         )}
       </SectionCard>

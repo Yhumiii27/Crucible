@@ -1,6 +1,7 @@
 // Users & roles (docs/spec/05): accounts and their role assignments with their scope; the administrator creates accounts,
 // gives and removes roles, deactivates accounts (src/features/admin/actions.ts checks each one again).
 import { notFound } from 'next/navigation';
+import { Folded } from '@/components/app/ActionForm';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
 import { Table, Td, Th } from '@/components/ds/Table';
@@ -18,10 +19,14 @@ export default async function UsersPage() {
   const [rows, refs] = await Promise.all([usersWithAssignments(), referenceLists()]);
   return (
     <>
-      <PageHeader screen="admin-users" crumbs={['Administration']} />
-      <SectionCard title={t('New account')} subtitle={t('The person signs in with their Microsoft account; give them a role below.')}>
-        <NewUserForm entities={refs.entities.map((x) => ({ code: x.code, name: dataText(x.name, lang) }))} />
-      </SectionCard>
+      <PageHeader screen="admin-users" crumbs={['Administration']}
+        primary={
+          <Folded summary="New account" variant="primary" size="md">
+            <p className="text-muted">{t('The person signs in with their Microsoft account; give them a role below.')}</p>
+            <NewUserForm entities={refs.entities.map((x) => ({ code: x.code, name: dataText(x.name, lang) }))} />
+          </Folded>
+        }
+      />
       <SectionCard title={t('Accounts')} hint={String(rows.length)} scroll>
         <Table>
           <thead>

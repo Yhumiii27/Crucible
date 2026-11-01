@@ -2,6 +2,7 @@
 // administrator until Matrix owns the sites and the entities (M-6); projects are also recorded by the R&D director, who sets
 // their priority class (A-1, A-5).
 import { notFound } from 'next/navigation';
+import { Folded } from '@/components/app/ActionForm';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
 import { Table, Td, Th } from '@/components/ds/Table';
@@ -40,7 +41,7 @@ export default async function OrganisationPage() {
             ))}
           </tbody>
         </Table>
-        {admin && <NewEntityForm />}
+        {admin && <div><Folded summary="Add an entity"><NewEntityForm /></Folded></div>}
       </SectionCard>
       <SectionCard title={t('Sites')} scroll>
         <Table>
@@ -63,7 +64,7 @@ export default async function OrganisationPage() {
             ))}
           </tbody>
         </Table>
-        {admin && <NewSiteForm />}
+        {admin && <div><Folded summary="Add a site"><NewSiteForm /></Folded></div>}
       </SectionCard>
       <SectionCard title={t('Facilities')} scroll>
         <Table>
@@ -89,11 +90,13 @@ export default async function OrganisationPage() {
           </tbody>
         </Table>
         {admin && (
-          <NewFacilityForm
-            sites={org.sites.map(ref)}
-            internal={org.entities.filter((e) => e.kind === 'internal').map(ref)}
-            partners={org.entities.filter((e) => e.kind === 'partner').map(ref)}
-          />
+          <div><Folded summary="Add a facility">
+            <NewFacilityForm
+              sites={org.sites.map(ref)}
+              internal={org.entities.filter((e) => e.kind === 'internal').map(ref)}
+              partners={org.entities.filter((e) => e.kind === 'partner').map(ref)}
+            />
+          </Folded></div>
         )}
       </SectionCard>
       <SectionCard title={t('Projects')} scroll>
@@ -119,7 +122,7 @@ export default async function OrganisationPage() {
             ))}
           </tbody>
         </Table>
-        <NewProjectForm entities={org.entities.map(ref)} />
+        <div><Folded summary="Add a project"><NewProjectForm entities={org.entities.map(ref)} /></Folded></div>
       </SectionCard>
     </>
   );

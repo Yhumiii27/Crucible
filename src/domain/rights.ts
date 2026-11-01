@@ -168,3 +168,7 @@ export const peopleFacilities = (role: RoleKey, assignments: readonly RoleAssign
 
 /** Who keeps the skill catalogue: the coordinator and the R&D director (as the test type catalogue, F-13). */
 export const canEditSkills = (role: RoleKey) => role === 'coordinator' || role === 'rd_director';
+
+/** Who reads the other tools' views on demand (CR-060; the job worker reads them every hour): the administrator, the coordinator
+ * and the R&D director. */
+export const canReadConnectors = (role: RoleKey) => role === 'admin' || role === 'coordinator' || role === 'rd_director';

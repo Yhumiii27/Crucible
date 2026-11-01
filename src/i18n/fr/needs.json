@@ -56,7 +56,6 @@
   "State": "État",
   "Views Crucible reads": "Vues lues par Crucible",
   "Views Crucible publishes": "Vues publiées par Crucible",
-  "Until a view is readable, Crucible works from what is entered in it. Rights are granted by Matrix.": "Tant qu’une vue n’est pas lisible, Crucible travaille avec ce qui y est saisi. Les droits sont accordés par Matrix.",
   "Contracts: a column is never removed nor renamed; new columns go at the end.": "Contrats : une colonne n’est jamais retirée ni renommée ; les nouvelles colonnes vont à la fin.",
   "Readable": "Lisible",
   "Not granted to Crucible": "Non accordée à Crucible",
@@ -152,5 +151,19 @@
   "Weeks (by their Monday) of the next quarter under 30 % of the capacity: slots to offer to the projects that could move their tests forward.": "Semaines (par leur lundi) du prochain trimestre sous 30 % de la capacité : créneaux à proposer aux projets qui pourraient avancer leurs essais.",
   "Inspections to renew before the planned tests": "Contrôles à renouveler avant les essais prévus",
   "A slot ending after an inspection’s due date is refused until the new inspection is recorded (R-10).": "Un créneau qui finit après l’échéance d’un contrôle est refusé tant que le nouveau contrôle n’est pas saisi (R-10).",
-  "due": "échéance"
+  "due": "échéance",
+  "Until a view is readable, Crucible works from what is entered in it. Keystone milestones, Cursus absences and Vigie inspections are read every hour once readable. Rights are granted by Matrix.": "Tant qu’une vue n’est pas lisible, Crucible travaille avec ce qui y est saisi. Les jalons de Keystone, les absences de Cursus et les contrôles de Vigie sont lus toutes les heures dès qu’ils sont lisibles. Les droits sont accordés par Matrix.",
+  "Read now": "Lire maintenant",
+  "Only the administrator, the coordinator or the R&D director reads the other tools": "Seuls l’administrateur, le coordinateur ou le directeur R&D lisent les autres outils",
+  "Keystone milestones": "Jalons de Keystone",
+  "Cursus absences": "Absences de Cursus",
+  "Vigie inspections": "Contrôles de Vigie",
+  "not readable yet": "pas encore lisible",
+  "This absence comes from Cursus: change it there": "Cette absence vient de Cursus : modifiez-la dans Cursus",
+  "This inspection comes from Vigie: record it there": "Ce contrôle vient de Vigie : enregistrez-le dans Vigie",
+  "record in Vigie the inspection": "enregistrer dans Vigie le contrôle",
+  "No revision in force in Codex": "Aucune révision en vigueur dans Codex",
+  "Obsolete in Codex": "Obsolète dans Codex",
+  "Archived in Codex": "Archivé dans Codex",
+  "Unknown in Codex": "Inconnu de Codex"
 }

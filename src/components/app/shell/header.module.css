@@ -228,7 +228,7 @@
 
 .hit {
   display: grid;
-  grid-template-columns: 110px minmax(0, 1fr);
+  grid-template-columns: 124px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
   padding: 7px 8px;
@@ -401,7 +401,30 @@
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
+}
+
+/* "Next step" band under the header of a CAPEX page. */
+.nextStep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-accent-800);
+  background: color-mix(in srgb, var(--color-accent-900) 70%, transparent);
+}
+
+.nextText {
+  flex: 1;
+  font-size: 13.5px;
+  color: var(--color-accent-100);
+}
+
+.nextText strong {
+  font-weight: 600;
 }
 
 /* R-139 "View as client" (secondary): a link styled as a button; icon only on tablets (R-146) to keep the actions on one row. */
@@ -495,4 +518,26 @@
   .searchIcon {
     top: 13px;
   }
+}
+
+/* Row under the header (delivery 5b): filters and period navigation on the left, the page's actions on the right. */
+.pageBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: -6px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+a.notifFoot {
+  color: var(--color-accent-300);
+  text-decoration: none;
 }

@@ -1,6 +1,7 @@
 # 04 — Assistant IA
 
-> Proposition (livraison 0). Points ouverts : I-1 à I-4 de [`../DECISIONS.md`](../DECISIONS.md).
+> Proposition (livraison 0). I-1 à I-4 confirmés le 22 oct. 2026 ; **livré en L6** ([`../DELIVERY-6.md`](../DELIVERY-6.md)), avec
+> les questions I-5 et I-6 de [`../DECISIONS.md`](../DECISIONS.md).
 
 ## 1. Principe : un agent qui s’appuie sur le moteur, jamais à sa place
 

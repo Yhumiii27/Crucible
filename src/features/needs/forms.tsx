@@ -3,7 +3,7 @@
 // reference of a test report. Each submits to its Server Function and shows the translated result and warnings; the Server
 // Functions do every check again.
 import { useState } from 'react';
-import { ActionButton, ActionForm } from '@/components/app/ActionForm';
+import { ActionButton, ActionForm, Folded } from '@/components/app/ActionForm';
 import { Field, Input, Select, Textarea } from '@/components/ds/Field';
 import { MILESTONE_CRITICALITIES, MILESTONE_CRITICALITY_LABEL, NEED_LEVELS, NEED_LEVEL_LABEL, type MilestoneCriticality, type NeedLevel } from '@/domain/needs';
 import { useI18n } from '@/i18n/client';
@@ -11,7 +11,6 @@ import {
   addMilestoneAction, createNeedAction, createTestTypeAction, removeMilestoneAction, setReportRefAction, setTestTypeActiveAction, updateMilestoneAction, updateNeedAction,
   withdrawNeedAction,
 } from './actions';
-import s from '../resources/forms.module.css';
 
 export interface MilestoneRef {
   id: string;
@@ -42,13 +41,11 @@ export function MilestoneForm({ projectCode, milestone }: { projectCode: string;
 }
 
 export function EditMilestone({ milestone }: { milestone: MilestoneRef }) {
-  const { t } = useI18n();
   return (
-    <details className={s.fold}>
-      <summary>{t('Change')}</summary>
+    <Folded summary="Change" size="xs" variant="ghost">
       <MilestoneForm projectCode={milestone.projectCode} milestone={milestone} />
       <ActionButton run={() => removeMilestoneAction(milestone.id)} label="Remove the milestone" done="Milestone removed" variant="ghost" />
-    </details>
+    </Folded>
   );
 }
 
@@ -84,11 +81,14 @@ export interface NeedValues {
  * A need (spec 03 §6): a forecast or a request, on a resource, its length in half-days, from its earliest date to its
  * deadline — or to the milestone it serves. Choosing a test type proposes its nominal resource and usual length.
  */
-export function NeedForm({ projects, milestones, resources, testTypes, today, need }: {
+export function NeedForm({ projects, milestones, resources, testTypes, today, need: editing, draft }: {
   projects: { code: string; name: string }[]; milestones: MilestoneRef[]; resources: ResourceRef[]; testTypes: TestTypeRef[]; today: string; need?: NeedValues;
+  /** A need prepared by the assistant (delivery 6): the form starts from it; recording it cites the exchange in the journal. */
+  draft?: Omit<NeedValues, 'id' | 'codexRef'> & { turnId: string };
 }) {
   const { t } = useI18n();
-  const key = need?.id ?? 'new';
+  const need: (Omit<NeedValues, 'id'> & { id?: string }) | undefined = editing ?? (draft ? { ...draft, codexRef: null, id: undefined } : undefined);
+  const key = editing?.id ?? 'new';
   const [projectCode, setProjectCode] = useState(need?.projectCode ?? projects[0]?.code ?? '');
   const [resourceId, setResourceId] = useState(need?.resourceId ?? resources[0]?.id ?? '');
   const [halfDays, setHalfDays] = useState(String(need?.halfDays ?? 2));
@@ -102,9 +102,10 @@ export function NeedForm({ projects, milestones, resources, testTypes, today, ne
     setHalfDays(String(x.typicalHalfDays));
   };
   return (
-    <ActionForm action={need ? updateNeedAction : createNeedAction} submit={need ? 'Save the need' : 'Record the need'} done={need ? 'Need saved' : 'Need recorded'}>
-      {need && <input type="hidden" name="needId" value={need.id} />}
-      {need || projects.length === 1 ? (
+    <ActionForm action={editing ? updateNeedAction : createNeedAction} submit={editing ? 'Save the need' : 'Record the need'} done={editing ? 'Need saved' : 'Need recorded'}>
+      {editing && <input type="hidden" name="needId" value={editing.id} />}
+      {draft && <input type="hidden" name="assistantTurn" value={draft.turnId} />}
+      {editing || projects.length === 1 ? (
         <input type="hidden" name="projectCode" value={projectCode} />
       ) : (
         <Field label={t('Project')} htmlFor={`nd-proj-${key}`} required>
@@ -148,14 +149,13 @@ export function NeedForm({ projects, milestones, resources, testTypes, today, ne
 export function EditNeed(props: Parameters<typeof NeedForm>[0] & { need: NeedValues }) {
   const { t } = useI18n();
   return (
-    <details className={s.fold}>
-      <summary>{t('Change')}</summary>
+    <Folded summary="Change" size="xs" variant="ghost">
       <NeedForm {...props} />
       <ActionForm action={withdrawNeedAction} submit="Withdraw the need" done="Need withdrawn" inline variant="ghost">
         <input type="hidden" name="needId" value={props.need.id} />
         <Input size="inline" name="reason" placeholder={t('Reason')} aria-label={t('Reason')} required />
       </ActionForm>
-    </details>
+    </Folded>
   );
 }
 

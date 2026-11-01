@@ -57,6 +57,55 @@
       "when": 1792703481192,
       "tag": "0007_arbitrations_append_only",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792705866938,
+      "tag": "0008_incidents_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792705868024,
+      "tag": "0009_share_weekly",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792748983155,
+      "tag": "0010_assistant",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792748984140,
+      "tag": "0011_assistant_append_only",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793288277877,
+      "tag": "0012_measure_calendars",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793288279095,
+      "tag": "0013_measure_append_only",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793479959788,
+      "tag": "0014_connectors_read",
+      "breakpoints": true
     }
   ]
 }

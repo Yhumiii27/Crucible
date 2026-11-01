@@ -1,0 +1,33 @@
+/* The kiosk: one card, centred, readable from a step away on a tablet. */
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: var(--color-bg);
+}
+
+.card {
+  width: min(640px, 100%);
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+}
+
+.eyebrow {
+  font-size: 13px;
+  color: var(--color-neutral-400);
+}
+
+.now {
+  font-size: 20px;
+}
+
+.next {
+  display: grid;
+  gap: 6px;
+  font-size: 15px;
+  color: var(--color-neutral-300);
+  list-style: none;
+  padding: 0;
+}

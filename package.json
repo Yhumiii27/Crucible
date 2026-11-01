@@ -20,14 +20,16 @@
     "restore": "tsx --conditions=react-server scripts/restore.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "0.128.0",
     "@phosphor-icons/react": "^2.1.10",
     "drizzle-orm": "^0.45.3",
     "next": "16.4.2",
+    "nodemailer": "10.1.7",
     "pg": "8.23.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
-    "zod": "4.6.5"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",

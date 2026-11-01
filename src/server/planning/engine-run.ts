@@ -21,6 +21,7 @@ import {
 } from '@/server/db/schema';
 import type { DB, Tx } from '@/server/db/types';
 import { calendarsOf, rulesOf } from '@/server/dal/resources';
+import { notify, usersWithRole } from '@/server/notify';
 
 type Q = DB | Tx;
 const ms = (d: Date) => d.getTime();
@@ -179,7 +180,13 @@ export async function runEngine(tx: Tx, opts: { trigger: 'manual' | 'nightly'; b
     };
     const existing = open.find((c) => c.needIds.slice().sort().join(',') === key);
     if (existing) await tx.update(conflicts).set(values).where(eq(conflicts.id, existing.id));
-    else await tx.insert(conflicts).values({ ...values, ref: await nextRef(tx, 'C', conflicts, year), needIds: s.needIds, dueOn: conflictDueOn(opts.today) });
+    else {
+      const cref = await nextRef(tx, 'C', conflicts, year);
+      await tx.insert(conflicts).values({ ...values, ref: cref, needIds: s.needIds, dueOn: conflictDueOn(opts.today) });
+      // F-8: the deciders learn of a new conflict (A-4: the coordinators, and the R&D director when a critical need is at stake).
+      const deciders = [...await usersWithRole(tx, ['coordinator']), ...(s.critical ? await usersWithRole(tx, ['rd_director']) : [])];
+      await notify(tx, deciders, { kind: 'conflict', title: `Conflict to arbitrate · ${cref} · ${s.subject}`, href: '/conflicts' }, { except: opts.by.userId, at: opts.now });
+    }
   }
   const gone = open.filter((c) => c.status === 'open' && !seen.has(c.needIds.slice().sort().join(',')));
   if (gone.length) await tx.update(conflicts).set({ status: 'obsolete', updatedAt: new Date() }).where(inArray(conflicts.id, gone.map((c) => c.id)));

@@ -3,7 +3,8 @@ import 'server-only';
 // Every read starts from the facilities the viewer sees (src/server/dal/visibility.ts) and masks what a booking is for when the
 // viewer may not see its project (U-3): "Booked · <entity>", or "Booked (confidential)".
 import { and, asc, eq, gte, inArray, isNull, lt, ne, or } from 'drizzle-orm';
-import { inspectionDueOn, type Closure, type WeeklyHours } from '@/domain/calendar';
+import { DEFAULT_HOURS, inspectionDueOn, openWindows, type Closure, type WeeklyHours } from '@/domain/calendar';
+import { resourceUsage, type ResourceUsage } from '@/domain/utilisation';
 import { canRequestBooking, canSeeBookingDetail, operatedFacilities } from '@/domain/rights';
 import type { BookingStatus } from '@/domain/resources';
 import { addDaysIso, parisInstant } from '@/lib/dates';
@@ -238,6 +239,17 @@ export async function usageFacts(viewer: Viewer, fromIso: string, toIso: string,
   };
 }
 
+/** The usage of every resource of `usageFacts` over its period (the dashboard, the pilot's reference measure). */
+export function resourceUsages(f: Awaited<ReturnType<typeof usageFacts>>, fromIso: string, toIso: string): Map<string, ResourceUsage> {
+  return new Map(f.resources.map((r) => {
+    const cal = f.calendars.get(r.facilityCode)!;
+    return [r.id, resourceUsage({
+      resourceId: r.id, period: f.period, open: openWindows(cal.hours.length ? cal.hours : DEFAULT_HOURS, cal.closures, fromIso, toIso),
+      unavailable: f.unavailabilities.filter((u) => u.resourceId === r.id), bookings: f.bookings, rules: f.rules,
+    })];
+  }));
+}
+
 /** Rules and agreements screen. */
 export async function rulesScreen(viewer: Viewer) {
   const db = await getDb();
@@ -250,4 +262,13 @@ export async function rulesScreen(viewer: Viewer) {
     db.select().from(entities).orderBy(asc(entities.code)),
   ]);
   return { facilities, rules, resources: res, agreements, entities: ents };
+}
+
+/** Bookings of the visible facilities from today over the next `days` days, masked for the viewer (home, delivery 5b). */
+export async function upcomingBookings(viewer: Viewer, today: string, days = 7): Promise<PlanBooking[]> {
+  const db = await getDb();
+  const codes = (await visibleFacilities(viewer)).map((f) => f.code);
+  const res = codes.length ? await db.select({ id: resources.id }).from(resources).where(inArray(resources.facilityCode, codes)) : [];
+  const rows = await bookingsFor(viewer, db, res.map((r) => r.id), parisInstant(today, '00:00'), parisInstant(addDaysIso(today, days), '00:00'));
+  return rows.filter((b) => b.status !== 'no_show');
 }

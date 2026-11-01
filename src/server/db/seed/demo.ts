@@ -28,8 +28,8 @@ export const DEMO_ENTITIES = [
 export const DEMO_SITES = [{ code: 'RD-SITE', name: 'R&D test site (demo)', city: null, countryIso2: 'FR' }] as const;
 
 export const DEMO_FACILITIES = [
-  { code: 'LAB67', name: 'Laboratoire 67', siteCode: 'RD-SITE', operatorEntityCode: 'EPC2I', description: 'Shared laboratory', partners: ['EPCFR'] },
-  { code: 'PDE', name: 'PDE', siteCode: 'RD-SITE', operatorEntityCode: 'EPC2I', description: 'Single building: mechanical workshop, pilot, laboratory rooms — one zone at a time', partners: [] },
+  { code: 'LAB67', name: 'Laboratoire 67', siteCode: 'RD-SITE', operatorEntityCode: 'EPC2I', description: 'Shared laboratory', partners: ['EPCFR'], acquisitionKeur: 850 },
+  { code: 'PDE', name: 'PDE', siteCode: 'RD-SITE', operatorEntityCode: 'EPC2I', description: 'Single building: mechanical workshop, pilot, laboratory rooms — one zone at a time', partners: [], acquisitionKeur: 3000 },
 ] as const;
 
 export const DEMO_PROJECTS: { code: string; name: string; entityCode: string; priorityClass: PriorityClass; confidential: boolean }[] = [
@@ -69,7 +69,7 @@ export const DEMO_PEOPLE: DemoPerson[] = [
 export async function seedDemo(tx: Tx): Promise<void> {
   await tx.insert(entities).values(DEMO_ENTITIES.map((e) => ({ ...e })));
   await tx.insert(sites).values(DEMO_SITES.map((s) => ({ ...s })));
-  await tx.insert(facilities).values(DEMO_FACILITIES.map((f) => ({ code: f.code, name: f.name, siteCode: f.siteCode, operatorEntityCode: f.operatorEntityCode, description: f.description })));
+  await tx.insert(facilities).values(DEMO_FACILITIES.map((f) => ({ code: f.code, name: f.name, siteCode: f.siteCode, operatorEntityCode: f.operatorEntityCode, description: f.description, acquisitionKeur: f.acquisitionKeur })));
   await tx.insert(facilityPartners).values(DEMO_FACILITIES.flatMap((f) => f.partners.map((entityCode) => ({ facilityCode: f.code, entityCode }))));
   await tx.insert(projects).values(DEMO_PROJECTS);
   const rows = await tx.insert(users).values(DEMO_PEOPLE.map((p) => ({ email: p.email, displayName: p.name, jobTitle: p.title, entityCode: p.entity })))
@@ -254,4 +254,7 @@ async function seedPlanning(tx: Tx, idOf: Map<string, string>): Promise<void> {
   await tx.insert(bookingStaff).values([{ bookingId: b11.id, personId: op('Julien Masson'), skillCode: 'PYRO' }, { bookingId: b11.id, personId: op('Karim Benali'), skillCode: 'PYRO' }]);
   await tx.insert(bookingEquipment).values([{ bookingId: b11.id, equipmentCode: 'CAM-01' }, { bookingId: b11.id, equipmentCode: 'ACQ-01' }]);
   await runEngine(tx, { trigger: 'manual', by: { name: 'Antoine Leroy', userId: idOf.get(byKey.get('coordinator')!.email)!, role: 'coordinator' }, today: DEMO_TODAY_ISO, now: parisInstant(DEMO_TODAY_ISO, '08:00') });
+  // Delivery 5: the weekly snapshots of the weeks already over (X-4).
+  const { computeWeeklySnapshots } = await import('@/server/planning/snapshots');
+  await computeWeeklySnapshots(tx, DEMO_TODAY_ISO, 6, parisInstant(DEMO_TODAY_ISO, '07:00'));
 }
