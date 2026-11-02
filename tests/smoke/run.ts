@@ -91,6 +91,11 @@ async function main(): Promise<void> {
   // Delivery 14: the monthly report, its print button and its JSON export.
   const report = await get('/reports?month=2026-10', 'rd_director');
   check(report.status === 200 && report.body.includes('Rapport mensuel') && report.body.includes('Imprimer ou enregistrer en PDF') && report.body.includes('PDE-PIL'), 'report: the monthly report of the R&D director');
+  // CR-074: the chargeback statement of the month and the rates of a facility.
+  const charges = await get('/reports?month=2026-10&view=charges', 'rd_director');
+  check(charges.status === 200 && charges.body.includes('Relevé de refacturation'), 'chargeback: the statement of the month');
+  const rates = await get('/facilities/LAB67?tab=rates', 'coordinator');
+  check(rates.status === 200 && rates.body.includes('Tarifs de refacturation') && rates.body.includes('Ajouter un tarif'), 'chargeback: the rates of laboratoire 67, the coordinator adds one');
   check((await get('/reports', 'project_lead')).status === 404, 'the monthly report is not in a project lead’s workspace');
   const conflictsPage = await get('/conflicts', 'coordinator');
   check(conflictsPage.status === 200 && conflictsPage.body.includes('C-2026-0001') && conflictsPage.body.includes('Recommandée') && conflictsPage.body.includes('Essai de sécurité ou réglementaire'), 'conflicts: the PDE sheet, its recommendation and the rule cited');

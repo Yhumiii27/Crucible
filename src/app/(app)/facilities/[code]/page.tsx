@@ -22,6 +22,9 @@ import { EquipmentForm } from '@/features/planning/forms';
 import { DeviceForm, RevokeDeviceButton } from '@/features/measure/forms';
 import { ApiClientForm, RenewSecretButton, RevokeApiClientButton } from '@/features/api/forms';
 import { facilityApiClients } from '@/server/api';
+import { RateForm, WithdrawRateButton } from '@/features/charges/forms';
+import { euros } from '@/domain/charges';
+import { facilityRates } from '@/server/dal/charges';
 import { MaintenancePlanForm, MaintenanceRecordForm, WithdrawPlanButton } from '@/features/maintenance/forms';
 import { MAINTENANCE_KIND_LABEL } from '@/domain/maintenance';
 import { FORM_STAGES, FORM_STAGE_LABEL } from '@/domain/booking-forms';
@@ -52,6 +55,8 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
   const [equipment, measure, maint] = await Promise.all([facilityEquipment(viewer, facility.code), tab === 'measurement' ? facilityMeasurement(viewer, facility.code, now) : null, facilityMaintenance(facility.code, today)]);
   const manager = managedFacilities(viewer.role, viewer.assignments).includes(facility.code);
   const apiList = tab === 'api' ? await facilityApiClients(facility.code) : null;
+  const rates = tab === 'rates' ? await facilityRates(facility.code) : null;
+  const rateEntities = [facility.operatorEntityCode, ...facility.partnerEntityCodes];
   const forms = tab === 'forms' ? await facilityForms(facility.code, new Date(now.getTime() - 30 * 86_400_000)) : null;
   const resRefs = sheet.resources.filter((r) => r.status !== 'retired').map((r) => ({ id: r.id, code: r.code }));
   const inService = sheet.resources.filter((r) => r.status === 'in_service').length;
@@ -94,6 +99,11 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
         <Folded summary="Add a kiosk or a sensor" variant="primary" size="md">
           <p className="text-muted">{t('Start and stop events of the device start and end the booking of the resource; without a booking they are kept as a use without a booking (X-8).')}</p>
           <DeviceForm facilityCode={facility.code} resources={resRefs.map((r) => ({ value: r.id, label: r.code }))} />
+        </Folded>
+      )}
+      {tab === 'rates' && manager && resRefs.length > 0 && (
+        <Folded summary="Add a rate" variant="primary" size="md">
+          <RateForm resources={resRefs.map((r) => ({ value: r.id, label: r.code }))} entities={rateEntities} today={today} />
         </Folded>
       )}
       {tab === 'api' && manager && (
@@ -444,6 +454,40 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
             </Table>
           ) : (
             <EmptyState>{t('No mobile equipment.')}</EmptyState>
+          )}
+        </SectionCard>
+      )}
+
+      {tab === 'rates' && rates && (
+        <SectionCard title={t('Chargeback rates')} hint={String(rates.filter((r) => !r.withdrawn).length)}
+          subtitle={t('Hours billed: the realised time of a test done, the booked slot of a booking not held (X-19). The statement of the month is in the monthly report.')} scroll>
+          {rates.length ? (
+            <Table>
+              <thead>
+                <tr>
+                  <Th>{t('Resource')}</Th>
+                  <Th>{t('Entity')}</Th>
+                  <Th align="right">{t('Rate (€ per hour)')}</Th>
+                  <Th>{t('From')}</Th>
+                  <Th>{t('Entered by')}</Th>
+                  <Th>{t('Status')}</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {rates.map((r) => (
+                  <tr key={r.id}>
+                    <Td>{r.resourceCode}</Td>
+                    <Td>{r.entityCode ?? t('Every entity')}</Td>
+                    <Td align="right" numeric>{euros(r.centsPerHour).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB', { minimumFractionDigits: 2 })} €</Td>
+                    <Td>{fmtDate(r.validFrom, lang)}</Td>
+                    <Td>{dataText(r.createdByName, lang)}</Td>
+                    <Td>{r.withdrawn ? t('Withdrawn') : manager ? <WithdrawRateButton id={r.id} /> : t('In force')}</Td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          ) : (
+            <EmptyState>{t('No rate: the bookings of this facility are not charged.')}</EmptyState>
           )}
         </SectionCard>
       )}

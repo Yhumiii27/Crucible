@@ -176,6 +176,13 @@
       "when": 1793657528168,
       "tag": "0024_test_results_append_only",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793658018730,
+      "tag": "0025_charge_rates",
+      "breakpoints": true
     }
   ]
 }
