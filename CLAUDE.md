@@ -139,6 +139,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   of `src/domain/api.ts`); events written by database triggers on `bookings` and `incidents` (`api_events`, append-only,
   `drizzle/0022`); signed webhooks delivered every minute by the job `api-webhooks` (`src/server/api/webhooks.ts`). The API
   never writes in the planning.
+- **Delivery 16 (test results, CR-081) is done** (`docs/DELIVERY-16.md`, X-18 added): `test_results` (append-only versions per
+  booking, `drizzle/0023`–`0024`; `src/domain/results.ts`: conclusion, measurements one per line, Codex references of raw data
+  and lab notebook, ELN address — never a file), recorded by `recordResultAction` (`src/features/results/`: the project's
+  managers, or who runs the facility and sees the booking's detail) from the project sheet and My schedule; the requester is
+  notified (`test_result`).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

@@ -12,6 +12,11 @@ import { canMarkNoShow } from '@/domain/booking';
 import { BOOKING_STATUS_LABEL } from '@/domain/resources';
 import { managedFacilities } from '@/domain/rights';
 import { FillForm } from '@/features/forms/forms';
+import { TestResult } from '@/components/app/TestResult';
+import { canHaveResult } from '@/domain/results';
+import { ResultForm } from '@/features/results/forms';
+import { codexLookup } from '@/server/dal/codex';
+import { bookingResults } from '@/server/dal/results';
 import { FinishBookingForm, NoShowButton, StartBookingButton } from '@/features/resources/forms';
 import { dataText } from '@/i18n/data-text';
 import { parisParts } from '@/lib/dates';
@@ -27,7 +32,8 @@ export default async function MySchedulePage() {
   const rows = await mySchedule(viewer, today);
   const mine = managedFacilities(viewer.role, viewer.assignments);
   const days = [...new Set(rows.map((b) => parisParts(new Date(b.start)).iso))].sort();
-  const forms = await bookingForms(rows.map((b) => b.id), [...new Set(rows.map((b) => b.facilityCode))]);
+  const [forms, results] = await Promise.all([bookingForms(rows.map((b) => b.id), [...new Set(rows.map((b) => b.facilityCode))]), bookingResults(rows.filter((b) => b.projectCode).map((b) => b.id))]);
+  const codex = await codexLookup([...results.values()].flatMap((r) => [r.latest.rawDataRef, r.latest.notebookRef]));
   // CR-075: the facility's safety checklist before the start, the test sheet from the start, incident reports while it runs.
   const formsOf = (b: (typeof rows)[number]) => {
     const before = forms.template(b.facilityCode, 'before');
@@ -58,8 +64,13 @@ export default async function MySchedulePage() {
                 </div>
                 <div>{b.projectCode ? `${b.projectCode} · ${dataText(b.title ?? '', lang)}` : b.confidential ? t('Booked (confidential)') : `${t('Booked')} · ${b.entityCode}`}</div>
                 {b.operators && <div className="text-muted">{t('Operators')} : {b.operators}</div>}
+                {b.projectCode && results.get(b.id) && <TestResult result={results.get(b.id)!} codex={codex} t={t} lang={lang} />}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
                   {formsOf(b)}
+                  {b.projectCode && canHaveResult(b.status) && (() => {
+                    const l = results.get(b.id)?.latest;
+                    return <ResultForm bookingId={b.id} last={l ? { outcome: l.outcome, measurements: l.measurements, observations: l.observations, rawDataRef: l.rawDataRef, notebookRef: l.notebookRef, elnUrl: l.elnUrl } : null} />;
+                  })()}
                   {b.status === 'confirmed' && <StartBookingButton id={b.id} />}
                   {(b.status === 'confirmed' || b.status === 'in_progress') && b.start <= now.getTime() && <FinishBookingForm id={b.id} />}
                   {mine.includes(b.facilityCode) && canMarkNoShow(b, now.getTime()) && <NoShowButton id={b.id} />}

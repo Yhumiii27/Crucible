@@ -863,6 +863,18 @@
     "blocks": "L15"
   },
   {
+    "id": "X-18",
+    "group": "extra",
+    "title": "Résultats d’essais rattachés à la réservation (CR-081)",
+    "context": "Le cadrage laissait les résultats hors périmètre ; seul le rapport (référence Codex) était rattaché à la réservation.",
+    "proposal": "Une fois l’essai démarré, l’équipe de l’installation ou le chef de projet saisit la conclusion, les mesures, des observations, les références Codex des données brutes et du cahier de laboratoire et l’adresse de l’entrée du cahier électronique ; aucun fichier dans Crucible ; une correction est une nouvelle version motivée ; le demandeur est prévenu.",
+    "alts": [
+      "Résultats saisis dans l’ELN seulement (Crucible garde le lien)",
+      "Mesures attendues définies par type d’essai"
+    ],
+    "blocks": "L16"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

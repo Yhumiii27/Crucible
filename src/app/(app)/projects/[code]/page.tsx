@@ -5,6 +5,10 @@
 import { notFound } from 'next/navigation';
 import { Folded } from '@/components/app/ActionForm';
 import { CodexRef } from '@/components/app/CodexRef';
+import { TestResult } from '@/components/app/TestResult';
+import { canHaveResult } from '@/domain/results';
+import { ResultForm } from '@/features/results/forms';
+import { bookingResults, type BookingResult } from '@/server/dal/results';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
@@ -24,6 +28,13 @@ import { codexLookup } from '@/server/dal/codex';
 import { projectSheet } from '@/server/dal/needs';
 import { getI18n, getViewer } from '@/server/session';
 
+/** The last version of a result, to start a correction from. */
+function resultDraft(r: BookingResult | undefined) {
+  if (!r) return null;
+  const l = r.latest;
+  return { outcome: l.outcome, measurements: l.measurements, observations: l.observations, rawDataRef: l.rawDataRef, notebookRef: l.notebookRef, elnUrl: l.elnUrl };
+}
+
 export default async function ProjectPage({ params }: PageProps<'/projects/[code]'>) {
   const { code } = await params;
   const [{ t, lang }, viewer, today] = await Promise.all([getI18n(), getViewer(), businessToday()]);
@@ -32,7 +43,9 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[code
   if (!sheet) notFound();
   const { project, manage } = sheet;
   const runs = operatedFacilities(viewer.role, viewer.assignments);
-  const codex = await codexLookup(sheet.bookings.map((b) => b.codexRef));
+  const results = await bookingResults(sheet.bookings.map((b) => b.id));
+  const resultRefs = [...results.values()].flatMap((r) => [r.latest.rawDataRef, r.latest.notebookRef]);
+  const codex = await codexLookup([...sheet.bookings.map((b) => b.codexRef), ...resultRefs]);
   const milestones = sheet.milestones.map((m) => ({ id: m.id, projectCode: m.projectCode, label: dataText(m.label, lang), dueOn: m.dueOn, criticality: m.criticality }));
   const resources = sheet.choices.resources.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang) }));
   const testTypes = sheet.choices.testTypes.map((x) => ({ ...x, name: dataText(x.name, lang) }));
@@ -100,6 +113,7 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[code
                 <Th>{t('Slot')}</Th>
                 <Th>{t('Test')}</Th>
                 <Th>{t('Status')}</Th>
+                <Th>{t('Result')}</Th>
                 <Th>{t('Test report')}</Th>
               </tr>
             </thead>
@@ -114,6 +128,10 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[code
                     {b.needRef && <div className="text-muted">{t('Need')} {b.needRef}</div>}
                   </Td>
                   <Td valign="top"><Tag size="sm" tone={b.status === 'confirmed' || b.status === 'in_progress' ? 'accent' : b.status === 'requested' ? 'outline' : 'neutral'}>{t(BOOKING_STATUS_LABEL[b.status])}</Tag></Td>
+                  <Td valign="top">
+                    {results.get(b.id) ? <TestResult result={results.get(b.id)!} codex={codex} t={t} lang={lang} /> : !(canHaveResult(b.status) && (manage || runs.includes(b.facilityCode))) && '—'}
+                    {canHaveResult(b.status) && (manage || runs.includes(b.facilityCode)) && <ResultForm bookingId={b.id} last={resultDraft(results.get(b.id))} />}
+                  </Td>
                   <Td valign="top">
                     {b.status === 'done' && (manage || runs.includes(b.facilityCode)) ? <ReportRefForm bookingId={b.id} codexRef={b.codexRef} /> : !b.codexRef && '—'}
                     {b.codexRef && <div className="text-muted"><CodexRef refText={b.codexRef} lookup={codex} t={t} /></div>}

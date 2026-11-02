@@ -74,6 +74,8 @@ async function main(): Promise<void> {
   check(lyra.status === 200 && lyra.body.includes('N-2026-0005') && !lyra.body.includes('N-2026-0001'), 'my test needs of EPC France: its projects only');
   const orion = await get('/projects/RD-ORION', 'rd_director');
   check(orion.status === 200 && orion.body.includes('Revue de qualification') && orion.body.includes('N-2026-0004'), 'project sheet: milestones and needs');
+  // CR-081: a done test of the project offers to record its result.
+  check(orion.body.includes('Résultat') && orion.body.includes('Saisir le résultat'), 'project sheet: results of the tests, recorded from the sheet');
   check((await get('/projects/RD-ORION', 'partner')).status === 404 && (await get('/projects/RD-CASSIOPEE', 'coordinator')).status === 404, 'project sheet: outside the visibility, the project does not exist (U-3)');
   const conn = await get('/admin/connectors', 'admin');
   check(conn.status === 200 && conn.body.includes('crucible.pub_reservations') && conn.body.includes('Pas encore publiée'), 'connectors: published views and the views not published yet');
