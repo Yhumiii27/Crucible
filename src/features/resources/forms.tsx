@@ -7,6 +7,7 @@ import { Button } from '@/components/ds/Button';
 import { Field, Input, Select, Textarea } from '@/components/ds/Field';
 import { RESOURCE_KINDS, RESOURCE_KIND_LABEL, RESOURCE_STATUSES, RESOURCE_STATUS_LABEL, RULE_REASONS, RULE_REASON_LABEL, UNAVAILABILITY_KINDS, UNAVAILABILITY_KIND_LABEL, GRANULARITIES, GRANULARITY_LABEL } from '@/domain/resources';
 import { useI18n } from '@/i18n/client';
+import { enqueue, offline } from '@/features/offline/queue';
 import {
   addClosureAction, addUnavailabilityAction, setAcquisitionAction, cancelBookingAction, confirmBookingAction, createResourceAction, finishBookingAction, importHistoryAction,
   markNoShowAction, proposeRuleAction, recordInspectionAction, removeUnavailabilityAction, requestBookingAction, retireRuleAction, setAgreementAction,
@@ -336,8 +337,20 @@ export function ConfirmBookingButton({ id }: { id: string }) {
   return <RunButton run={() => confirmBookingAction(id)} label="Confirm" done="Confirmed" variant="primary" />;
 }
 
+/** CR-082: without network the start is kept on the phone, at the instant pressed, and sent when the network is back. */
+async function orQueue(id: string, kind: 'start' | 'end', online: () => Promise<ActionResult>): Promise<ActionResult> {
+  if (!offline()) {
+    try {
+      return await online();
+    } catch {
+      if (!offline()) throw new Error('Server unreachable');
+    }
+  }
+  return enqueue(id, kind) ? { ok: true, warnings: ['Recorded offline: sent when the network is back'] } : { ok: false, error: 'This phone cannot keep it offline' };
+}
+
 export function StartBookingButton({ id }: { id: string }) {
-  return <RunButton run={() => startBookingAction(id)} label="Start" done="Started" variant="primary" />;
+  return <RunButton run={() => orQueue(id, 'start', () => startBookingAction(id))} label="Start" done="Started" variant="primary" />;
 }
 
 export function NoShowButton({ id }: { id: string }) {
@@ -359,7 +372,10 @@ export function CancelBookingForm({ id }: { id: string }) {
 /** Ends a test now, or at the times typed (caught up at the end of the day, X-1). */
 export function FinishBookingForm({ id }: { id: string }) {
   const { t } = useI18n();
-  const [state, run, pending] = useActionState(finishBookingAction, null);
+  // CR-082: without network, the end is kept at the instant pressed (times typed are entered once back online).
+  const [state, run, pending] = useActionState(async (prev: ActionResult | null, fd: FormData) => (offline() && (fd.get('actualFrom') || fd.get('actualTo'))
+    ? { ok: false as const, error: 'Offline: end the test now, or enter the times once back online' }
+    : orQueue(id, 'end', () => finishBookingAction(prev, fd))), null);
   return (
     <form action={run} className={s.inline}>
       <input type="hidden" name="bookingId" value={id} />

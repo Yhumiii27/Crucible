@@ -6,28 +6,28 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-11-02 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 25 faits, 4 en cours, 3 à faire, sur 32 points.
+**Avancement** : 26 faits, 4 en cours, 2 à faire, sur 32 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 2 | ≈ 8 |
 | À décider | 1 | ≈ 2 |
-| Plus tard | 3 | ≈ 18 |
-| **Total** | **7** | **≈ 31** |
+| Plus tard | 2 | ≈ 14 |
+| **Total** | **6** | **≈ 27** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 2 |
+| Non commencé | 1 |
 | Partiel | 0 |
 | Attend le responsable produit | 3 |
 | Attend un système externe | 2 |
 
 | Domaine | Bloquant production | Prochaine étape | À décider | Plus tard | Restants | Faits |
 |---|---:|---:|---:|---:|---:|---:|
-| Plateforme et mise en production | 1 | 0 | 0 | 1 | 2 | 3 |
+| Plateforme et mise en production | 1 | 0 | 0 | 0 | 1 | 4 |
 | Connexion, profils et visibilité | 0 | 0 | 0 | 0 | 0 | 2 |
 | Moyens d’essais, règles et réservations | 0 | 0 | 0 | 0 | 0 | 8 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
@@ -59,15 +59,11 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 
 ## 2. Liste détaillée par domaine
 
-### 2.1 Plateforme et mise en production (2 restants, 3 faits)
+### 2.1 Plateforme et mise en production (1 restants, 4 faits)
 
 **CR-007 · Mise en production : hébergement, Entra réel, serveur commun** — *Bloquant production · attend un système externe · effort M* · **en cours (Livraison 1)**  
 Hébergeur (T-6), inscription Entra, rôle et schéma créés par Matrix (M-1 à M-5). Analyse comparative du 25 oct. 2026 : prérequis bloquants confirmés (hébergement T-6, Entra réel, données D-1 à D-11, pilote). Écart P2 (niveau standard) : la bêta tourne en mode démo (CRUCIBLE_AUTH=demo, « voir en tant que ») derrière l’authentification HTTP de Coolify ; l’authentification réelle par Entra doit être en place avant tout usage hors démonstration. La limitation des tentatives côté application fait l’objet de CR-079.  
 *Avancement : Kit Coolify du serveur commun (deploy/compose.shared.yaml, EXPLOITATION.md § 4.1) essayé en local contre le socle de Matrix (rôle crucible_app posé à la main) : migrations, jeu de démonstration, santé, sauvegarde, authentification HTTP. Reste : rôle et partage côté Matrix (M-1 à M-5), mise en service dans Coolify, Entra réel. · Attend : Matrix, DSI · Sources : docs/DEMANDES-MATRIX.md, docs/EXPLOITATION.md*
-
-**CR-082 · Mobile : réservation et pointage depuis le téléphone, hors ligne à l’atelier** — *Plus tard · non commencé · effort M*  
-P3, standard. Recette de l’interface sur téléphone (Mon planning, démarrer / terminer, cloche), écrans allégés pour l’atelier et le PDE, fonctionnement hors ligne avec resynchronisation. Aujourd’hui l’application web est responsive mais n’a pas été recettée sur mobile et ne fonctionne pas hors ligne.  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 **~~CR-004 · Socle repris (connexion, droits, audit, i18n, PostgreSQL, worker, sauvegardes, CI)~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 1)**  
 Socle d’Arche (lui-même repris de Keystone), PostgreSQL seul, schéma crucible.  
@@ -80,6 +76,10 @@ P2, standard. Limiter côté application les tentatives sur la connexion, la rec
 **~~CR-080 · Tests de bout en bout dans le navigateur~~** — *À décider · non commencé · effort M* · **fait (Livraison 13)**  
 P2, qualité. Parcours Playwright sur les écrans principaux (réservation refusée avec la règle citée, acceptation d’une proposition, scénario de reprise, panneau de l’assistant), joués en CI sur le port 3510. Aujourd’hui Playwright est installé mais aucun test de bout en bout n’existe ; seuls les tests unitaires et les contrôles de fumée HTTP tournent.  
 *Avancement : Fait le 1er nov. 2026 (DELIVERY-13.md, X-15) : quatre parcours Playwright (demande refusée par la règle du PDE, check-list avant le démarrage, assistant, menu du coordinateur) joués en CI après le contrôle de fumée. · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+
+**~~CR-082 · Mobile : réservation et pointage depuis le téléphone, hors ligne à l’atelier~~** — *Plus tard · non commencé · effort M* · **fait (Livraison 19)**  
+P3, standard. Recette de l’interface sur téléphone (Mon planning, démarrer / terminer, cloche), écrans allégés pour l’atelier et le PDE, fonctionnement hors ligne avec resynchronisation. Aujourd’hui l’application web est responsive mais n’a pas été recettée sur mobile et ne fonctionne pas hors ligne.  
+*Avancement : 2 nov. 2026 (DELIVERY-19.md, X-21 à confirmer) : menu en tiroir sur téléphone (il manquait), application installable, Mon planning lisible hors ligne (service worker), démarrages et fins d’essai gardés hors ligne puis envoyés avec tous les contrôles ; parcours Playwright sur téléphone. · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 ### 2.2 Connexion, profils et visibilité (0 restants, 2 faits)
 
@@ -207,6 +207,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-02 — Livraison 19 (CR-082, « fait les prochains points ») : téléphone (menu en tiroir) et hors ligne (Mon planning, démarrages et fins gardés puis envoyés). X-21 ajoutée (défaut appliqué). 438 tests, 5 parcours.
 - 2026-11-02 — Livraison 18 (CR-076, « fait les prochains points ») : consommables et stock, lots et péremption, décompte à la fin de l’essai, alertes. X-20 ajoutée (défaut appliqué). 436 tests.
 - 2026-11-02 — Livraison 17 (CR-074, « fait les prochains points ») : refacturation interne, tarifs datés par moyen et entité, relevé mensuel exportable. X-19 ajoutée (défaut appliqué). 427 tests.
 - 2026-11-02 — Livraison 16 (CR-081, « fait les prochains points ») : résultats d’essais rattachés à la réservation, références Codex et lien ELN. X-18 ajoutée (défaut appliqué). 419 tests.

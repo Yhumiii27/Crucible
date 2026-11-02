@@ -154,6 +154,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   (`src/domain/consumables.ts`: `balances`, `pickLots` earliest expiry first, `alertsOf`, `shortages`); `consumeForBooking`
   (`src/server/consumables.ts`) runs in the transaction that ends a test (screen and device); facility tab "consumables"
   (`src/features/consumables/`), "Consumables short" in My schedule, daily job `consumables-alerts`.
+- **Delivery 19 (phones and offline, CR-082) is done** (`docs/DELIVERY-19.md`, X-21 added): top bar and menu drawer up to
+  1024 px (`src/components/app/shell/mobile-menu.tsx`), web app manifest (`src/app/manifest.ts`, opens My schedule), service
+  worker `/sw.js` (`src/app/sw.js/route.ts`: last copy of My schedule and the app's static files only, dropped at sign-out);
+  starts and ends without network queued on the phone (`src/features/offline/`) and applied by `syncOfflineEventsAction` at the
+  instant recorded with every check of the screen (48 h at most); Playwright phone journey `tests/e2e/mobile.spec.ts`.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

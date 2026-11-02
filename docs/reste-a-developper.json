@@ -122,6 +122,10 @@
   {
    "date": "2026-11-02",
    "text": "Livraison 18 (CR-076, « fait les prochains points ») : consommables et stock, lots et péremption, décompte à la fin de l’essai, alertes. X-20 ajoutée (défaut appliqué). 436 tests."
+  },
+  {
+   "date": "2026-11-02",
+   "text": "Livraison 19 (CR-082, « fait les prochains points ») : téléphone (menu en tiroir) et hors ligne (Mon planning, démarrages et fins gardés puis envoyés). X-21 ajoutée (défaut appliqué). 438 tests, 5 parcours."
   }
  ],
  "items": [
@@ -786,12 +790,14 @@
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "src/features/ : mise en page responsive non recettée sur mobile",
-    "aucun service worker ni mode hors ligne"
+    "src/components/app/shell/mobile-menu.tsx : barre supérieure et tiroir",
+    "src/app/manifest.ts, src/app/sw.js/route.ts : application installable, copie hors ligne",
+    "src/features/offline/, syncOfflineEventsAction ; tests/e2e/mobile.spec.ts"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 19",
+    "note": "2 nov. 2026 (DELIVERY-19.md, X-21 à confirmer) : menu en tiroir sur téléphone (il manquait), application installable, Mon planning lisible hors ligne (service worker), démarrages et fins d’essai gardés hors ligne puis envoyés avec tous les contrôles ; parcours Playwright sur téléphone."
    }
   },
   {

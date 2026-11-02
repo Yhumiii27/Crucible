@@ -6,10 +6,12 @@ import { cookies } from 'next/headers';
 import { Suspense } from 'react';
 import { inArray } from 'drizzle-orm';
 import { ClockProvider } from '@/components/app/clock';
+import { MobileMenuProvider, MobileTopbar } from '@/components/app/shell/mobile-menu';
 import { Sidebar } from '@/components/app/shell/sidebar';
 import styles from '@/components/app/shell/shell.module.css';
 import { ToastProvider } from '@/components/ds/Toast';
 import { AssistantPanel } from '@/features/assistant/panel';
+import { RegisterServiceWorker } from '@/features/offline/register';
 import { canUseAssistant } from '@/server/assistant/service';
 import { isRoleKey } from '@/config/roles';
 import { canSee } from '@/config/screens';
@@ -45,6 +47,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
   return (
     <ClockProvider today={today}>
       <ToastProvider>
+        <MobileMenuProvider>
         <div className={styles.root}>
           <Suspense>
             <Sidebar
@@ -57,9 +60,14 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
               badges={{ decide: queue.items.length, propose: queue.openProposals, conflicts: queue.openConflicts }}
             />
           </Suspense>
-          <main className={styles.main}>{children}</main>
+          <main className={styles.main}>
+            <MobileTopbar />
+            {children}
+          </main>
         </div>
+        </MobileMenuProvider>
         {canUseAssistant(viewer.role) && <AssistantPanel />}
+        <RegisterServiceWorker />
       </ToastProvider>
     </ClockProvider>
   );
