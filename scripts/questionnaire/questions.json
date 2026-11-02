@@ -888,6 +888,18 @@
     "blocks": "L17"
   },
   {
+    "id": "X-20",
+    "group": "extra",
+    "title": "Consommables et stock des essais (CR-076)",
+    "context": "Aucun suivi des consommables : un manque se découvrait le jour de l’essai.",
+    "proposal": "Consommables par installation (nom, unité, seuil), lots avec péremption, stock = somme des mouvements gardés tels qu’enregistrés ; quantités par type d’essai prises à la fin de l’essai dans les lots qui expirent en premier ; réservation à venir signalée quand le stock ne la couvre pas ; alertes quotidiennes aux responsables.",
+    "alts": [
+      "Décompter à la confirmation de la réservation",
+      "Refuser une réservation que le stock ne couvre pas"
+    ],
+    "blocks": "L18"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

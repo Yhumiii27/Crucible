@@ -118,6 +118,10 @@
   {
    "date": "2026-11-02",
    "text": "Livraison 17 (CR-074, « fait les prochains points ») : refacturation interne, tarifs datés par moyen et entité, relevé mensuel exportable. X-19 ajoutée (défaut appliqué). 427 tests."
+  },
+  {
+   "date": "2026-11-02",
+   "text": "Livraison 18 (CR-076, « fait les prochains points ») : consommables et stock, lots et péremption, décompte à la fin de l’essai, alertes. X-20 ajoutée (défaut appliqué). 436 tests."
   }
  ],
  "items": [
@@ -642,11 +646,14 @@
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "aucune table ni règle de consommable dans drizzle/ et src/domain/"
+    "src/domain/consumables.ts : stock, lots, alertes, manques",
+    "src/server/consumables.ts : décompte à la fin de l’essai, alertes (tâche consumables-alerts)",
+    "src/features/consumables/, onglet Consommables de l’installation"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 18",
+    "note": "2 nov. 2026 (DELIVERY-18.md, X-20 à confirmer) : consommables par installation, lots et péremption, besoins par type d’essai, décompte à la fin de l’essai (premier périmé, premier sorti), alertes quotidiennes, réservation à venir signalée dans Mon planning."
    }
   },
   {

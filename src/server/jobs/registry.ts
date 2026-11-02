@@ -7,6 +7,7 @@ import 'server-only';
 import path from 'node:path';
 import { deliverWebhooks } from '@/server/api/webhooks';
 import { backupSchema } from '@/server/backup';
+import { remindConsumables } from '@/server/consumables';
 import { getConfig } from '@/server/config';
 import { readConnectors, reportLine } from '@/server/integrations/connectors';
 import { declareCrucibleSchema } from '@/server/integrations/matrix';
@@ -95,6 +96,15 @@ export function crucibleJobs(h: PostgresHandle): Job[] {
       enabled: !!cfg.database,
       async run() {
         return `${await remindMaintenance(h.db, await businessToday())} notices`;
+      },
+    },
+    {
+      // CR-076: consumables under their threshold (once a week), lots expired or expiring within 30 days (once), to the managers.
+      name: 'consumables-alerts',
+      everyMin: 1440,
+      enabled: !!cfg.database,
+      async run() {
+        return `${await remindConsumables(h.db, await businessToday())} notices`;
       },
     },
     {
