@@ -144,6 +144,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   and lab notebook, ELN address — never a file), recorded by `recordResultAction` (`src/features/results/`: the project's
   managers, or who runs the facility and sees the booking's detail) from the project sheet and My schedule; the requester is
   notified (`test_result`).
+- **Delivery 17 (internal chargeback, CR-074) is done** (`docs/DELIVERY-17.md`, X-19 added): dated rates per resource and
+  entity (`charge_rates`, `drizzle/0025`; withdrawn, never deleted; facility tab "rates", `src/features/charges/`), statement of
+  a month computed at each read (`src/domain/charges.ts` `rateFor` / `billedHours` / `chargeStatement`, `src/server/dal/charges.ts`;
+  a done test billed at its realised time, a no-show at its booked slot; a partner reads its entity only), view "Chargeback" of
+  `/reports` (`?view=charges`), exported per booking for the accounting.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

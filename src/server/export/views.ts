@@ -15,6 +15,8 @@ import { decisionQueue } from '@/server/dal/decisions';
 import { incidentsScreen } from '@/server/dal/incidents';
 import { DETAIL_WEEKS, loadScreen } from '@/server/dal/needs';
 import { conflictsScreen, proposeScreen } from '@/server/dal/planning';
+import { monthlyCharges } from '@/server/dal/charges';
+import { euros } from '@/domain/charges';
 import { monthlyReport } from '@/server/dal/report';
 import { planningWeek } from '@/server/dal/resources';
 import { parseMonth } from '@/domain/report';
@@ -88,6 +90,17 @@ export async function exportRows(screen: ExportableScreen, viewer: Viewer, param
     case 'report': {
       // CR-077: one line per resource of the monthly report (the month and facility of the screen).
       const month = parseMonth(params.get('month')) ?? today.slice(0, 7);
+      if (params.get('view') === 'charges') {
+        // CR-074: one line per booking of the chargeback statement, for the accounting.
+        const c = await monthlyCharges(viewer, month, params.get('facility'));
+        return [
+          [t('Month'), t('Entity'), t('Project'), t('Booking'), t('Facility'), t('Resource'), t('Day'), t('Status'), t('Booked hours'), t('Realised hours'), t('Billed hours'), t('Rate (€ per hour)'), t('Amount (€)')],
+          ...c.groups.flatMap((g) => g.lines.map((l) => [
+            month, l.entityCode, l.projectCode ?? t('Booked (confidential)'), l.ref, l.facilityCode, l.resourceCode, l.day, t(BOOKING_STATUS_LABEL[l.status as keyof typeof BOOKING_STATUS_LABEL] ?? l.status),
+            l.bookedHours, l.realisedHours, l.billedHours, l.centsPerHour == null ? '' : euros(l.centsPerHour), euros(l.amountCents),
+          ])),
+        ];
+      }
       const data = await monthlyReport(viewer, month, params.get('facility'));
       return [
         [t('Month'), t('Facility'), t('Resource'), t('Open hours'), t('Booked hours'), t('Booked %'), t('Realised hours'), t('Realised %'), t('Blocked hours'), t('Blocked %'), t('Not held')],

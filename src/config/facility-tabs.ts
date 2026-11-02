@@ -1,6 +1,6 @@
 // Tabs of a facility sheet (delivery 5b): listed in the sidebar's Facility section, under the facility switcher, and as the
 // sheet's tab bar (`/facilities/[code]?tab=`). Pure: loaded by the nav model and the page.
-export const FACILITY_TABS = ['resources', 'calendar', 'inspections', 'maintenance', 'forms', 'equipment', 'measurement', 'api'] as const;
+export const FACILITY_TABS = ['resources', 'calendar', 'inspections', 'maintenance', 'forms', 'equipment', 'measurement', 'api', 'rates'] as const;
 export type FacilityTab = (typeof FACILITY_TABS)[number];
 
 /** EN source strings. */
@@ -17,6 +17,8 @@ export const FACILITY_TAB_LABEL: Record<FacilityTab, string> = {
   measurement: 'Occupancy measurement',
   /** CR-083: the bench systems reading the facility through the REST API, their webhooks. */
   api: 'Bench systems (API)',
+  /** CR-074: the chargeback rates of the resources, per entity. */
+  rates: 'Rates',
 };
 
 export const isFacilityTab = (v: unknown): v is FacilityTab => typeof v === 'string' && (FACILITY_TABS as readonly string[]).includes(v);

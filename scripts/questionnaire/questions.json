@@ -875,6 +875,19 @@
     "blocks": "L16"
   },
   {
+    "id": "X-19",
+    "group": "extra",
+    "title": "Refacturation interne (CR-074)",
+    "context": "Crucible ne connaissait que le coût d’acquisition d’une installation et la valeur de la capacité inoccupée (P-8).",
+    "proposal": "Tarifs datés par moyen (€ par heure), pour toutes les entités ou une seule, saisis par les responsables de l’installation ; relevé du mois par entité et projet : essai terminé facturé au temps réalisé, réservation non tenue au créneau réservé, rien pour une annulation ; un partenaire ne lit que son entité ; export CSV et JSON pour la comptabilité.",
+    "alts": [
+      "Facturer le créneau réservé (et non le réalisé)",
+      "Ne pas facturer une réservation non tenue",
+      "Préparation et remise en état facturées"
+    ],
+    "blocks": "L17"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

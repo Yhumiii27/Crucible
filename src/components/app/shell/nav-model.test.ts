@@ -28,6 +28,7 @@ describe('sidebar model (delivery 5b: themes, Facility section)', () => {
       ['facility:equipment', '/facilities/PDE?tab=equipment', false],
       ['facility:measurement', '/facilities/PDE?tab=measurement', false],
       ['facility:api', '/facilities/PDE?tab=api', false],
+      ['facility:rates', '/facilities/PDE?tab=rates', false],
     ]);
     // Elsewhere, the tabs point at the last facility used.
     expect(buildNav('coordinator', '/load', null, 'LAB67').sections.find((s) => s.key === 'facility')!.groups[0].entries[0].href).toBe('/facilities/LAB67');

@@ -6,21 +6,21 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-11-02 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 23 faits, 4 en cours, 5 à faire, sur 32 points.
+**Avancement** : 24 faits, 4 en cours, 4 à faire, sur 32 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 2 | ≈ 8 |
-| À décider | 3 | ≈ 10 |
+| À décider | 2 | ≈ 6 |
 | Plus tard | 3 | ≈ 18 |
-| **Total** | **9** | **≈ 39** |
+| **Total** | **8** | **≈ 35** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 4 |
+| Non commencé | 3 |
 | Partiel | 0 |
 | Attend le responsable produit | 3 |
 | Attend un système externe | 2 |
@@ -32,7 +32,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 | Moyens d’essais, règles et réservations | 0 | 0 | 1 | 0 | 1 | 7 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
-| Aléas, scénarios et pilotage | 0 | 1 | 1 | 0 | 2 | 5 |
+| Aléas, scénarios et pilotage | 0 | 1 | 0 | 0 | 1 | 6 |
 | Assistant IA | 0 | 0 | 0 | 1 | 1 | 1 |
 | Liens avec les autres outils | 0 | 0 | 0 | 1 | 1 | 2 |
 | Cadrage, décisions et données attendues | 0 | 1 | 1 | 0 | 2 | 1 |
@@ -51,7 +51,6 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 - **CR-003** Données à fournir D-1 à D-11 — Responsable produit et équipes R&D
 - **CR-051** Activer Claude pour l’assistant — DSI (fournisseur et région, I-3)
 - **CR-070** Pilote (4 semaines d’usage réel) — Atelier et données D-1 à D-11 ; DSI (hébergement T-6, inscription Entra) ; Matrix (M-6)
-- **CR-074** Refacturation interne : tarifs par moyen et par entité, coût des heures réservées et réelles, relevés par projet — Responsable produit (hors demande initiale)
 - **CR-076** Consommables et stock liés aux essais (quantités, péremption, alertes) — Responsable produit (hors demande initiale)
 
 ### 1.3 Ce qui attend les autres applications
@@ -139,15 +138,11 @@ Prévisions, demandes, délai de prévenance (F-5), plan de charge 26 semaines (
 Personnes et compétences, substitutions validées, heuristique déterministe (T-3), fiches de conflit, règles de priorité versionnées (A-1, A-2).  
 *Avancement : Personnes et compétences (lecture de Cursus quand la vue est accordée), exigences des types d’essai, équipements mobiles, substitutions validées (R-4), règles de priorité versionnées, moteur déterministe qui propose seulement (passage quotidien), acceptation par lot après un nouveau contrôle, fiches de conflit avec options, règle citée et recommandation, arbitrages en ajout seul, veto sécurité. Propriété vérifiée sur 60 scénarios aléatoires. Choix à confirmer : R-11, A-9, F-14. · Sources : docs/spec/03-planification.md §4–5*
 
-### 2.6 Aléas, scénarios et pilotage (2 restants, 5 faits)
+### 2.6 Aléas, scénarios et pilotage (1 restants, 6 faits)
 
 **CR-070 · Pilote (4 semaines d’usage réel)** — *Prochaine étape · attend le responsable produit · effort M* · **en cours (Pilote)**  
 Laboratoire 67 et PDE (P-3) : Crucible référence des réservations, mesure de référence comparée au pilote (X-2), revue hebdomadaire, bilan (P-10). Analyse comparative du 25 oct. 2026 : prérequis bloquant confirmé — le pilote reste le passage obligé avant toute extension fonctionnelle issue de l’analyse (CR-071 à CR-083) ; démarrage conditionné à l’hébergement, à Entra réel et aux données D-1 à D-11.  
 *Avancement : Écran Pilote prêt : premier jour, liste de contrôle du démarrage, mesure de référence comparée au pilote. Démarrage à la levée des prérequis de docs/PILOTE.md §2. · Attend : Atelier et données D-1 à D-11 ; DSI (hébergement T-6, inscription Entra) ; Matrix (M-6) · Sources : docs/PILOTE.md, docs/PLAN.md*
-
-**CR-074 · Refacturation interne : tarifs par moyen et par entité, coût des heures réservées et réelles, relevés par projet** — *À décider · non commencé · effort M*  
-P2, avancé (QReserve, Agilent iLab). Grille tarifaire par moyen et par entité (laboratoire 67 partagé avec EPC France), valorisation des heures réservées et réalisées, relevé de refacturation par projet et par période, export vers la comptabilité. Aujourd’hui Crucible ne connaît que le coût d’acquisition de l’installation et la valeur de la capacité inoccupée (P-8).  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 **~~CR-013 · Pilotage de l’occupation et import de l’historique~~** — *Prochaine étape · non commencé · effort M* · **fait (Livraison 2)**  
 Occupation réservée / réalisée / avec préparation / blocage (P-5), attente par entité, mesure de référence (X-2, F-9).  
@@ -160,6 +155,10 @@ Menu par thèmes, section Installation, en-tête de Keystone, panneaux latéraux
 **~~CR-072 · E-mail vérifié (SMTP ou Microsoft Graph) et synchronisation Outlook / Teams des réservations~~** — *Prochaine étape · attend un système externe · effort M* · **fait (Livraison 7)**  
 P1, standard (Calira, QReserve, Ganttic). Envoyer réellement les notifications (relais SMTP du groupe ou Microsoft Graph) et proposer les réservations dans Outlook / Teams : invitations .ics à la confirmation, mise à jour et annulation, abonnement calendrier par moyen ou par personne. Aujourd’hui le transport e-mail est « none » ou « file » (dépôt sur disque) et aucun export calendrier n’existe.  
 *Avancement : Transports smtp (relais du groupe) et graph (Microsoft Graph sendMail), invitations .ics jointes (REQUEST puis CANCEL), abonnements Outlook / Teams par personne ou par moyen avec ses droits ; X-9 à confirmer. Activation : relais SMTP ou application Graph à obtenir de la DSI. · Attend : DSI (relais SMTP ou application Graph) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+
+**~~CR-074 · Refacturation interne : tarifs par moyen et par entité, coût des heures réservées et réelles, relevés par projet~~** — *À décider · non commencé · effort M* · **fait (Livraison 17)**  
+P2, avancé (QReserve, Agilent iLab). Grille tarifaire par moyen et par entité (laboratoire 67 partagé avec EPC France), valorisation des heures réservées et réalisées, relevé de refacturation par projet et par période, export vers la comptabilité. Aujourd’hui Crucible ne connaît que le coût d’acquisition de l’installation et la valeur de la capacité inoccupée (P-8).  
+*Avancement : 2 nov. 2026 (DELIVERY-17.md, X-19 à confirmer) : tarifs datés par moyen et par entité (onglet Tarifs), relevé du mois par entité et projet dans le rapport mensuel (vue Refacturation), export CSV et JSON par réservation pour la comptabilité. · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 **~~CR-077 · Rapports PDF et tableaux de bord exportables vers la BI~~** — *À décider · non commencé · effort M* · **fait (Livraison 14)**  
 P2, standard. Rapports périodiques en PDF (occupation, attente par entité, retards imputables, bilan du pilote) et exposition des indicateurs à un outil de BI (vue ou extraction planifiée) en plus du CSV. Aujourd’hui seul l’export CSV des écrans existe.  
@@ -209,6 +208,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-02 — Livraison 17 (CR-074, « fait les prochains points ») : refacturation interne, tarifs datés par moyen et entité, relevé mensuel exportable. X-19 ajoutée (défaut appliqué). 427 tests.
 - 2026-11-02 — Livraison 16 (CR-081, « fait les prochains points ») : résultats d’essais rattachés à la réservation, références Codex et lien ELN. X-18 ajoutée (défaut appliqué). 419 tests.
 - 2026-11-02 — Livraison 15 (CR-083, « lance le prochain point ») : API REST en lecture des systèmes de bancs, événements par déclencheurs, webhooks signés. X-17 ajoutée (défaut appliqué). 409 tests.
 - 2026-11-01 — Livraison 14 (CR-077, « lance le prochain point ») : rapport mensuel imprimable en PDF, exports CSV et JSON pour la BI. X-16 ajoutée (défaut appliqué). 397 tests.
