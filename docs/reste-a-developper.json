@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-11-01",
+ "updated": "2026-11-02",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -106,6 +106,10 @@
   {
    "date": "2026-11-01",
    "text": "Livraison 14 (CR-077, « lance le prochain point ») : rapport mensuel imprimable en PDF, exports CSV et JSON pour la BI. X-16 ajoutée (défaut appliqué). 397 tests."
+  },
+  {
+   "date": "2026-11-02",
+   "text": "Livraison 15 (CR-083, « lance le prochain point ») : API REST en lecture des systèmes de bancs, événements par déclencheurs, webhooks signés. X-17 ajoutée (défaut appliqué). 409 tests."
   }
  ],
  "items": [
@@ -785,12 +789,14 @@
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "src/app/api/ : auth, export CSV, health seulement",
-    "src/config/connectors.ts : échanges par vues pub_"
+    "src/app/api/v1/ : resources, bookings, bookings/[ref], events",
+    "src/server/api/index.ts, src/server/api/webhooks.ts (tâche api-webhooks)",
+    "drizzle/0022_api_events_triggers.sql : événements par déclencheurs"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 15",
+    "note": "2 nov. 2026 (DELIVERY-15.md, API.md, X-17 à confirmer) : clients par installation (jeton affiché une fois), lecture seule /api/v1 (moyens, réservations, événements ; projet confidentiel masqué), événements écrits par déclencheurs, webhooks signés HMAC-SHA256 avec reprise. Démarrage et fin par /api/occupancy (livraison 7). Variante à décider : déclarer une panne depuis l’automate."
    }
   }
  ]

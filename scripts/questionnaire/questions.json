@@ -851,6 +851,18 @@
     "blocks": "L14"
   },
   {
+    "id": "X-17",
+    "group": "extra",
+    "title": "API REST et webhooks des systèmes de bancs (CR-083)",
+    "context": "Aucune API métier : les systèmes d’un banc (supervision, LIMS, PC d’acquisition) ne lisaient pas le planning.",
+    "proposal": "Un client par installation, déclaré par son responsable (jeton affiché une fois) : lecture seule des moyens, réservations et événements de l’installation, projet confidentiel masqué ; événements lus par /api/v1/events ou envoyés à un webhook signé (HMAC-SHA256), dans l’ordre, nouvel essai de 1 à 60 min ; démarrage et fin restent sur /api/occupancy.",
+    "alts": [
+      "L’API déclare aussi une panne (aléa) depuis l’automate",
+      "Un client pour plusieurs installations"
+    ],
+    "blocks": "L15"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

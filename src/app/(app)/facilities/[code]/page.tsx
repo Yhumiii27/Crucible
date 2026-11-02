@@ -20,6 +20,8 @@ import {
 } from '@/features/resources/forms';
 import { EquipmentForm } from '@/features/planning/forms';
 import { DeviceForm, RevokeDeviceButton } from '@/features/measure/forms';
+import { ApiClientForm, RenewSecretButton, RevokeApiClientButton } from '@/features/api/forms';
+import { facilityApiClients } from '@/server/api';
 import { MaintenancePlanForm, MaintenanceRecordForm, WithdrawPlanButton } from '@/features/maintenance/forms';
 import { MAINTENANCE_KIND_LABEL } from '@/domain/maintenance';
 import { FORM_STAGES, FORM_STAGE_LABEL } from '@/domain/booking-forms';
@@ -49,6 +51,7 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
   const tab = isFacilityTab(sp.tab) ? sp.tab : 'resources';
   const [equipment, measure, maint] = await Promise.all([facilityEquipment(viewer, facility.code), tab === 'measurement' ? facilityMeasurement(viewer, facility.code, now) : null, facilityMaintenance(facility.code, today)]);
   const manager = managedFacilities(viewer.role, viewer.assignments).includes(facility.code);
+  const apiList = tab === 'api' ? await facilityApiClients(facility.code) : null;
   const forms = tab === 'forms' ? await facilityForms(facility.code, new Date(now.getTime() - 30 * 86_400_000)) : null;
   const resRefs = sheet.resources.filter((r) => r.status !== 'retired').map((r) => ({ id: r.id, code: r.code }));
   const inService = sheet.resources.filter((r) => r.status === 'in_service').length;
@@ -91,6 +94,12 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
         <Folded summary="Add a kiosk or a sensor" variant="primary" size="md">
           <p className="text-muted">{t('Start and stop events of the device start and end the booking of the resource; without a booking they are kept as a use without a booking (X-8).')}</p>
           <DeviceForm facilityCode={facility.code} resources={resRefs.map((r) => ({ value: r.id, label: r.code }))} />
+        </Folded>
+      )}
+      {tab === 'api' && manager && (
+        <Folded summary="Add a bench system" variant="primary" size="md">
+          <p className="text-muted">{t('The system reads the resources, bookings and events of this facility only, and writes nothing; a confidential project stays masked (X-17).')}</p>
+          <ApiClientForm facilityCode={facility.code} />
         </Folded>
       )}
     </>
@@ -435,6 +444,48 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
             </Table>
           ) : (
             <EmptyState>{t('No mobile equipment.')}</EmptyState>
+          )}
+        </SectionCard>
+      )}
+
+      {tab === 'api' && apiList && (
+        <SectionCard title={t('Bench systems')} hint={String(apiList.filter((c) => !c.revoked).length)}
+          subtitle={t('Supervision of a bench, LIMS or acquisition PC reading /api/v1 with its token; its webhook receives each event of the facility, signed (docs/API.md).')} scroll>
+          {apiList.length ? (
+            <Table>
+              <thead>
+                <tr>
+                  <Th>{t('Name')}</Th>
+                  <Th>{t('Webhook')}</Th>
+                  <Th>{t('Last read')}</Th>
+                  <Th>{t('Last delivery')}</Th>
+                  <Th>{t('Status')}</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {apiList.map((c) => (
+                  <tr key={c.id}>
+                    <Td>{dataText(c.label, lang)}</Td>
+                    <Td>{c.webhookUrl ? (manager ? dataText(c.webhookUrl, lang) : t('Yes')) : '—'}</Td>
+                    <Td>{c.lastSeenAt ? fmtInstant(new Date(c.lastSeenAt), lang) : '—'}</Td>
+                    <Td>
+                      {c.lastDeliveryAt ? fmtInstant(new Date(c.lastDeliveryAt), lang) : '—'}
+                      {c.lastError ? ` · ${t('Failing')} (${c.failures}) · ${c.lastError}` : ''}
+                    </Td>
+                    <Td>
+                      {c.revoked ? t('Revoked') : manager ? (
+                        <>
+                          {c.webhookUrl && <RenewSecretButton id={c.id} />}
+                          <RevokeApiClientButton id={c.id} />
+                        </>
+                      ) : t('Active')}
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          ) : (
+            <EmptyState>{t('No bench system reads this facility.')}</EmptyState>
           )}
         </SectionCard>
       )}

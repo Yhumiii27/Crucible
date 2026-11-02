@@ -8,3 +8,4 @@ export * from './assistant';
 export * from './measure';
 export * from './maintenance';
 export * from './forms';
+export * from './api';

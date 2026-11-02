@@ -141,10 +141,10 @@ export const AUTH_PATHS = {
 /** Health probe(s), reachable without a session (load balancer, monitoring). */
 export const HEALTH_PATHS = ['/api/health'] as const;
 /**
- * Paths that carry their own secret token instead of a session (CR-071, CR-072): a device's events and kiosk page, a calendar
- * subscription read by Outlook. Each one checks its token against the stored hash and opens nothing else.
+ * Paths that carry their own secret token instead of a session (CR-071, CR-072, CR-083): a device's events and kiosk page, a
+ * calendar subscription read by Outlook, the REST API of the bench systems. Each one checks its token against the stored hash and opens nothing else.
  */
-export const TOKEN_PATHS = ['/api/occupancy', '/kiosk', '/api/calendar'] as const;
+export const TOKEN_PATHS = ['/api/occupancy', '/kiosk', '/api/calendar', '/api/v1'] as const;
 
 const STATIC_FILE_RE = /\.(?:ico|png|jpe?g|gif|svg|webp|avif|woff2?|ttf|otf|css|js|map|txt|webmanifest)$/i;
 
