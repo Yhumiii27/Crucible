@@ -145,6 +145,13 @@ async function main(): Promise<void> {
   const agenda = await get('/notifications', 'project_lead');
   check(agenda.status === 200 && agenda.body.includes('Agendas Outlook et Teams') && agenda.body.includes('S’abonner depuis Outlook'), 'calendars: the Outlook and Teams subscriptions of the bell page');
   check((await get(`/api/calendar/crc_${'x'.repeat(43)}.ics`)).status === 404, 'a calendar address with an unknown token is not found');
+  // CR-083: the bench systems tab; the REST API needs its token (no session needed, nothing opened without it).
+  const apiTab = await get('/facilities/PDE?tab=api', 'facility_manager');
+  check(apiTab.status === 200 && apiTab.body.includes('Systèmes de bancs') && apiTab.body.includes('Ajouter un système de banc'), 'API: bench systems of the PDE, the manager adds one');
+  const apiTabTech = await get('/facilities/PDE?tab=api', 'technician');
+  check(apiTabTech.status === 200 && !apiTabTech.body.includes('Ajouter un système de banc'), 'API: the technician reads the tab, adds nothing');
+  const api = await fetch(`${BASE}/api/v1/bookings`);
+  check(api.status === 401 && (api.headers.get('content-type') ?? '').includes('application/json'), 'GET /api/v1/bookings without an API token → 401 (JSON)');
   check((await get('/propose', 'partner')).status === 404, 'a screen outside the profile’s workspace is not found');
   check((await get('/nowhere', 'rd_director')).status === 404, 'an unknown path is not found');
 

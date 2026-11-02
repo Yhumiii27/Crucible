@@ -1,10 +1,11 @@
 import 'server-only';
 // Crucible's scheduled jobs: the schema backup (when CRUCIBLE_BACKUP_DIR is set) and the daily schema declaration to Matrix (when
 // MATRIX_URL or MATRIX_DECLARATIONS_DIR is set), the hourly read of the other tools' views (CR-060), the daily maintenance
-// reminders (CR-073), the daily purge of the counts of the limits of attempts (CR-079), and the daily run of the proposal
+// reminders (CR-073), the webhooks of the bench systems every minute (CR-083), the daily purge of the counts of the limits of attempts (CR-079), and the daily run of the proposal
 // engine (F-3: it proposes every day, a person confirms), and from delivery 5 the e-mails of the notifications, the arbitration
 // reminders, the weekly recap and the weekly snapshots of the utilisation.
 import path from 'node:path';
+import { deliverWebhooks } from '@/server/api/webhooks';
 import { backupSchema } from '@/server/backup';
 import { getConfig } from '@/server/config';
 import { readConnectors, reportLine } from '@/server/integrations/connectors';
@@ -66,6 +67,16 @@ export function crucibleJobs(h: PostgresHandle): Job[] {
       enabled: !!cfg.database && cfg.mail.transport !== 'none',
       async run() {
         return `${await sendPendingMail(h.db, { ...cfg.mail, baseUrl: cfg.publicUrl })} e-mails`;
+      },
+    },
+    {
+      // CR-083: the events of each facility posted to its bench systems' webhooks, signed.
+      name: 'api-webhooks',
+      everyMin: 1,
+      enabled: !!cfg.database,
+      async run() {
+        const r = await deliverWebhooks(h.db, await businessNow());
+        return `${r.delivered} events delivered to ${r.clients} clients${r.failed ? `, ${r.failed} failing` : ''}`;
       },
     },
     {

@@ -2,7 +2,7 @@
 // that cost or that a robot would hammer. Fixed windows counted in the database (one count per bucket, key and window), so
 // every instance of the application shares them. Pure: no import.
 
-export const RATE_BUCKETS = ['sign_in', 'search', 'export', 'assistant', 'device', 'calendar'] as const;
+export const RATE_BUCKETS = ['sign_in', 'search', 'export', 'assistant', 'device', 'calendar', 'api'] as const;
 export type RateBucket = (typeof RATE_BUCKETS)[number];
 
 export interface RateLimit {
@@ -26,6 +26,8 @@ export const RATE_LIMITS: Record<RateBucket, RateLimit> = {
   device: { limit: 600, windowSec: 600, by: 'address' },
   /** Calendar subscriptions read by Outlook (GET /api/calendar), per address. */
   calendar: { limit: 120, windowSec: 600, by: 'address' },
+  /** REST API of the bench systems (GET /api/v1/…, CR-083), per address. */
+  api: { limit: 600, windowSec: 600, by: 'address' },
 };
 
 /** Start of the window holding `now` (ms since the epoch). */

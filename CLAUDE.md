@@ -133,6 +133,12 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   report: utilisation per resource and facility from `resourceUsages`, bookings of the month masked; `src/domain/report.ts`,
   `src/server/dal/report.ts`), printed or saved as PDF by the browser (print CSS hides the shell: `aside`, `[data-print-hide]`,
   dialogs); every export also in JSON (`/api/export/<screen>?format=json`, menu "JSON (BI tools)").
+- **Delivery 15 (REST API and webhooks of the bench systems, CR-083) is done** (`docs/DELIVERY-15.md`, `docs/API.md`, X-17
+  added): API clients per facility (`api_clients`, token `cra_` kept as a hash, facility tab "api", `src/features/api/`),
+  read-only `/api/v1/resources`, `/bookings`, `/bookings/<ref>`, `/events` (`src/server/api/index.ts`, masking `apiBooking`
+  of `src/domain/api.ts`); events written by database triggers on `bookings` and `incidents` (`api_events`, append-only,
+  `drizzle/0022`); signed webhooks delivered every minute by the job `api-webhooks` (`src/server/api/webhooks.ts`). The API
+  never writes in the planning.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

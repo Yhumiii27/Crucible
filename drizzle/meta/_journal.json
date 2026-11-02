@@ -148,6 +148,20 @@
       "when": 1793542022347,
       "tag": "0020_booking_forms_append_only",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793623710551,
+      "tag": "0021_api_clients",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793623713927,
+      "tag": "0022_api_events_triggers",
+      "breakpoints": true
     }
   ]
 }
