@@ -6,21 +6,21 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-11-02 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 22 faits, 4 en cours, 6 à faire, sur 32 points.
+**Avancement** : 23 faits, 4 en cours, 5 à faire, sur 32 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 2 | ≈ 8 |
-| À décider | 4 | ≈ 22 |
+| À décider | 3 | ≈ 10 |
 | Plus tard | 3 | ≈ 18 |
-| **Total** | **10** | **≈ 51** |
+| **Total** | **9** | **≈ 39** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 5 |
+| Non commencé | 4 |
 | Partiel | 0 |
 | Attend le responsable produit | 3 |
 | Attend un système externe | 2 |
@@ -34,7 +34,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
 | Aléas, scénarios et pilotage | 0 | 1 | 1 | 0 | 2 | 5 |
 | Assistant IA | 0 | 0 | 0 | 1 | 1 | 1 |
-| Liens avec les autres outils | 0 | 0 | 1 | 1 | 2 | 1 |
+| Liens avec les autres outils | 0 | 0 | 0 | 1 | 1 | 2 |
 | Cadrage, décisions et données attendues | 0 | 1 | 1 | 0 | 2 | 1 |
 
 ### 1.1 Chemin critique vers la production
@@ -53,7 +53,6 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 - **CR-070** Pilote (4 semaines d’usage réel) — Atelier et données D-1 à D-11 ; DSI (hébergement T-6, inscription Entra) ; Matrix (M-6)
 - **CR-074** Refacturation interne : tarifs par moyen et par entité, coût des heures réservées et réelles, relevés par projet — Responsable produit (hors demande initiale)
 - **CR-076** Consommables et stock liés aux essais (quantités, péremption, alertes) — Responsable produit (hors demande initiale)
-- **CR-081** Résultats d’essais et cahier de laboratoire (ELN) rattachés à la réservation — Responsable produit (hors périmètre déclaré)
 
 ### 1.3 Ce qui attend les autres applications
 
@@ -180,15 +179,15 @@ Poser CRUCIBLE_AI=claude et ANTHROPIC_API_KEY une fois le fournisseur et la rég
 Assistant adossé au moteur, sans écriture seule (I-1 à I-4) ; fournisseur à valider.  
 *Avancement : Panneau sur chaque écran : trace du moteur, conflits et compte rendu d’arbitrage, alternatives validées, risques de charge, simulation, brouillon de besoin ; gabarits sans IA ; échanges conservés en ajout seul et cités au journal. Claude prêt mais désactivé (CR-051). · Sources : docs/spec/04-assistant-ia.md, docs/DELIVERY-6.md*
 
-### 2.8 Liens avec les autres outils (2 restants, 1 faits)
-
-**CR-081 · Résultats d’essais et cahier de laboratoire (ELN) rattachés à la réservation** — *À décider · non commencé · effort L*  
-P3, avancé (Benchling + Calira, Labguru). Rattacher à chaque réservation les résultats bruts, le cahier de laboratoire et le rapport, ou s’intégrer à un ELN. Hors périmètre déclaré au cadrage : Codex reste le référentiel documentaire et Crucible n’en garde que les liens ; à décider avant tout développement.  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Attend : Responsable produit (hors périmètre déclaré) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+### 2.8 Liens avec les autres outils (1 restants, 2 faits)
 
 **CR-060 · Connecteurs Keystone, Cursus, Vigie, Codex** — *Plus tard · attend un système externe · effort L* · **en cours (Livraisons 3, 4, 8)**  
 Jalons Keystone (K-2), habilitations et absences Cursus (CU-1, CU-2), contrôles et coactivité Vigie (V-1, V-2), documents Codex (CX-1, CX-2) ; vues pub_ publiées. Analyse comparative du 25 oct. 2026 : écart P1 (niveau standard du marché) — les vues attendues ne sont pas encore lues (jalons Keystone K-2, absences Cursus CU-1, contrôles Vigie V-1/V-2, documents Codex) ; tant qu’elles ne le sont pas, les jalons, absences et contrôles sont saisis deux fois (src/config/connectors.ts). Brancher les lectures dès que les vues sont accordées met fin aux doubles saisies.  
 *Avancement : Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. Livraison 4 : lecture des titres de cursus.pub_titres_detenus (compétences rattachées à un titre, personnes avec matricule) dès que la vue est accordée. Livraison 8 (31 oct. 2026, DELIVERY-8.md) : jalons keystone.pub_jalons, absences cursus.pub_absences et contrôles vigie.pub_controles lus toutes les heures (tâche connectors-read) et à la demande ; ce qui est lu se modifie dans son outil. 1er nov. 2026 : état des références Codex lu à l’affichage dans codex.pub_documents (révision en vigueur, inconnu, obsolète, archivé). Restent : suspensions Vigie (V-2, vue pas encore publiée), projets, salariés et sites. · Attend : Keystone, Cursus, Vigie, Codex · Sources : docs/DEMANDES-\*.md*
+
+**~~CR-081 · Résultats d’essais et cahier de laboratoire (ELN) rattachés à la réservation~~** — *À décider · non commencé · effort L* · **fait (Livraison 16)**  
+P3, avancé (Benchling + Calira, Labguru). Rattacher à chaque réservation les résultats bruts, le cahier de laboratoire et le rapport, ou s’intégrer à un ELN. Hors périmètre déclaré au cadrage : Codex reste le référentiel documentaire et Crucible n’en garde que les liens ; à décider avant tout développement.  
+*Avancement : 2 nov. 2026 (DELIVERY-16.md, X-18 à confirmer) : résultat par réservation (conclusion, mesures, observations), références Codex des données brutes et du cahier de laboratoire, lien ELN ; versions gardées, correction motivée ; fiche projet et Mon planning. · Attend : Responsable produit (hors périmètre déclaré) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 **~~CR-083 · API REST et webhooks pour les systèmes de bancs~~** — *Plus tard · non commencé · effort L* · **fait (Livraison 15)**  
 P3, standard (QReserve, Calira). API authentifiée pour lire les réservations et les moyens et déclarer un démarrage, une fin ou un incident depuis un automate de banc ; webhooks à la confirmation, au déplacement et à l’annulation. Aujourd’hui aucune API métier : les échanges passent par les vues pub_ et le CSV.  
@@ -210,6 +209,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-02 — Livraison 16 (CR-081, « fait les prochains points ») : résultats d’essais rattachés à la réservation, références Codex et lien ELN. X-18 ajoutée (défaut appliqué). 419 tests.
 - 2026-11-02 — Livraison 15 (CR-083, « lance le prochain point ») : API REST en lecture des systèmes de bancs, événements par déclencheurs, webhooks signés. X-17 ajoutée (défaut appliqué). 409 tests.
 - 2026-11-01 — Livraison 14 (CR-077, « lance le prochain point ») : rapport mensuel imprimable en PDF, exports CSV et JSON pour la BI. X-16 ajoutée (défaut appliqué). 397 tests.
 - 2026-11-01 — Décision M-18 de Matrix appliquée (demande du 01/11, acceptée le même jour) : Matrix définit et possède les vues pub_ de Crucible ; plus aucune vue pub_ dans une nouvelle migration (garde de test), colonne publiée jamais supprimée ni renommée sans prévenir Matrix ; règles reprises dans CLAUDE.md et ECHANGES.md.

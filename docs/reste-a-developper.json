@@ -110,6 +110,10 @@
   {
    "date": "2026-11-02",
    "text": "Livraison 15 (CR-083, « lance le prochain point ») : API REST en lecture des systèmes de bancs, événements par déclencheurs, webhooks signés. X-17 ajoutée (défaut appliqué). 409 tests."
+  },
+  {
+   "date": "2026-11-02",
+   "text": "Livraison 16 (CR-081, « fait les prochains points ») : résultats d’essais rattachés à la réservation, références Codex et lien ELN. X-18 ajoutée (défaut appliqué). 419 tests."
   }
  ],
  "items": [
@@ -745,12 +749,14 @@
     "Analyse comparative avec les solutions du commerce, 25 oct. 2026"
    ],
    "evidence": [
-    "docs/spec/00 : résultats d’essais hors périmètre",
-    "src/domain/needs.ts : lien Codex seulement"
+    "src/domain/results.ts, src/features/results/actions.ts",
+    "drizzle/0023_test_results.sql, 0024 (ajout seul)",
+    "src/components/app/TestResult.tsx : fiche projet et Mon planning"
    ],
    "progress": {
-    "state": "a_faire",
-    "note": "Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu)."
+    "state": "fait",
+    "delivery": "Livraison 16",
+    "note": "2 nov. 2026 (DELIVERY-16.md, X-18 à confirmer) : résultat par réservation (conclusion, mesures, observations), références Codex des données brutes et du cahier de laboratoire, lien ELN ; versions gardées, correction motivée ; fiche projet et Mon planning."
    }
   },
   {
