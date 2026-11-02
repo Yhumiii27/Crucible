@@ -149,6 +149,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   a month computed at each read (`src/domain/charges.ts` `rateFor` / `billedHours` / `chargeStatement`, `src/server/dal/charges.ts`;
   a done test billed at its realised time, a no-show at its booked slot; a partner reads its entity only), view "Chargeback" of
   `/reports` (`?view=charges`), exported per booking for the accounting.
+- **Delivery 18 (consumables and stock, CR-076) is done** (`docs/DELIVERY-18.md`, X-20 added): per facility `consumables`,
+  `consumable_lots` (expiry), `consumable_moves` (append-only, `drizzle/0026`–`0027`) and `test_type_consumables`
+  (`src/domain/consumables.ts`: `balances`, `pickLots` earliest expiry first, `alertsOf`, `shortages`); `consumeForBooking`
+  (`src/server/consumables.ts`) runs in the transaction that ends a test (screen and device); facility tab "consumables"
+  (`src/features/consumables/`), "Consumables short" in My schedule, daily job `consumables-alerts`.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

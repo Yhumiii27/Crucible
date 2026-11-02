@@ -32,5 +32,6 @@ export const NOTIFICATION_KINDS = {
   maintenance_due: 'Maintenance or calibration due',
   form_incident: 'Incident reported on a test',
   test_result: 'Result of your test',
+  consumable_alert: 'Consumables to see to',
 } as const;
 export type NotificationKind = keyof typeof NOTIFICATION_KINDS;

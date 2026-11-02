@@ -25,6 +25,9 @@ import { facilityApiClients } from '@/server/api';
 import { RateForm, WithdrawRateButton } from '@/features/charges/forms';
 import { euros } from '@/domain/charges';
 import { facilityRates } from '@/server/dal/charges';
+import { ConsumableForm, CorrectStockForm, ReceiveLotForm, RequirementForm } from '@/features/consumables/forms';
+import { ALERT_LABEL, MOVE_KIND_LABEL } from '@/domain/consumables';
+import { facilityConsumables } from '@/server/consumables';
 import { MaintenancePlanForm, MaintenanceRecordForm, WithdrawPlanButton } from '@/features/maintenance/forms';
 import { MAINTENANCE_KIND_LABEL } from '@/domain/maintenance';
 import { FORM_STAGES, FORM_STAGE_LABEL } from '@/domain/booking-forms';
@@ -56,6 +59,7 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
   const manager = managedFacilities(viewer.role, viewer.assignments).includes(facility.code);
   const apiList = tab === 'api' ? await facilityApiClients(facility.code) : null;
   const rates = tab === 'rates' ? await facilityRates(facility.code) : null;
+  const stock = tab === 'consumables' ? await facilityConsumables(facility.code, today) : null;
   const rateEntities = [facility.operatorEntityCode, ...facility.partnerEntityCodes];
   const forms = tab === 'forms' ? await facilityForms(facility.code, new Date(now.getTime() - 30 * 86_400_000)) : null;
   const resRefs = sheet.resources.filter((r) => r.status !== 'retired').map((r) => ({ id: r.id, code: r.code }));
@@ -99,6 +103,15 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
         <Folded summary="Add a kiosk or a sensor" variant="primary" size="md">
           <p className="text-muted">{t('Start and stop events of the device start and end the booking of the resource; without a booking they are kept as a use without a booking (X-8).')}</p>
           <DeviceForm facilityCode={facility.code} resources={resRefs.map((r) => ({ value: r.id, label: r.code }))} />
+        </Folded>
+      )}
+      {tab === 'consumables' && manager && (
+        <Folded summary="Add a consumable" variant="primary" size="md"><ConsumableForm facilityCode={facility.code} /></Folded>
+      )}
+      {tab === 'consumables' && manager && stock && stock.items.some((c) => c.active) && (
+        <Folded summary="Needs of a test type" size="md">
+          <p className="text-muted">{t('What a test of this type uses: taken from the stock when it ends (the lots that expire first); a booking to come is flagged when the stock cannot cover it (X-20).')}</p>
+          <RequirementForm consumables={stock.items.filter((c) => c.active).map((c) => ({ value: c.id, label: `${c.name} (${c.unit})` }))} testTypes={stock.testTypes.map((x) => ({ value: x.code, label: `${x.code} · ${x.name}` }))} />
         </Folded>
       )}
       {tab === 'rates' && manager && resRefs.length > 0 && (
@@ -456,6 +469,87 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
             <EmptyState>{t('No mobile equipment.')}</EmptyState>
           )}
         </SectionCard>
+      )}
+
+      {tab === 'consumables' && stock && (
+        <>
+          <SectionCard title={t('Consumables')} hint={String(stock.items.filter((c) => c.active).length)}
+            subtitle={t('Stock = receipts less uses, adjustments and discards, kept as recorded. A lot expired is never used.')} scroll>
+            {stock.items.length ? (
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t('Consumable')}</Th>
+                    <Th align="right">{t('Stock')}</Th>
+                    <Th align="right">{t('Alert threshold')}</Th>
+                    <Th>{t('Lots')}</Th>
+                    <Th>{t('Alerts')}</Th>
+                    {manager && <Th />}
+                  </tr>
+                </thead>
+                <tbody>
+                  {stock.items.map((c) => (
+                    <tr key={c.id}>
+                      <Td valign="top">{dataText(c.name, lang)}{!c.active && <div className="text-muted">{t('Set aside')}</div>}</Td>
+                      <Td valign="top" align="right" numeric>{`${c.stock.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')} ${c.unit}`}</Td>
+                      <Td valign="top" align="right" numeric>{c.threshold == null ? '—' : `${c.threshold.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')} ${c.unit}`}</Td>
+                      <Td valign="top">
+                        {c.lots.length ? c.lots.map((l) => (
+                          <div key={l.id}>{`${dataText(l.lotRef, lang)} · ${l.left.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')} ${c.unit}`}{l.expiresOn && <span className="text-muted">{` · ${t('expires')} ${fmtDate(l.expiresOn, lang)}`}</span>}</div>
+                        )) : '—'}
+                      </Td>
+                      <Td valign="top">{c.alerts.length ? c.alerts.map((a, i) => <Tag key={i} tone="accent" size="sm">{`${t(ALERT_LABEL[a.kind])}${a.lotRef ? ` · ${a.lotRef}` : ''}`}</Tag>) : '—'}</Td>
+                      {manager && (
+                        <Td valign="top">
+                          {c.active && <ReceiveLotForm consumableId={c.id} today={today} />}
+                          <CorrectStockForm consumableId={c.id} lots={c.lots.map((l) => ({ value: l.id, label: l.lotRef }))} />
+                          <Folded summary="Change" size="xs" variant="ghost"><ConsumableForm facilityCode={facility.code} current={c} /></Folded>
+                        </Td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              <EmptyState>{t('No consumable followed in this facility.')}</EmptyState>
+            )}
+          </SectionCard>
+          <SectionCard title={t('Needs per test type')} hint={String(stock.requirements.length)}>
+            {stock.requirements.length ? (
+              <Table>
+                <thead><tr><Th>{t('Test type')}</Th><Th>{t('Consumable')}</Th><Th align="right">{t('Quantity per test')}</Th></tr></thead>
+                <tbody>
+                  {stock.requirements.map((r) => (
+                    <tr key={`${r.testTypeCode}-${r.consumableId}`}><Td>{r.testTypeCode}</Td><Td>{dataText(r.consumable, lang)}</Td><Td align="right" numeric>{`${r.quantity.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')} ${r.unit}`}</Td></tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              <EmptyState>{t('No test type uses these consumables yet.')}</EmptyState>
+            )}
+          </SectionCard>
+          <SectionCard title={t('Moves of the stock')} hint={String(stock.moves.length)} subtitle={t('Last 30 days, newest first; kept as recorded.')} scroll>
+            {stock.moves.length ? (
+              <Table>
+                <thead><tr><Th>{t('When')}</Th><Th>{t('Consumable')}</Th><Th>{t('Move')}</Th><Th align="right">{t('Quantity')}</Th><Th>{t('Lot')}</Th><Th>{t('By')}</Th></tr></thead>
+                <tbody>
+                  {stock.moves.map((m) => (
+                    <tr key={m.id}>
+                      <Td>{fmtInstant(m.at, lang)}</Td>
+                      <Td>{dataText(m.consumable, lang)}</Td>
+                      <Td>{t(MOVE_KIND_LABEL[m.kind])}{m.bookingRef ? ` · ${m.bookingRef}` : ''}{m.reason ? <div className="text-muted">{dataText(m.reason, lang)}</div> : null}</Td>
+                      <Td align="right" numeric>{`${m.quantity > 0 ? '+' : ''}${m.quantity.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB')} ${m.unit}`}</Td>
+                      <Td>{m.lotRef ? dataText(m.lotRef, lang) : '—'}</Td>
+                      <Td>{dataText(m.byName, lang)}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            ) : (
+              <EmptyState>{t('No move over the last 30 days.')}</EmptyState>
+            )}
+          </SectionCard>
+        </>
       )}
 
       {tab === 'rates' && rates && (

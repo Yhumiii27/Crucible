@@ -7,6 +7,8 @@ import { and, asc, desc, eq, gte, inArray, isNull, lt } from 'drizzle-orm';
 import { canTransition } from '@/domain/booking';
 import { eventInstant, reconcile, unbookedUses, type OccupancyEventKind, type OccupancyOutcome } from '@/domain/occupancy';
 import { canSeeBookingDetail } from '@/domain/rights';
+import { parisParts } from '@/lib/dates';
+import { consumeForBooking } from '@/server/consumables';
 import { getDb } from '@/server/db/client';
 import { writeAudit } from '@/server/db/helpers';
 import { bookings, occupancyDevices, occupancyEvents, projects, resources } from '@/server/db/schema';
@@ -74,6 +76,8 @@ export async function recordOccupancyEvent(token: string, input: { kind: unknown
     if (decision.kind === 'ended' && booking && canTransition(booking.status, 'done')) {
       await tx.update(bookings).set({ status: 'done', actualStartAt: booking.actualStartAt ?? at, actualEndAt: at, updatedAt: new Date() }).where(eq(bookings.id, booking.id));
       await writeAudit(tx, { ...actor, objectRef: `Booking ${booking.ref}`, change: `status: ${booking.status} → done (measured)`, entityId: booking.id, projectCode: booking.projectCode });
+      const used = await consumeForBooking(tx, booking.id, actor.actorName, parisParts(at).iso, now);
+      if (used.length) await writeAudit(tx, { ...actor, area: 'Facilities', objectRef: `Booking ${booking.ref}`, change: `consumables used: ${used.join(', ')}`, entityId: booking.id, projectCode: booking.projectCode });
     }
     const reason = decision.kind === 'ignored' ? decision.reason : null;
     await tx.insert(occupancyEvents).values({ deviceId: device.id, resourceId: device.resourceId, kind, occurredAt: at, receivedAt: now, outcome: decision.kind, bookingId: booking?.id ?? null, note: reason });

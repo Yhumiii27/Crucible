@@ -6,21 +6,21 @@ Inventaire initial du 2026-10-22, mis à jour le 2026-11-02 (branche `claude/luc
 
 ## 1. En bref
 
-**Avancement** : 24 faits, 4 en cours, 4 à faire, sur 32 points.
+**Avancement** : 25 faits, 4 en cours, 3 à faire, sur 32 points.
 
 | Priorité | Points restants | Effort estimé (jours) |
 |---|---:|---:|
 | Bloquant production | 1 | ≈ 4 |
 | Prochaine étape | 2 | ≈ 8 |
-| À décider | 2 | ≈ 6 |
+| À décider | 1 | ≈ 2 |
 | Plus tard | 3 | ≈ 18 |
-| **Total** | **8** | **≈ 35** |
+| **Total** | **7** | **≈ 31** |
 
 L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il ne compte ni l'attente des décisions et des données, ni les développements à faire côté Keystone, Codex, Vigie, Cursus ou Matrix, ni la recette.
 
 | Statut (points restants) | Points |
 |---|---:|
-| Non commencé | 3 |
+| Non commencé | 2 |
 | Partiel | 0 |
 | Attend le responsable produit | 3 |
 | Attend un système externe | 2 |
@@ -29,7 +29,7 @@ L'effort est un ordre de grandeur (S = 1,5 j, M = 4 j, L = 12 j, XL = 30 j) : il
 |---|---:|---:|---:|---:|---:|---:|
 | Plateforme et mise en production | 1 | 0 | 0 | 1 | 2 | 3 |
 | Connexion, profils et visibilité | 0 | 0 | 0 | 0 | 0 | 2 |
-| Moyens d’essais, règles et réservations | 0 | 0 | 1 | 0 | 1 | 7 |
+| Moyens d’essais, règles et réservations | 0 | 0 | 0 | 0 | 0 | 8 |
 | Besoins des projets et anticipation | 0 | 0 | 0 | 0 | 0 | 1 |
 | Proposition de créneaux et arbitrages | 0 | 0 | 0 | 0 | 0 | 1 |
 | Aléas, scénarios et pilotage | 0 | 1 | 0 | 0 | 1 | 6 |
@@ -51,7 +51,6 @@ Décisions à prendre et données à fournir avant de pouvoir développer (`docs
 - **CR-003** Données à fournir D-1 à D-11 — Responsable produit et équipes R&D
 - **CR-051** Activer Claude pour l’assistant — DSI (fournisseur et région, I-3)
 - **CR-070** Pilote (4 semaines d’usage réel) — Atelier et données D-1 à D-11 ; DSI (hébergement T-6, inscription Entra) ; Matrix (M-6)
-- **CR-076** Consommables et stock liés aux essais (quantités, péremption, alertes) — Responsable produit (hors demande initiale)
 
 ### 1.3 Ce qui attend les autres applications
 
@@ -92,11 +91,7 @@ P2, qualité. Parcours Playwright sur les écrans principaux (réservation refus
 Écritures validées côté serveur et auditées ; projets et classe de priorité par la direction R&D.  
 *Avancement : src/features/admin/. · Sources : docs/spec/05-ecrans.md*
 
-### 2.3 Moyens d’essais, règles et réservations (1 restants, 7 faits)
-
-**CR-076 · Consommables et stock liés aux essais (quantités, péremption, alertes)** — *À décider · non commencé · effort M*  
-P2, avancé (Labguru, QReserve). Consommables requis par type d’essai, quantités décomptées à la réservation ou à la fin de l’essai, lots et dates de péremption, alertes de seuil et de péremption, réservation signalée quand le stock manque. Aujourd’hui absent.  
-*Avancement : Consigné le 26 oct. 2026 (analyse comparative) ; à valider avant de construire (question X-n à ajouter à DECISIONS.md si retenu). · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+### 2.3 Moyens d’essais, règles et réservations (0 restants, 8 faits)
 
 **~~CR-010 · Moyens d’essais, zones du PDE, calendriers, indisponibilités, contrôles~~** — *Prochaine étape · non commencé · effort L* · **fait (Livraison 2)**  
 Installations, moyens réservables (zones du PDE : atelier mécanique, pilote, pièces laboratoire), horaires, maintenances, contrôles échus bloquants (R-6).  
@@ -125,6 +120,10 @@ P2, avancé (Calira Premium, LabVantage, Labguru). Plan de maintenance préventi
 **~~CR-075 · Formulaires avant, pendant et après la réservation (check-list sécurité, fiche d’essai, rapport d’incident)~~** — *À décider · non commencé · effort M* · **fait (Livraison 12)**  
 P2, avancé (Calira). Formulaires configurables rattachés au type d’essai ou au moyen : check-list sécurité à remplir avant de démarrer, fiche d’essai pendant, rapport de fin ou d’incident après ; réponses conservées en ajout seul et citées au journal. Aujourd’hui absent ; seul un lien vers le protocole et le rapport dans Codex.  
 *Avancement : Fait le 1er nov. 2026 (DELIVERY-12.md, X-14) : check-list sécurité (obligatoire avant le démarrage à l’écran), fiche d’essai et rapport d’incident par installation, remplis depuis Mon planning, gardés tels que remplis. · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
+
+**~~CR-076 · Consommables et stock liés aux essais (quantités, péremption, alertes)~~** — *À décider · non commencé · effort M* · **fait (Livraison 18)**  
+P2, avancé (Labguru, QReserve). Consommables requis par type d’essai, quantités décomptées à la réservation ou à la fin de l’essai, lots et dates de péremption, alertes de seuil et de péremption, réservation signalée quand le stock manque. Aujourd’hui absent.  
+*Avancement : 2 nov. 2026 (DELIVERY-18.md, X-20 à confirmer) : consommables par installation, lots et péremption, besoins par type d’essai, décompte à la fin de l’essai (premier périmé, premier sorti), alertes quotidiennes, réservation à venir signalée dans Mon planning. · Attend : Responsable produit (hors demande initiale) · Sources : Analyse comparative avec les solutions du commerce, 25 oct. 2026*
 
 ### 2.4 Besoins des projets et anticipation (0 restants, 1 faits)
 
@@ -208,6 +207,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-02 — Livraison 18 (CR-076, « fait les prochains points ») : consommables et stock, lots et péremption, décompte à la fin de l’essai, alertes. X-20 ajoutée (défaut appliqué). 436 tests.
 - 2026-11-02 — Livraison 17 (CR-074, « fait les prochains points ») : refacturation interne, tarifs datés par moyen et entité, relevé mensuel exportable. X-19 ajoutée (défaut appliqué). 427 tests.
 - 2026-11-02 — Livraison 16 (CR-081, « fait les prochains points ») : résultats d’essais rattachés à la réservation, références Codex et lien ELN. X-18 ajoutée (défaut appliqué). 419 tests.
 - 2026-11-02 — Livraison 15 (CR-083, « lance le prochain point ») : API REST en lecture des systèmes de bancs, événements par déclencheurs, webhooks signés. X-17 ajoutée (défaut appliqué). 409 tests.

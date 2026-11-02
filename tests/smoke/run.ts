@@ -96,6 +96,9 @@ async function main(): Promise<void> {
   check(charges.status === 200 && charges.body.includes('Relevé de refacturation'), 'chargeback: the statement of the month');
   const rates = await get('/facilities/LAB67?tab=rates', 'coordinator');
   check(rates.status === 200 && rates.body.includes('Tarifs de refacturation') && rates.body.includes('Ajouter un tarif'), 'chargeback: the rates of laboratoire 67, the coordinator adds one');
+  // CR-076: the consumables of a facility.
+  const stockTab = await get('/facilities/PDE?tab=consumables', 'facility_manager');
+  check(stockTab.status === 200 && stockTab.body.includes('Mouvements du stock') && stockTab.body.includes('Ajouter un consommable'), 'consumables: stock of the PDE, the manager adds one');
   check((await get('/reports', 'project_lead')).status === 404, 'the monthly report is not in a project lead’s workspace');
   const conflictsPage = await get('/conflicts', 'coordinator');
   check(conflictsPage.status === 200 && conflictsPage.body.includes('C-2026-0001') && conflictsPage.body.includes('Recommandée') && conflictsPage.body.includes('Essai de sécurité ou réglementaire'), 'conflicts: the PDE sheet, its recommendation and the rule cited');

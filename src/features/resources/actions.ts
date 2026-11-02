@@ -26,6 +26,7 @@ import {
 import type { Tx } from '@/server/db/types';
 import { calendarsOf, rulesOf } from '@/server/dal/resources';
 import { notify } from '@/server/notify';
+import { consumeForBooking } from '@/server/consumables';
 import { getViewer, type Viewer } from '@/server/session';
 
 export type ActionResult = { ok: true; warnings?: string[] } | { ok: false; error: string };
@@ -546,6 +547,9 @@ export async function finishBookingAction(_prev: ActionResult | null, fd: FormDa
     await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, `status: ${row.b.status} → done`, {
       entityType: 'booking', entityId: id, projectCode: row.b.projectCode, after: { actualStart: actualStart.toISOString(), actualEnd: actualEnd.toISOString() },
     }));
+    // CR-076: the consumables its test type needs are taken from the stock.
+    const used = await consumeForBooking(tx, id, v.name, parisParts(now).iso, now);
+    if (used.length) await writeAudit(tx, audit(v, 'Facilities', `Booking ${row.b.ref}`, `consumables used: ${used.join(', ')}`, { entityType: 'booking', entityId: id, projectCode: row.b.projectCode }));
     return { ok: true };
   });
   if (r.ok) revalidate('/planning', '/my/schedule', '/dashboard');
