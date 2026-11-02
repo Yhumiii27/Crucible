@@ -900,6 +900,18 @@
     "blocks": "L18"
   },
   {
+    "id": "X-21",
+    "group": "extra",
+    "title": "Téléphone et hors ligne (CR-082)",
+    "context": "Sur un téléphone, le menu latéral était masqué sans bouton pour l’ouvrir ; rien ne fonctionnait sans réseau.",
+    "proposal": "Menu en tiroir jusqu’à 1024 px ; application installable qui ouvre Mon planning ; dernière copie de Mon planning gardée par un service worker ; sans réseau, démarrages et fins d’essai gardés sur le téléphone puis envoyés au retour du réseau avec tous les contrôles (48 heures au plus).",
+    "alts": [
+      "Application native (iOS / Android)",
+      "Formulaires (check-list, fiche d’essai) aussi hors ligne"
+    ],
+    "blocks": "L19"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

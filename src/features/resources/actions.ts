@@ -500,23 +500,26 @@ export async function startBookingAction(id: string): Promise<ActionResult> {
   const v = await getViewer();
   const now = await businessNow();
   const db = await getDb();
-  const r = await db.transaction(async (tx): Promise<ActionResult> => {
-    const row = await bookingFor(tx, id);
-    if (!row || !operatedFacilities(v.role, v.assignments).includes(row.res.facilityCode)) return REFUSED;
-    if (!canTransition(row.b.status, 'in_progress')) return { ok: false, error: 'This booking cannot be started' };
-    // CR-075: the facility's safety checklist is filled for the booking before the test starts.
-    const [checklist] = await tx.select({ id: formTemplates.id }).from(formTemplates)
-      .where(and(eq(formTemplates.facilityCode, row.res.facilityCode), eq(formTemplates.stage, 'before'), eq(formTemplates.active, true)));
-    if (checklist) {
-      const [filled] = await tx.select({ id: formResponses.id }).from(formResponses).where(and(eq(formResponses.bookingId, id), eq(formResponses.stage, 'before'))).limit(1);
-      if (!filled) return { ok: false, error: 'Fill the safety checklist before starting the test' };
-    }
-    await tx.update(bookings).set({ status: 'in_progress', actualStartAt: now, updatedAt: new Date() }).where(eq(bookings.id, id));
-    await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, 'status: confirmed → in_progress', { entityType: 'booking', entityId: id, projectCode: row.b.projectCode }));
-    return { ok: true };
-  });
+  const r = await db.transaction((tx) => startIn(tx, v, id, now, ''));
   if (r.ok) revalidate('/planning', '/my/schedule', '/dashboard');
   return r;
+}
+
+/** Starts a test at `at` (now, or the instant recorded on a phone without network, CR-082). */
+async function startIn(tx: Tx, v: Viewer, id: string, at: Date, note: string): Promise<ActionResult> {
+  const row = await bookingFor(tx, id);
+  if (!row || !operatedFacilities(v.role, v.assignments).includes(row.res.facilityCode)) return REFUSED;
+  if (!canTransition(row.b.status, 'in_progress')) return { ok: false, error: 'This booking cannot be started' };
+  // CR-075: the facility's safety checklist is filled for the booking before the test starts.
+  const [checklist] = await tx.select({ id: formTemplates.id }).from(formTemplates)
+    .where(and(eq(formTemplates.facilityCode, row.res.facilityCode), eq(formTemplates.stage, 'before'), eq(formTemplates.active, true)));
+  if (checklist) {
+    const [filled] = await tx.select({ id: formResponses.id }).from(formResponses).where(and(eq(formResponses.bookingId, id), eq(formResponses.stage, 'before'))).limit(1);
+    if (!filled) return { ok: false, error: 'Fill the safety checklist before starting the test' };
+  }
+  await tx.update(bookings).set({ status: 'in_progress', actualStartAt: at, updatedAt: new Date() }).where(eq(bookings.id, id));
+  await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, `status: confirmed → in_progress${note}`, { entityType: 'booking', entityId: id, projectCode: row.b.projectCode }));
+  return { ok: true };
 }
 
 /**
@@ -531,29 +534,79 @@ export async function finishBookingAction(_prev: ActionResult | null, fd: FormDa
   const now = await businessNow();
   const db = await getDb();
   const r = await db.transaction(async (tx): Promise<ActionResult> => {
-    const row = await bookingFor(tx, id);
-    if (!row || !operatedFacilities(v.role, v.assignments).includes(row.res.facilityCode)) return REFUSED;
-    if (!canTransition(row.b.status, 'done')) return { ok: false, error: 'This booking cannot be ended' };
-    const day = parisParts(row.b.startsAt).iso;
-    let actualStart = row.b.actualStartAt ?? row.b.startsAt;
-    let actualEnd = now;
+    let times: { start: Date; end: Date } | null = null;
     if (from || to) {
       if (!isHhmm(from) || !isHhmm(to) || to <= from) return { ok: false, error: 'Enter the actual start and end times (HH:MM)' };
-      actualStart = parisInstant(day, from);
-      actualEnd = parisInstant(parisParts(new Date(row.b.endsAt.getTime() - 1)).iso, to);
+      const row = await bookingFor(tx, id);
+      if (!row) return REFUSED;
+      times = { start: parisInstant(parisParts(row.b.startsAt).iso, from), end: parisInstant(parisParts(new Date(row.b.endsAt.getTime() - 1)).iso, to) };
     }
-    if (actualEnd <= actualStart || actualEnd > now) return { ok: false, error: 'The actual end comes after the start and not in the future' };
-    await tx.update(bookings).set({ status: 'done', actualStartAt: actualStart, actualEndAt: actualEnd, updatedAt: new Date() }).where(eq(bookings.id, id));
-    await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, `status: ${row.b.status} → done`, {
-      entityType: 'booking', entityId: id, projectCode: row.b.projectCode, after: { actualStart: actualStart.toISOString(), actualEnd: actualEnd.toISOString() },
-    }));
-    // CR-076: the consumables its test type needs are taken from the stock.
-    const used = await consumeForBooking(tx, id, v.name, parisParts(now).iso, now);
-    if (used.length) await writeAudit(tx, audit(v, 'Facilities', `Booking ${row.b.ref}`, `consumables used: ${used.join(', ')}`, { entityType: 'booking', entityId: id, projectCode: row.b.projectCode }));
-    return { ok: true };
+    return finishIn(tx, v, id, times, now, '');
   });
   if (r.ok) revalidate('/planning', '/my/schedule', '/dashboard');
   return r;
+}
+
+/** Ends a test at `times.end` (from `times.start`), else now from its actual start; never in the future. */
+async function finishIn(tx: Tx, v: Viewer, id: string, times: { start: Date | null; end: Date } | null, now: Date, note: string): Promise<ActionResult> {
+  const row = await bookingFor(tx, id);
+  if (!row || !operatedFacilities(v.role, v.assignments).includes(row.res.facilityCode)) return REFUSED;
+  if (!canTransition(row.b.status, 'done')) return { ok: false, error: 'This booking cannot be ended' };
+  const actualStart = times?.start ?? row.b.actualStartAt ?? row.b.startsAt;
+  const actualEnd = times?.end ?? now;
+  if (actualEnd <= actualStart || actualEnd > now) return { ok: false, error: 'The actual end comes after the start and not in the future' };
+  await tx.update(bookings).set({ status: 'done', actualStartAt: actualStart, actualEndAt: actualEnd, updatedAt: new Date() }).where(eq(bookings.id, id));
+  await writeAudit(tx, audit(v, 'Bookings', `Booking ${row.b.ref}`, `status: ${row.b.status} → done${note}`, {
+    entityType: 'booking', entityId: id, projectCode: row.b.projectCode, after: { actualStart: actualStart.toISOString(), actualEnd: actualEnd.toISOString() },
+  }));
+  // CR-076: the consumables its test type needs are taken from the stock.
+  const used = await consumeForBooking(tx, id, v.name, parisParts(actualEnd).iso, now);
+  if (used.length) await writeAudit(tx, audit(v, 'Facilities', `Booking ${row.b.ref}`, `consumables used: ${used.join(', ')}`, { entityType: 'booking', entityId: id, projectCode: row.b.projectCode }));
+  return { ok: true };
+}
+
+/** One start or end recorded on a phone without network (CR-082, X-21), sent when the network is back. */
+export interface OfflineEvent {
+  bookingId: string;
+  kind: 'start' | 'end';
+  /** Instant recorded on the phone (ms since the epoch). */
+  at: number;
+}
+
+export type OfflineSyncResult = { bookingId: string; kind: string; ok: boolean; error?: string }[];
+
+/**
+ * Applies the starts and ends recorded offline, in the order they happened, each in its own transaction with every check of the
+ * screen (rights, transition, safety checklist), at the instant recorded: not in the future, not more than 48 hours old.
+ */
+export async function syncOfflineEventsAction(events: OfflineEvent[]): Promise<OfflineSyncResult> {
+  const v = await getViewer();
+  const now = await businessNow();
+  const db = await getDb();
+  const out: OfflineSyncResult = [];
+  const list = Array.isArray(events) ? events.slice(0, 50) : [];
+  for (const e of [...list].sort((a, b) => Number(a?.at) - Number(b?.at))) {
+    const bookingId = typeof e?.bookingId === 'string' ? e.bookingId : '';
+    const kind = e?.kind === 'start' || e?.kind === 'end' ? e.kind : null;
+    const at = typeof e?.at === 'number' && Number.isFinite(e.at) ? new Date(Math.min(e.at, now.getTime())) : null;
+    if (!/^[0-9a-f-]{36}$/i.test(bookingId) || !kind || !at) {
+      out.push({ bookingId, kind: String(e?.kind ?? ''), ok: false, error: 'Invalid offline record' });
+      continue;
+    }
+    if (e.at > now.getTime() + 5 * 60_000) {
+      out.push({ bookingId, kind, ok: false, error: 'Recorded offline in the future: check the phone’s clock' });
+      continue;
+    }
+    if (now.getTime() - at.getTime() > 48 * 3_600_000) {
+      out.push({ bookingId, kind, ok: false, error: 'Recorded offline too long ago: enter it on the screen' });
+      continue;
+    }
+    const note = ` (recorded offline at ${at.toISOString()})`;
+    const r = await db.transaction((tx) => (kind === 'start' ? startIn(tx, v, bookingId, at, note) : finishIn(tx, v, bookingId, { start: null, end: at }, now, note)));
+    out.push(r.ok ? { bookingId, kind, ok: true } : { bookingId, kind, ok: false, error: r.error });
+  }
+  if (out.some((x) => x.ok)) revalidate('/planning', '/my/schedule', '/dashboard');
+  return out;
 }
 
 /** Releases a confirmed booking not started two hours after its start (A-7): a manager of the facility. */

@@ -12,6 +12,7 @@ import { canMarkNoShow } from '@/domain/booking';
 import { BOOKING_STATUS_LABEL } from '@/domain/resources';
 import { managedFacilities } from '@/domain/rights';
 import { FillForm } from '@/features/forms/forms';
+import { OfflineSync } from '@/features/offline/sync';
 import { TestResult } from '@/components/app/TestResult';
 import { canHaveResult } from '@/domain/results';
 import { ResultForm } from '@/features/results/forms';
@@ -54,6 +55,7 @@ export default async function MySchedulePage() {
   return (
     <>
       <PageHeader screen="my-schedule" />
+      <OfflineSync />
       {days.length ? (
         days.map((d) => (
           <SectionCard key={d} title={`${fmtDate(d, lang)}${d === today ? ` · ${t('Today')}` : ''}`}>

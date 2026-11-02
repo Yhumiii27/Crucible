@@ -5,8 +5,9 @@
 // holds the facility switcher (Keystone's project switcher: my facilities / all I see, search); its entries are the tabs of the
 // facility of the URL, else the last one used (cookie crucible-facility). At the bottom the "View as" switcher (demo mode) or
 // the account menu (Entra mode). The language toggle and the bell are in the page header.
-import { Buildings, CalendarX, CurrencyEur, Package, Plugs, CaretDown, CaretRight, CaretUpDown, Check, Eye, Flask, Gauge, ListChecks, MagnifyingGlass, Polygon, SealCheck, SignOut, Toolbox, Wrench } from '@phosphor-icons/react/dist/ssr';
+import { X, Buildings, CalendarX, CurrencyEur, Package, Plugs, CaretDown, CaretRight, CaretUpDown, Check, Eye, Flask, Gauge, ListChecks, MagnifyingGlass, Polygon, SealCheck, SignOut, Toolbox, Wrench } from '@phosphor-icons/react/dist/ssr';
 import type { Icon } from '@phosphor-icons/react';
+import { useMobileMenu } from './mobile-menu';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useTransition, type CSSProperties, type KeyboardEvent } from 'react';
@@ -99,6 +100,7 @@ export function Sidebar({ role, personas, account, facilities, lastFacility, fol
   const [folded, setFolded] = useState<string[]>(initialFolded);
   const [q, setQ] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
+  const menu = useMobileMenu();
 
   // The facility of the URL becomes the last one used.
   useEffect(() => {
@@ -159,12 +161,18 @@ export function Sidebar({ role, personas, account, facilities, lastFacility, fol
   };
 
   return (
-    <aside className={styles.aside} aria-label={t('Main menu')}>
+    <>
+    <div className={cx(styles.backdrop, menu.open && styles.backdropOn)} onClick={() => menu.setOpen(false)} aria-hidden="true" />
+    <aside id="main-menu" className={cx(styles.aside, menu.open && styles.open)} aria-label={t('Main menu')}
+      onClick={(e) => (e.target as HTMLElement).closest('a') && menu.setOpen(false)}>
       <div className={styles.brand}>
         <div className={styles.logo}>
           <Polygon size={15} />
         </div>
         <div className={styles.wordmark}>Crucible</div>
+        <button type="button" className={cx('btn btn-ghost btn-icon', styles.close)} onClick={() => menu.setOpen(false)} aria-label={t('Close the menu')}>
+          <X size={16} />
+        </button>
       </div>
       <div className={styles.search}>
         <MagnifyingGlass size={13} className={styles.searchIcon} />
@@ -230,6 +238,7 @@ export function Sidebar({ role, personas, account, facilities, lastFacility, fol
       )}
       {account ? <AccountMenu account={account} /> : <ViewAs role={role} personas={personas} />}
     </aside>
+    </>
   );
 }
 
