@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-11-02",
+ "updated": "2026-11-04",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -126,6 +126,10 @@
   {
    "date": "2026-11-02",
    "text": "Livraison 19 (CR-082, « fait les prochains points ») : téléphone (menu en tiroir) et hors ligne (Mon planning, démarrages et fins gardés puis envoyés). X-21 ajoutée (défaut appliqué). 438 tests, 5 parcours."
+  },
+  {
+   "date": "2026-11-04",
+   "text": "Livraison 20 (suite de CR-060, « on reprend ») : projets R&D lus dans Keystone (pub_projets, catégorie R&D) et salariés lus dans Cursus (pub_salaries). X-22 ajoutée (défaut appliqué). 440 tests."
   }
  ],
  "items": [
@@ -489,12 +493,13 @@
    ],
    "evidence": [
     "src/server/integrations/connectors.ts : lecture de keystone.pub_jalons, cursus.pub_absences, vigie.pub_controles",
-    "src/server/dal/codex.ts, src/components/app/CodexRef.tsx : état des références Codex"
+    "src/server/dal/codex.ts, src/components/app/CodexRef.tsx : état des références Codex",
+    "src/server/integrations/connectors.ts : readKeystoneProjects, readCursusPeople, keystoneRdProjectsToAdd"
    ],
    "progress": {
     "state": "en_cours",
-    "delivery": "Livraisons 3, 4, 8",
-    "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. Livraison 4 : lecture des titres de cursus.pub_titres_detenus (compétences rattachées à un titre, personnes avec matricule) dès que la vue est accordée. Livraison 8 (31 oct. 2026, DELIVERY-8.md) : jalons keystone.pub_jalons, absences cursus.pub_absences et contrôles vigie.pub_controles lus toutes les heures (tâche connectors-read) et à la demande ; ce qui est lu se modifie dans son outil. 1er nov. 2026 : état des références Codex lu à l’affichage dans codex.pub_documents (révision en vigueur, inconnu, obsolète, archivé). Restent : suspensions Vigie (V-2, vue pas encore publiée), projets, salariés et sites."
+    "delivery": "Livraisons 3, 4, 8, 20",
+    "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. Livraison 4 : lecture des titres de cursus.pub_titres_detenus (compétences rattachées à un titre, personnes avec matricule) dès que la vue est accordée. Livraison 8 (31 oct. 2026, DELIVERY-8.md) : jalons keystone.pub_jalons, absences cursus.pub_absences et contrôles vigie.pub_controles lus toutes les heures (tâche connectors-read) et à la demande ; ce qui est lu se modifie dans son outil. 1er nov. 2026 : état des références Codex lu à l’affichage dans codex.pub_documents (révision en vigueur, inconnu, obsolète, archivé). 4 nov. 2026 (livraison 20, X-22) : projets R&D lus dans keystone.pub_projets (nom, clos dans Keystone, projets à ajouter), salariés lus dans cursus.pub_salaries (nom, sortie). Restent : suspensions Vigie (V-2, jamais déposée chez Vigie) et sites (M-6 ouverte chez Matrix)."
    }
   },
   {

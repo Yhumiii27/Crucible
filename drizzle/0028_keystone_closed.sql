@@ -1,0 +1,1 @@
+ALTER TABLE "crucible"."projects" ADD COLUMN "keystone_closed" boolean DEFAULT false NOT NULL;

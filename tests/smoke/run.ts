@@ -47,6 +47,8 @@ async function main(): Promise<void> {
   check((await get('/admin/users', 'admin')).status === 200, 'user administration open to the administrator');
   const org = await get('/admin/organisation', 'rd_director');
   check(org.status === 200 && org.body.includes('Classe de priorité'), 'the R&D director records projects and their priority class');
+  // CR-060: the Keystone project of each project (its name follows Keystone once pub_projets is granted).
+  check(org.body.includes('Projet Keystone'), 'projects: the linked Keystone project is shown');
   check((await get('/facilities', 'admin')).status === 404, 'the administrator sees no business screen');
 
   // Delivery 2: resources, rules, bookings, utilisation.
