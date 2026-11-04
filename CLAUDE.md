@@ -159,6 +159,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   worker `/sw.js` (`src/app/sw.js/route.ts`: last copy of My schedule and the app's static files only, dropped at sign-out);
   starts and ends without network queued on the phone (`src/features/offline/`) and applied by `syncOfflineEventsAction` at the
   instant recorded with every check of the screen (48 h at most); Playwright phone journey `tests/e2e/mobile.spec.ts`.
+- **Delivery 20 (projects and people read, CR-060 continued) is done** (`docs/DELIVERY-20.md`, X-22 added): `readKeystoneProjects`
+  (`keystone.pub_projets`: name follows Keystone, `projects.keystone_closed`, `drizzle/0028`) and `readCursusPeople`
+  (`cursus.pub_salaries`: name follows Cursus, a person who left is set aside) in `src/server/integrations/connectors.ts`;
+  `keystoneRdProjectsToAdd` lists the open R&D projects of Keystone not in Crucible on `/admin/organisation` (added with the
+  project form, Keystone code filled in). Sites stay entered until M-6; Vigie suspensions (V-2) never filed with Vigie.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

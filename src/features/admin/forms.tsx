@@ -162,24 +162,26 @@ export function NewFacilityForm({ sites, internal, partners }: { sites: Ref[]; i
   );
 }
 
-export function NewProjectForm({ entities }: { entities: Ref[] }) {
+/** `from`: a Keystone R&D project not yet in Crucible (CR-060), its code, name and entity filled in. */
+export function NewProjectForm({ entities, from }: { entities: Ref[]; from?: { code: string; name: string; entityCode: string | null } }) {
   const { t } = useI18n();
+  const ent = from?.entityCode && entities.some((e) => e.code === from.entityCode) ? from.entityCode : undefined;
   return (
     <ActionForm action={createProjectAction} submit="Add the project" done="Project added">
       <Field label={t('Code')} htmlFor="np-code" required>
         <Input id="np-code" name="code" required maxLength={20} />
       </Field>
       <Field label={t('Name')} htmlFor="np-name" required>
-        <Input id="np-name" name="name" required />
+        <Input id="np-name" name="name" required defaultValue={from?.name} />
       </Field>
       <Field label={t('Entity')} htmlFor="np-ent" required>
-        <Select id="np-ent" name="entityCode" options={entities.map((x) => ({ value: x.code, label: `${x.code} · ${x.name}` }))} />
+        <Select id="np-ent" name="entityCode" defaultValue={ent} options={entities.map((x) => ({ value: x.code, label: `${x.code} · ${x.name}` }))} />
       </Field>
       <Field label={t('Priority class')} htmlFor="np-prio" required>
         <Select id="np-prio" name="priorityClass" defaultValue="P2" options={PRIORITY_CLASSES.map((p) => ({ value: p, label: t(PRIORITY_CLASS_LABEL[p]) }))} />
       </Field>
       <Field label={t('Keystone project')} htmlFor="np-ks">
-        <Input id="np-ks" name="keystoneCode" maxLength={40} />
+        <Input id="np-ks" name="keystoneCode" maxLength={40} defaultValue={from?.code} readOnly={!!from} />
       </Field>
       <Field label={t('Codex research programme')} htmlFor="np-cx">
         <Input id="np-cx" name="codexProgramCode" maxLength={40} />

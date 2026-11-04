@@ -10,7 +10,9 @@ import { getViewer } from '@/server/session';
 export type ActionResult = { ok: true; warnings?: string[] } | { ok: false; error: string };
 
 const VIEW_LABEL: Record<ReadView, string> = {
+  'keystone.pub_projets': 'Keystone projects',
   'keystone.pub_jalons': 'Keystone milestones',
+  'cursus.pub_salaries': 'Cursus employees',
   'cursus.pub_absences': 'Cursus absences',
   'vigie.pub_controles': 'Vigie inspections',
 };
@@ -26,6 +28,6 @@ export async function readConnectorsAction(): Promise<ActionResult> {
   if (!canReadConnectors(v.role)) return { ok: false, error: 'Only the administrator, the coordinator or the R&D director reads the other tools' };
   const db = await getDb();
   const reports = await db.transaction((tx) => readConnectors(tx, { name: v.name, userId: v.userId, role: v.role }));
-  for (const p of ['/admin/connectors', '/people', '/propose', '/planning', '/load', '/my/needs']) revalidatePath(p);
+  for (const p of ['/admin/connectors', '/admin/organisation', '/people', '/propose', '/planning', '/load', '/my/needs']) revalidatePath(p);
   return { ok: true, warnings: reports.map(reportText) };
 }

@@ -6,17 +6,22 @@ import { Folded } from '@/components/app/ActionForm';
 import { SectionCard } from '@/components/app/SectionCard';
 import { PageHeader } from '@/components/app/shell/page-header';
 import { Table, Td, Th } from '@/components/ds/Table';
+import { Tag } from '@/components/ds/Tag';
 import { canSee } from '@/config/screens';
 import { ENTITY_KIND_LABEL, PRIORITY_CLASS_LABEL } from '@/domain/organisation';
 import { NewEntityForm, NewFacilityForm, NewProjectForm, NewSiteForm } from '@/features/admin/forms';
 import { dataText } from '@/i18n/data-text';
 import { organisation } from '@/server/dal/admin';
+import { getDb } from '@/server/db/client';
+import { keystoneRdProjectsToAdd } from '@/server/integrations/connectors';
 import { getI18n, getViewer } from '@/server/session';
 
 export default async function OrganisationPage() {
   const [{ t, lang }, viewer] = await Promise.all([getI18n(), getViewer()]);
   if (!canSee(viewer.role, 'admin-org')) notFound();
   const org = await organisation();
+  // CR-060: the R&D projects of Keystone not yet in Crucible, read at display time (empty until pub_projets is granted).
+  const fromKeystone = await keystoneRdProjectsToAdd(await getDb());
   const admin = viewer.role === 'admin';
   const ref = (x: { code: string; name: string }) => ({ code: x.code, name: dataText(x.name, lang) });
   return (
@@ -108,6 +113,7 @@ export default async function OrganisationPage() {
               <Th>{t('Entity')}</Th>
               <Th>{t('Priority class')}</Th>
               <Th>{t('Confidential')}</Th>
+              <Th>{t('Keystone project')}</Th>
             </tr>
           </thead>
           <tbody>
@@ -118,12 +124,31 @@ export default async function OrganisationPage() {
                 <Td>{p.entityCode}</Td>
                 <Td>{t(PRIORITY_CLASS_LABEL[p.priorityClass])}</Td>
                 <Td>{p.confidential ? t('Yes') : t('No')}</Td>
+                <Td>{p.keystoneCode ?? '—'}{p.keystoneClosed && <> <Tag size="sm" tone="accent">{t('Closed in Keystone')}</Tag></>}</Td>
               </tr>
             ))}
           </tbody>
         </Table>
         <div><Folded summary="Add a project"><NewProjectForm entities={org.entities.map(ref)} /></Folded></div>
       </SectionCard>
+      {fromKeystone.length > 0 && (
+        <SectionCard title={t('R&D projects of Keystone not in Crucible')} hint={String(fromKeystone.length)}
+          subtitle={t('Read from Keystone (category R&D, still open). Adding one sets its code, priority class and confidentiality in Crucible; its name then follows Keystone.')} scroll>
+          <Table>
+            <thead><tr><Th>{t('Keystone project')}</Th><Th>{t('Name')}</Th><Th>{t('Entity')}</Th><Th /></tr></thead>
+            <tbody>
+              {fromKeystone.map((k) => (
+                <tr key={k.code}>
+                  <Td>{k.code}</Td>
+                  <Td>{dataText(k.name, lang)}</Td>
+                  <Td>{k.entityCode ?? '—'}</Td>
+                  <Td><Folded summary="Add to Crucible" size="xs"><NewProjectForm entities={org.entities.map(ref)} from={k} /></Folded></Td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </SectionCard>
+      )}
     </>
   );
 }

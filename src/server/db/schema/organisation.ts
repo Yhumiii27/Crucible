@@ -60,6 +60,8 @@ export const projects = crucible.table('projects', {
   codexProgramCode: text('codex_program_code'),
   active: boolean('active').notNull().default(true),
   ...timestamps,
+  /** CR-060: the linked Keystone project is closed (pub_projets.imputable false); a person decides whether to set it aside. */
+  keystoneClosed: boolean('keystone_closed').notNull().default(false),
 });
 
 export const users = crucible.table('users', {

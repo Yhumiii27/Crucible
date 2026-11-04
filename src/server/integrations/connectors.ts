@@ -10,14 +10,19 @@ import 'server-only';
 //   cursus.pub_absences   → person_absences (source cursus) of the people with a matricule; validated and requested absences
 //                           (a planner does not plan on a pending leave), cancelled ones left out;
 //   vigie.pub_controles   → inspections (source vigie) of the resources whose code is the control's equipment code (D23:
-//                           Vigie is the reference for periodic inspections); an archived control no longer applies.
+//                           Vigie is the reference for periodic inspections); an archived control no longer applies;
+//   keystone.pub_projets  → the projects linked to a Keystone project (S-1, K-3): their name follows Keystone, a project closed
+//                           there is flagged (keystone_closed) — setting it aside stays a person's decision (its bookings);
+//                           the R&D projects of Keystone not yet in Crucible are offered on the organisation screen;
+//   cursus.pub_salaries   → the people with a matricule (S-3): their name follows Cursus, a person who has left is set aside
+//                           (never put back by the read: a planner does it).
 // Run hourly by the job worker (`connectors-read`) and on demand from the Connectors screen; one transaction, audited.
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { writeAudit } from '@/server/db/helpers';
 import { inspections, people, personAbsences, projectMilestones, projects, resources, testNeeds } from '@/server/db/schema';
 import type { DB, Tx } from '@/server/db/types';
 
-export const READ_VIEWS = ['keystone.pub_jalons', 'cursus.pub_absences', 'vigie.pub_controles'] as const;
+export const READ_VIEWS = ['keystone.pub_projets', 'keystone.pub_jalons', 'cursus.pub_salaries', 'cursus.pub_absences', 'vigie.pub_controles'] as const;
 export type ReadView = (typeof READ_VIEWS)[number];
 
 export interface ReadReport {
@@ -175,7 +180,74 @@ export async function readVigieInspections(tx: Tx, by: ReadBy): Promise<ReadRepo
 
 /** Reads every view Crucible copies from (in one transaction). */
 export async function readConnectors(tx: Tx, by: ReadBy): Promise<ReadReport[]> {
-  return [await readKeystoneMilestones(tx, by), await readCursusAbsences(tx, by), await readVigieInspections(tx, by)];
+  // People and projects first: the absences and milestones read next are those of the people and projects still in use.
+  return [await readKeystoneProjects(tx, by), await readKeystoneMilestones(tx, by), await readCursusPeople(tx, by), await readCursusAbsences(tx, by), await readVigieInspections(tx, by)];
+}
+
+/** Projects linked to a Keystone project (S-1, K-3): name from Keystone, closed there flagged. */
+export async function readKeystoneProjects(tx: Tx, by: ReadBy): Promise<ReadReport> {
+  const rep = empty('keystone.pub_projets', await viewReadable(tx, 'keystone.pub_projets'));
+  if (!rep.readable) return rep;
+  const linked = await tx.select({ code: projects.code, keystone: projects.keystoneCode, name: projects.name, closed: projects.keystoneClosed }).from(projects).where(isNotNull(projects.keystoneCode));
+  const rows = linked.length
+    ? ((await tx.execute(sql`select code, nom, coalesce(imputable, true) as imputable from keystone.pub_projets where code in (${list(linked.map((p) => p.keystone!))})`)).rows as { code: string; nom: string | null; imputable: boolean }[])
+    : [];
+  rep.read = rows.length;
+  const byCode = new Map(rows.map((r) => [r.code, r]));
+  const lines: string[] = [];
+  for (const p of linked) {
+    const r = byCode.get(p.keystone!);
+    if (!r) { rep.skipped++; continue; }
+    const name = r.nom?.trim() || p.name;
+    const closed = !r.imputable;
+    if (name === p.name && closed === p.closed) continue;
+    await tx.update(projects).set({ name, keystoneClosed: closed, updatedAt: new Date() }).where(eq(projects.code, p.code));
+    rep.changed++;
+    lines.push(`${p.code}${name !== p.name ? ` name "${p.name}" → "${name}"` : ''}${closed !== p.closed ? (closed ? ' closed in Keystone' : ' open again in Keystone') : ''}`);
+  }
+  if (rep.changed) {
+    await writeAudit(tx, { actorName: by.name, actorUserId: by.userId, actorRole: by.role, area: 'Projects', objectRef: 'keystone.pub_projets', change: `projects read from Keystone: ${lines.join('; ')}`, entityType: 'connector', after: { ...rep } });
+  }
+  return rep;
+}
+
+/** The R&D projects of Keystone still open and not linked to a Crucible project (offered on the organisation screen). */
+export async function keystoneRdProjectsToAdd(q: DB | Tx): Promise<{ code: string; name: string; entityCode: string | null }[]> {
+  if (!(await viewReadable(q, 'keystone.pub_projets'))) return [];
+  const linked = (await q.select({ k: projects.keystoneCode }).from(projects).where(isNotNull(projects.keystoneCode))).map((p) => p.k!);
+  const rows = (await q.execute(sql`
+    select code, nom, filiale_code from keystone.pub_projets
+    where categorie = 'rd' and coalesce(imputable, true) ${linked.length ? sql`and code not in (${list(linked)})` : sql``}
+    order by code`)).rows as { code: string; nom: string | null; filiale_code: string | null }[];
+  return rows.map((r) => ({ code: r.code, name: r.nom ?? r.code, entityCode: r.filiale_code }));
+}
+
+/** People with a Cursus matricule (S-3): name from Cursus, a person who has left set aside. */
+export async function readCursusPeople(tx: Tx, by: ReadBy): Promise<ReadReport> {
+  const rep = empty('cursus.pub_salaries', await viewReadable(tx, 'cursus.pub_salaries'));
+  if (!rep.readable) return rep;
+  const ppl = await tx.select({ id: people.id, name: people.name, matricule: people.matricule, active: people.active }).from(people).where(isNotNull(people.matricule));
+  const rows = ppl.length
+    ? ((await tx.execute(sql`select matricule, nom, coalesce(actif, true) as actif from cursus.pub_salaries where matricule in (${list(ppl.map((p) => p.matricule!))})`)).rows as { matricule: string; nom: string | null; actif: boolean }[])
+    : [];
+  rep.read = rows.length;
+  const byMatricule = new Map(rows.map((r) => [r.matricule, r]));
+  const lines: string[] = [];
+  for (const p of ppl) {
+    const r = byMatricule.get(p.matricule!);
+    if (!r) { rep.skipped++; continue; }
+    const name = r.nom?.trim() || p.name;
+    const leave = p.active && !r.actif;
+    if (name === p.name && !leave) continue;
+    await tx.update(people).set({ name, ...(leave ? { active: false } : {}), updatedByName: 'Cursus', updatedAt: new Date() }).where(eq(people.id, p.id));
+    if (leave) rep.removed++;
+    else rep.changed++;
+    lines.push(`${p.matricule}${name !== p.name ? ` name "${p.name}" → "${name}"` : ''}${leave ? ' left (set aside)' : ''}`);
+  }
+  if (lines.length) {
+    await writeAudit(tx, { actorName: by.name, actorUserId: by.userId, actorRole: by.role, area: 'People', objectRef: 'cursus.pub_salaries', change: `people read from Cursus: ${lines.join('; ')}`, entityType: 'connector', after: { ...rep } });
+  }
+  return rep;
 }
 
 /** One line per view, for the job log and the screen. */

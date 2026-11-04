@@ -25,7 +25,7 @@ import { updateMilestoneAction } from '@/features/needs/actions';
 import { removeAbsenceAction } from '@/features/planning/actions';
 import { recordInspectionAction } from '@/features/resources/actions';
 import { auditEntries, inspections, people, personAbsences, projectMilestones, projects, resources, testNeeds } from '@/server/db/schema';
-import { readConnectors } from '@/server/integrations/connectors';
+import { keystoneRdProjectsToAdd, readConnectors } from '@/server/integrations/connectors';
 import { testDatabase, type TestDatabase } from '@/test/db';
 
 let t: TestDatabase;
@@ -39,6 +39,7 @@ beforeEach(() => jar.clear());
 const as = (role: string) => jar.set('crucible-role', role);
 const by = { name: 'Test', userId: null, role: null };
 const read = () => t.db.transaction((tx) => readConnectors(tx, by));
+const readOf = async (view: string) => (await read()).find((r) => r.view === view)!;
 const admin = async (q: string) => {
   const c = new pg.Client({ connectionString: t.url });
   await c.connect();
@@ -63,15 +64,15 @@ const fromKeystone = () => t.db.select().from(projectMilestones).where(eq(projec
 describe('views not published yet', () => {
   it('nothing is read nor changed; the screen says so', async () => {
     const before = (await t.db.select().from(auditEntries)).length;
-    expect((await read()).map((r) => [r.view, r.readable])).toEqual([['keystone.pub_jalons', false], ['cursus.pub_absences', false], ['vigie.pub_controles', false]]);
+    expect((await read()).map((r) => [r.view, r.readable])).toEqual([['keystone.pub_projets', false], ['keystone.pub_jalons', false], ['cursus.pub_salaries', false], ['cursus.pub_absences', false], ['vigie.pub_controles', false]]);
     expect((await t.db.select().from(auditEntries)).length).toBe(before);
     as('admin');
-    expect(await readConnectorsAction()).toEqual({ ok: true, warnings: ['Keystone milestones · not readable yet', 'Cursus absences · not readable yet', 'Vigie inspections · not readable yet'] });
+    expect(await readConnectorsAction()).toEqual({ ok: true, warnings: ['Keystone projects · not readable yet', 'Keystone milestones · not readable yet', 'Cursus employees · not readable yet', 'Cursus absences · not readable yet', 'Vigie inspections · not readable yet'] });
   });
 
   it('a view published but not granted to Crucible is not read', async () => {
     await admin(`create schema keystone; create view keystone.pub_jalons as select 'HLT-026'::text as projet_code, 1 as jalon_id, 'x'::text as nom, null::date as date_fin_activite;`);
-    expect((await read())[0].readable).toBe(false);
+    expect((await readOf('keystone.pub_jalons')).readable).toBe(false);
   });
 });
 
@@ -79,13 +80,13 @@ describe('Keystone milestones (S-2, K-2)', () => {
   it('the milestones of the linked project are added; an undated one and those of other projects are left out', async () => {
     await publish('keystone.pub_jalons', 'projet_code, jalon_id, nom, date_fin_activite',
       `('HLT-026', 11, 'Factory acceptance', date '2027-03-05'), ('HLT-026', 12, 'Site acceptance', null::date), ('NDC-031', 13, 'Other project', date '2027-01-10')`);
-    const [k] = await read();
+    const k = await readOf('keystone.pub_jalons');
     expect(k).toMatchObject({ readable: true, read: 2, added: 1, changed: 0, removed: 0, skipped: 1 });
     expect(await fromKeystone()).toMatchObject([{ projectCode: 'RD-ORION', label: 'Factory acceptance', dueOn: '2027-03-05', sourceRef: '11', updatedByName: 'Keystone' }]);
     const [a] = await t.db.select().from(auditEntries).where(eq(auditEntries.objectRef, 'keystone.pub_jalons'));
     expect(a.change).toBe('milestones read from Keystone: 1 added, 0 changed, 0 removed');
     // Read again, unchanged: nothing written, nothing audited.
-    expect((await read())[0]).toMatchObject({ added: 0, changed: 0, removed: 0 });
+    expect((await readOf('keystone.pub_jalons'))).toMatchObject({ added: 0, changed: 0, removed: 0 });
     expect((await t.db.select().from(auditEntries).where(eq(auditEntries.objectRef, 'keystone.pub_jalons'))).length).toBe(1);
   });
 
@@ -94,15 +95,15 @@ describe('Keystone milestones (S-2, K-2)', () => {
     as('rd_director');
     expect(await updateMilestoneAction(null, form({ milestoneId: m.id, label: 'Changed here', dueOn: '2027-03-01', criticality: 'internal' }))).toEqual({ ok: false, error: 'This milestone comes from Keystone: change it there' });
     await publish('keystone.pub_jalons', 'projet_code, jalon_id, nom, date_fin_activite', `('HLT-026', 11, 'Factory acceptance (FAT)', date '2027-03-19')`);
-    expect((await read())[0]).toMatchObject({ changed: 1 });
+    expect((await readOf('keystone.pub_jalons'))).toMatchObject({ changed: 1 });
     expect(await fromKeystone()).toMatchObject([{ id: m.id, label: 'Factory acceptance (FAT)', dueOn: '2027-03-19' }]);
     const [need] = await t.db.select().from(testNeeds).limit(1);
     await t.db.update(testNeeds).set({ milestoneId: m.id }).where(eq(testNeeds.id, need.id));
     await publish('keystone.pub_jalons', 'projet_code, jalon_id, nom, date_fin_activite', `('NDC-031', 13, 'Other project', date '2027-01-10')`);
-    expect((await read())[0]).toMatchObject({ removed: 0, skipped: 1 });
+    expect((await readOf('keystone.pub_jalons'))).toMatchObject({ removed: 0, skipped: 1 });
     expect(await fromKeystone()).toHaveLength(1);
     await t.db.update(testNeeds).set({ milestoneId: need.milestoneId }).where(eq(testNeeds.id, need.id));
-    expect((await read())[0]).toMatchObject({ removed: 1 });
+    expect((await readOf('keystone.pub_jalons'))).toMatchObject({ removed: 1 });
     expect(await fromKeystone()).toHaveLength(0);
   });
 });
@@ -115,7 +116,7 @@ describe('Cursus absences (CU-1)', () => {
     await publish('cursus.pub_absences', 'matricule, du, au, statut, annulee, maj_le',
       `('EP0388', date '2026-12-07', date '2026-12-11', 'validee', false, now()), ('EP0388', date '2027-01-04', date '2027-01-05', 'demandee', false, now()),
        ('EP0388', date '2026-11-02', date '2026-11-03', 'validee', true, now()), ('EP9999', date '2026-12-07', date '2026-12-08', 'validee', false, now())`);
-    expect((await read())[1]).toMatchObject({ readable: true, read: 2, added: 2, removed: 0 });
+    expect((await readOf('cursus.pub_absences'))).toMatchObject({ readable: true, read: 2, added: 2, removed: 0 });
     expect((await fromCursus()).map((a) => [a.fromOn, a.toOn]).sort()).toEqual([['2026-12-07', '2026-12-11'], ['2027-01-04', '2027-01-05']]);
     // The absence entered in Crucible by the demo stays.
     expect((await t.db.select().from(personAbsences).where(and(eq(personAbsences.personId, (await karim()).id), eq(personAbsences.source, 'crucible')))).length).toBe(1);
@@ -127,7 +128,7 @@ describe('Cursus absences (CU-1)', () => {
     expect(await removeAbsenceAction(a.id)).toEqual({ ok: false, error: 'This absence comes from Cursus: change it there' });
     await publish('cursus.pub_absences', 'matricule, du, au, statut, annulee, maj_le',
       `('EP0388', date '2026-12-07', date '2026-12-11', 'validee', false, now()), ('EP0388', date '2027-01-04', date '2027-01-05', 'demandee', true, now())`);
-    expect((await read())[1]).toMatchObject({ read: 1, added: 0, removed: 1 });
+    expect((await readOf('cursus.pub_absences'))).toMatchObject({ read: 1, added: 0, removed: 1 });
     expect((await fromCursus()).map((x) => x.fromOn)).toEqual(['2026-12-07']);
   });
 });
@@ -140,7 +141,7 @@ describe('Vigie inspections (V-1, D23)', () => {
     await publish('vigie.pub_controles', 'vigie_ref, equipement_code, type_controle, periodicite_mois, dernier_le, archive',
       `('41', 'PDE-PIL', 'Periodic check of the electrical installations', 12, date '2026-10-02', false), ('42', 'PDE-PIL', 'Lifting equipment', 6, date '2026-09-15', false),
        ('43', 'PDE-PIL', 'Never done', 12, null::date, false), ('44', 'BENCH-X', 'Other equipment', 12, date '2026-01-01', false)`);
-    expect((await read())[2]).toMatchObject({ readable: true, read: 3, added: 1, changed: 1, skipped: 1 });
+    expect((await readOf('vigie.pub_controles'))).toMatchObject({ readable: true, read: 3, added: 1, changed: 1, skipped: 1 });
     const rows = (await ofPil()).sort((a, b) => a.label.localeCompare(b.label));
     expect(rows).toMatchObject([
       { label: 'Lifting equipment', periodMonths: 6, lastOn: '2026-09-15', source: 'vigie', sourceRef: '42', active: true },
@@ -153,7 +154,7 @@ describe('Vigie inspections (V-1, D23)', () => {
     expect(await recordInspectionAction(null, form({ resourceId: await pil(), label: 'Lifting equipment', periodMonths: '6', lastOn: '2026-10-20' }))).toEqual({ ok: false, error: 'This inspection comes from Vigie: record it there' });
     await publish('vigie.pub_controles', 'vigie_ref, equipement_code, type_controle, periodicite_mois, dernier_le, archive',
       `('41', 'PDE-PIL', 'Periodic check of the electrical installations', 12, date '2026-10-02', true)`);
-    expect((await read())[2]).toMatchObject({ read: 1, changed: 1, removed: 1 });
+    expect((await readOf('vigie.pub_controles'))).toMatchObject({ read: 1, changed: 1, removed: 1 });
     expect((await ofPil()).every((i) => !i.active)).toBe(true);
   });
 });
@@ -164,9 +165,43 @@ describe('the Connectors screen', () => {
     expect(await readConnectorsAction()).toEqual({ ok: false, error: 'Only the administrator, the coordinator or the R&D director reads the other tools' });
     as('coordinator');
     expect(await readConnectorsAction()).toEqual({ ok: true, warnings: [
+      'Keystone projects · not readable yet',
       'Keystone milestones · 0 read · 0 added · 0 changed · 0 removed',
+      'Cursus employees · not readable yet',
       'Cursus absences · 1 read · 0 added · 0 changed · 0 removed',
       'Vigie inspections · 1 read · 0 added · 0 changed · 0 removed',
     ] });
+  });
+});
+
+describe('Keystone projects (S-1, K-3)', () => {
+  it('a linked project takes its name from Keystone; R&D projects not in Crucible are offered; a closed one is flagged, not set aside', async () => {
+    await publish('keystone.pub_projets', 'code, nom, imputable, categorie, filiale_code',
+      `('HLT-026', 'Orion (Keystone)', true, 'rd', 'EPC2I'), ('KS-RD-9', 'Banc de vieillissement', true, 'rd', 'EPC2I'),
+       ('KS-CL-1', 'Projet client', true, 'client', null), ('KS-RD-OLD', 'Ancien', false, 'rd', null)`);
+    expect(await readOf('keystone.pub_projets')).toMatchObject({ readable: true, read: 1, changed: 1 });
+    const [orion] = await t.db.select().from(projects).where(eq(projects.code, 'RD-ORION'));
+    expect(orion).toMatchObject({ name: 'Orion (Keystone)', keystoneClosed: false, active: true });
+    expect(await keystoneRdProjectsToAdd(t.db)).toEqual([{ code: 'KS-RD-9', name: 'Banc de vieillissement', entityCode: 'EPC2I' }]);
+    expect(await readOf('keystone.pub_projets')).toMatchObject({ changed: 0 });
+
+    await publish('keystone.pub_projets', 'code, nom, imputable, categorie, filiale_code', `('HLT-026', 'Orion (Keystone)', false, 'rd', 'EPC2I')`);
+    expect(await readOf('keystone.pub_projets')).toMatchObject({ changed: 1 });
+    expect((await t.db.select().from(projects).where(eq(projects.code, 'RD-ORION')))[0]).toMatchObject({ keystoneClosed: true, active: true });
+    const [a] = await t.db.select().from(auditEntries).where(and(eq(auditEntries.objectRef, 'keystone.pub_projets'), eq(auditEntries.area, 'Projects')));
+    expect(a.change).toContain('RD-ORION name "Orion" → "Orion (Keystone)"');
+  });
+});
+
+describe('Cursus employees (S-3)', () => {
+  it('the name follows Cursus; a person who has left is set aside, never put back by the read; an unknown matricule is skipped', async () => {
+    await publish('cursus.pub_salaries', 'matricule, nom, actif', `('EP0412', 'Julien Masson', true), ('EP0388', 'Karim BENALI', true), ('EP0521', 'Sophie Lambert', false)`);
+    expect(await readOf('cursus.pub_salaries')).toMatchObject({ readable: true, read: 3, changed: 1, removed: 1, skipped: 1 });
+    const byMat = async (m: string) => (await t.db.select().from(people).where(eq(people.matricule, m)))[0];
+    expect(await byMat('EP0388')).toMatchObject({ name: 'Karim BENALI', active: true });
+    expect(await byMat('EP0521')).toMatchObject({ active: false });
+    await publish('cursus.pub_salaries', 'matricule, nom, actif', `('EP0521', 'Sophie Lambert', true)`);
+    expect(await readOf('cursus.pub_salaries')).toMatchObject({ changed: 0, removed: 0 });
+    expect(await byMat('EP0521')).toMatchObject({ active: false });
   });
 });

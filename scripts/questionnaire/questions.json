@@ -912,6 +912,18 @@
     "blocks": "L19"
   },
   {
+    "id": "X-22",
+    "group": "extra",
+    "title": "Projets et salariés lus dans Keystone et Cursus (CR-060)",
+    "context": "Projets et personnes étaient saisis dans Crucible seulement ; Keystone publie désormais la catégorie R&D de ses projets (K-3, R-196).",
+    "proposal": "Le nom d’un projet lié suit Keystone, un projet clos y est signalé sans être mis de côté ; les projets R&D ouverts de Keystone absents de Crucible sont proposés sur l’écran Organisation ; le nom d’une personne suit Cursus, une personne sortie est mise de côté.",
+    "alts": [
+      "Créer automatiquement les projets R&D de Keystone",
+      "Mettre de côté un projet clos dans Keystone"
+    ],
+    "blocks": "L20"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",
