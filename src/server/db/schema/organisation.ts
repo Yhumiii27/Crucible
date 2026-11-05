@@ -15,6 +15,8 @@ export const entities = crucible.table('entities', {
   kind: text('kind').$type<EntityKind>().notNull(),
   active: boolean('active').notNull().default(true),
   ...timestamps,
+  /** CR-060: the Matrix subsidiary (`matrix.pub_filiales.code`, D21) the entity is; its name then follows Matrix. */
+  matrixCode: text('matrix_code').unique(),
 });
 
 export const sites = crucible.table('sites', {
@@ -24,6 +26,8 @@ export const sites = crucible.table('sites', {
   city: text('city'),
   countryIso2: text('country_iso2').notNull().default('FR'),
   ...timestamps,
+  /** CR-060: the Matrix site (`matrix.pub_sites.code`, D14) the site is; its name, city and country then follow Matrix. */
+  matrixCode: text('matrix_code').unique(),
 });
 
 export const facilities = crucible.table('facilities', {

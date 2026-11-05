@@ -22,10 +22,12 @@ import type { Tx } from '../types';
 
 export const DEMO_ENTITIES = [
   { code: 'EPC2I', name: 'EPC2i', kind: 'internal' },
-  { code: 'EPCFR', name: 'EPC France', kind: 'partner' },
+  { code: 'EPCFR', name: 'EPC France', kind: 'partner', matrixCode: 'SMC' },
 ] as const;
 
-export const DEMO_SITES = [{ code: 'RD-SITE', name: 'R&D test site (demo)', city: null, countryIso2: 'FR' }] as const;
+// M-6 (Matrix, 4 Nov 2026): the laboratoire 67 and the PDE are on Matrix's site `smc` (Saint-Martin-de-Crau), subsidiary `SMC`
+// (EPC France): the demo site and EPC France are linked to them; their names follow Matrix once its views are granted.
+export const DEMO_SITES = [{ code: 'RD-SITE', name: 'R&D test site (demo)', city: null, countryIso2: 'FR', matrixCode: 'smc' }] as const;
 
 export const DEMO_FACILITIES = [
   { code: 'LAB67', name: 'Laboratoire 67', siteCode: 'RD-SITE', operatorEntityCode: 'EPC2I', description: 'Shared laboratory', partners: ['EPCFR'], acquisitionKeur: 850 },

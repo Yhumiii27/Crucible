@@ -924,6 +924,18 @@
     "blocks": "L20"
   },
   {
+    "id": "X-23",
+    "group": "extra",
+    "title": "Sites et filiales lus dans Matrix (CR-060)",
+    "context": "Sites et entités étaient saisis dans Crucible ; Matrix connaît désormais le site de Saint-Martin-de-Crau (smc) et la filiale EPC France (SMC) (M-6).",
+    "proposal": "L’administrateur relie un site ou une entité de Crucible à un site ou une filiale de Matrix ; son nom (et la ville et le pays d’un site) suit ensuite Matrix ; les sites et filiales de Matrix absents de Crucible sont proposés à l’ajout.",
+    "alts": [
+      "Reprendre les codes de Matrix comme codes de Crucible (renommage)",
+      "Créer automatiquement les sites et filiales de Matrix"
+    ],
+    "blocks": "L21"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

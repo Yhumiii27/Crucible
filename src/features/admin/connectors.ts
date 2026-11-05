@@ -15,6 +15,8 @@ const VIEW_LABEL: Record<ReadView, string> = {
   'cursus.pub_salaries': 'Cursus employees',
   'cursus.pub_absences': 'Cursus absences',
   'vigie.pub_controles': 'Vigie inspections',
+  'matrix.pub_sites': 'Matrix sites',
+  'matrix.pub_filiales': 'Matrix subsidiaries',
 };
 
 /** "Keystone milestones · 4 read · 1 added · 0 changed · 0 removed" (segments translated one by one). */

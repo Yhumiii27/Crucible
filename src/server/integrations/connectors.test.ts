@@ -20,12 +20,13 @@ vi.mock('next/headers', () => ({
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 
 import { and, eq } from 'drizzle-orm';
+import { createSiteAction, linkMatrixAction } from '@/features/admin/actions';
 import { readConnectorsAction } from '@/features/admin/connectors';
 import { updateMilestoneAction } from '@/features/needs/actions';
 import { removeAbsenceAction } from '@/features/planning/actions';
 import { recordInspectionAction } from '@/features/resources/actions';
-import { auditEntries, inspections, people, personAbsences, projectMilestones, projects, resources, testNeeds } from '@/server/db/schema';
-import { keystoneRdProjectsToAdd, readConnectors } from '@/server/integrations/connectors';
+import { auditEntries, entities, inspections, people, sites, personAbsences, projectMilestones, projects, resources, testNeeds } from '@/server/db/schema';
+import { keystoneRdProjectsToAdd, matrixReferentials, readConnectors } from '@/server/integrations/connectors';
 import { testDatabase, type TestDatabase } from '@/test/db';
 
 let t: TestDatabase;
@@ -64,10 +65,10 @@ const fromKeystone = () => t.db.select().from(projectMilestones).where(eq(projec
 describe('views not published yet', () => {
   it('nothing is read nor changed; the screen says so', async () => {
     const before = (await t.db.select().from(auditEntries)).length;
-    expect((await read()).map((r) => [r.view, r.readable])).toEqual([['keystone.pub_projets', false], ['keystone.pub_jalons', false], ['cursus.pub_salaries', false], ['cursus.pub_absences', false], ['vigie.pub_controles', false]]);
+    expect((await read()).map((r) => [r.view, r.readable])).toEqual([['keystone.pub_projets', false], ['keystone.pub_jalons', false], ['cursus.pub_salaries', false], ['cursus.pub_absences', false], ['vigie.pub_controles', false], ['matrix.pub_sites', false], ['matrix.pub_filiales', false]]);
     expect((await t.db.select().from(auditEntries)).length).toBe(before);
     as('admin');
-    expect(await readConnectorsAction()).toEqual({ ok: true, warnings: ['Keystone projects · not readable yet', 'Keystone milestones · not readable yet', 'Cursus employees · not readable yet', 'Cursus absences · not readable yet', 'Vigie inspections · not readable yet'] });
+    expect(await readConnectorsAction()).toEqual({ ok: true, warnings: ['Keystone projects · not readable yet', 'Keystone milestones · not readable yet', 'Cursus employees · not readable yet', 'Cursus absences · not readable yet', 'Vigie inspections · not readable yet', 'Matrix sites · not readable yet', 'Matrix subsidiaries · not readable yet'] });
   });
 
   it('a view published but not granted to Crucible is not read', async () => {
@@ -170,6 +171,8 @@ describe('the Connectors screen', () => {
       'Cursus employees · not readable yet',
       'Cursus absences · 1 read · 0 added · 0 changed · 0 removed',
       'Vigie inspections · 1 read · 0 added · 0 changed · 0 removed',
+      'Matrix sites · not readable yet',
+      'Matrix subsidiaries · not readable yet',
     ] });
   });
 });
@@ -203,5 +206,35 @@ describe('Cursus employees (S-3)', () => {
     await publish('cursus.pub_salaries', 'matricule, nom, actif', `('EP0521', 'Sophie Lambert', true)`);
     expect(await readOf('cursus.pub_salaries')).toMatchObject({ changed: 0, removed: 0 });
     expect(await byMat('EP0521')).toMatchObject({ active: false });
+  });
+});
+
+describe('Matrix sites and subsidiaries (D14, D21, M-6)', () => {
+  it('a linked site and entity take their names from Matrix; the unlinked ones of Matrix are offered; linking and adding', async () => {
+    await publish('matrix.pub_sites', 'code, libelle, ville, pays_iso2, ordre, actif',
+      `('smc', 'Saint-Martin-de-Crau — EPC France (laboratoire 67, PDE)', 'Saint-Martin-de-Crau', 'FR', 40, true), ('lyon', 'Lyon — siège et atelier', 'Lyon', 'FR', 10, true), ('old', 'Fermé', null, 'FR', 90, false)`);
+    await publish('matrix.pub_filiales', 'code, nom, ordre, actif', `('SMC', 'EPC France SAS', 10, true), ('MAR', 'EPC Maroc', 20, true)`);
+    const reps = await read();
+    expect(reps.find((r) => r.view === 'matrix.pub_sites')).toMatchObject({ readable: true, read: 1, changed: 1 });
+    expect(reps.find((r) => r.view === 'matrix.pub_filiales')).toMatchObject({ readable: true, read: 1, changed: 1 });
+    expect((await t.db.select().from(sites).where(eq(sites.code, 'RD-SITE')))[0]).toMatchObject({ name: 'Saint-Martin-de-Crau — EPC France (laboratoire 67, PDE)', city: 'Saint-Martin-de-Crau', matrixCode: 'smc' });
+    expect((await t.db.select().from(entities).where(eq(entities.code, 'EPCFR')))[0].name).toBe('EPC France SAS');
+    const ref = await matrixReferentials(t.db);
+    expect(ref.sites.map((x) => [x.code, x.linkedTo])).toEqual([['lyon', null], ['smc', 'RD-SITE']]);
+    expect(ref.subsidiaries.map((x) => [x.code, x.linkedTo])).toEqual([['SMC', 'EPCFR'], ['MAR', null]]);
+
+    // The administrator only; a code already linked or unknown is refused; a site added from Matrix is linked to it.
+    as('rd_director');
+    expect(await linkMatrixAction(null, form({ kind: 'entity', code: 'EPC2I', matrixCode: 'MAR' }))).toMatchObject({ ok: false });
+    as('admin');
+    expect(await linkMatrixAction(null, form({ kind: 'entity', code: 'EPC2I', matrixCode: 'SMC' }))).toEqual({ ok: false, error: 'Choose a Matrix subsidiary not yet linked' });
+    expect(await linkMatrixAction(null, form({ kind: 'site', code: 'RD-SITE', matrixCode: 'nowhere' }))).toEqual({ ok: false, error: 'Choose a Matrix site not yet linked' });
+    expect(await createSiteAction(null, form({ code: 'LYON', name: 'Lyon', countryIso2: 'FR', matrixCode: 'lyon' }))).toEqual({ ok: true });
+    expect((await t.db.select().from(sites).where(eq(sites.code, 'LYON')))[0].matrixCode).toBe('lyon');
+    expect(await linkMatrixAction(null, form({ kind: 'site', code: 'RD-SITE', matrixCode: '' }))).toEqual({ ok: true });
+    expect((await t.db.select().from(sites).where(eq(sites.code, 'RD-SITE')))[0].matrixCode).toBeNull();
+    expect(await linkMatrixAction(null, form({ kind: 'site', code: 'RD-SITE', matrixCode: 'smc' }))).toEqual({ ok: true });
+    const [a] = await t.db.select().from(auditEntries).where(and(eq(auditEntries.objectRef, 'Site RD-SITE'), eq(auditEntries.change, 'linked to Matrix smc')));
+    expect(a).toBeTruthy();
   });
 });

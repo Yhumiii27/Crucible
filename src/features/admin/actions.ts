@@ -10,6 +10,8 @@ import { checkAssignment, checkEntity, checkFacility, checkProject, checkSite, c
 import { getDb } from '@/server/db/client';
 import { writeAudit } from '@/server/db/helpers';
 import { entities, facilities, facilityPartners, projects, roleAssignments, sites, users } from '@/server/db/schema';
+import { matrixReferentials, readMatrixEntities, readMatrixSites } from '@/server/integrations/connectors';
+import type { Tx } from '@/server/db/types';
 import { getViewer, type Viewer } from '@/server/session';
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -24,6 +26,44 @@ async function asRole(allowed: readonly RoleKey[]): Promise<Viewer | null> {
   return allowed.includes(v.role) ? v : null;
 }
 const REFUSED: ActionResult = { ok: false, error: 'This action is reserved to the administrator' };
+
+/** The Matrix code given (`matrixCode`), checked against Matrix's published list: null when none, false when unknown or taken. */
+async function matrixCodeOf(tx: Tx, kind: 'site' | 'entity', fd: FormData): Promise<string | null | false> {
+  const code = String(fd.get('matrixCode') ?? '').trim();
+  if (!code) return null;
+  const ref = await matrixReferentials(tx);
+  const row = (kind === 'site' ? ref.sites : ref.subsidiaries).find((x) => x.code === code);
+  return row && !row.linkedTo ? code : false;
+}
+
+/**
+ * Links a site or an entity of Crucible to its Matrix site or subsidiary (CR-060, D14, D21), or unlinks it (empty code): its
+ * name (and a site's city and country) then follow Matrix. The administrator only; audited.
+ */
+export async function linkMatrixAction(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const v = await asRole(['admin']);
+  if (!v) return REFUSED;
+  const kind = fd.get('kind') === 'entity' ? 'entity' : fd.get('kind') === 'site' ? 'site' : null;
+  const code = String(fd.get('code') ?? '');
+  if (!kind) return REFUSED;
+  const db = await getDb();
+  const r = await db.transaction(async (tx): Promise<ActionResult> => {
+    const table = kind === 'site' ? sites : entities;
+    const [row] = await tx.select({ code: table.code, matrixCode: table.matrixCode }).from(table).where(eq(table.code, code));
+    if (!row) return { ok: false, error: kind === 'site' ? 'Unknown site' : 'Unknown entity' };
+    const m = await matrixCodeOf(tx, kind, fd);
+    if (m === false) return { ok: false, error: kind === 'site' ? 'Choose a Matrix site not yet linked' : 'Choose a Matrix subsidiary not yet linked' };
+    if (m === row.matrixCode) return { ok: true };
+    await tx.update(table).set({ matrixCode: m, updatedAt: new Date() }).where(eq(table.code, code));
+    await writeAudit(tx, audit(v, `${kind === 'site' ? 'Site' : 'Entity'} ${code}`, m ? `linked to Matrix ${m}` : 'unlinked from Matrix', { before: { matrixCode: row.matrixCode }, after: { matrixCode: m } }));
+    // Its name follows Matrix at once.
+    const by = { name: v.name, userId: v.userId, role: v.role };
+    if (m) await (kind === 'site' ? readMatrixSites(tx, by) : readMatrixEntities(tx, by));
+    return { ok: true };
+  });
+  if (r.ok) revalidatePath('/admin/organisation');
+  return r;
+}
 
 export async function createUserAction(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
   const v = await asRole(['admin']);
@@ -108,7 +148,9 @@ export async function createEntityAction(_prev: ActionResult | null, fd: FormDat
   const r = await db.transaction(async (tx): Promise<ActionResult> => {
     const c = checkEntity(fieldsOf(fd), new Set((await tx.select({ c: entities.code }).from(entities)).map((x) => x.c)));
     if (!c.ok) return c;
-    await tx.insert(entities).values(c.value);
+    const m = await matrixCodeOf(tx, 'entity', fd);
+    if (m === false) return { ok: false, error: 'Choose a Matrix subsidiary not yet linked' };
+    await tx.insert(entities).values({ ...c.value, matrixCode: m });
     await writeAudit(tx, audit(v, `Entity ${c.value.code}`, 'entity created', { after: { ...c.value } }));
     return { ok: true };
   });
@@ -123,7 +165,9 @@ export async function createSiteAction(_prev: ActionResult | null, fd: FormData)
   const r = await db.transaction(async (tx): Promise<ActionResult> => {
     const c = checkSite(fieldsOf(fd), new Set((await tx.select({ c: sites.code }).from(sites)).map((x) => x.c)));
     if (!c.ok) return c;
-    await tx.insert(sites).values(c.value);
+    const m = await matrixCodeOf(tx, 'site', fd);
+    if (m === false) return { ok: false, error: 'Choose a Matrix site not yet linked' };
+    await tx.insert(sites).values({ ...c.value, matrixCode: m });
     await writeAudit(tx, audit(v, `Site ${c.value.code}`, 'site created', { after: { ...c.value } }));
     return { ok: true };
   });
