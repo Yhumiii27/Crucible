@@ -90,7 +90,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `crucible.pilot`, audited), a checklist of the start computed from what is recorded, and the reference measure (weeks before
   the start, from the imported history) compared with the pilot so far (X-2; usage shared with the dashboard through
   `resourceUsages`). The start waits on outside prerequisites: the workshop and the data D-1 to D-11, hosting (T-6), the Entra
-  registration, M-6 (Matrix). Claude's activation waits on the IT department (I-3).
+  registration (M-6 done 4 Nov 2026). Claude's activation waits on the IT department (I-3).
 - **Delivery 7 (measured occupancy, Outlook / Teams calendars) is done** (`docs/DELIVERY-7.md`; CR-071 and CR-072 of the
   comparative analysis, X-8 and X-9 added): occupancy devices (kiosk `/kiosk/<token>`, `POST /api/occupancy` with a Bearer
   device token for a bench agent, an interlock or a badge reader; `src/domain/occupancy.ts` matches each start / stop to the
@@ -163,7 +163,12 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   (`keystone.pub_projets`: name follows Keystone, `projects.keystone_closed`, `drizzle/0028`) and `readCursusPeople`
   (`cursus.pub_salaries`: name follows Cursus, a person who left is set aside) in `src/server/integrations/connectors.ts`;
   `keystoneRdProjectsToAdd` lists the open R&D projects of Keystone not in Crucible on `/admin/organisation` (added with the
-  project form, Keystone code filled in). Sites stay entered until M-6; Vigie suspensions (V-2) never filed with Vigie.
+  project form, Keystone code filled in). Vigie suspensions (V-2) never filed with Vigie.
+- **Delivery 21 (sites and entities read from Matrix, CR-060 continued) is done** (`docs/DELIVERY-21.md`, X-23 added; M-6 done by
+  Matrix 4 Nov 2026: laboratoire 67 and PDE on site `smc`, subsidiary `SMC` EPC France): `sites.matrix_code` and
+  `entities.matrix_code` (`drizzle/0029`), set by the administrator (`linkMatrixAction`, or a site / entity added from Matrix on
+  `/admin/organisation`); `readMatrixSites` / `readMatrixEntities` make the name (and a site's city and country) follow
+  `matrix.pub_sites` / `matrix.pub_filiales`; `matrixReferentials` lists Matrix's ones with their link.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

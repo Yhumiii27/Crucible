@@ -9,7 +9,7 @@ import { ROLE_KEYS, ROLE_LABEL, ROLE_SCOPE, type RoleKey } from '@/config/roles'
 import { ENTITY_KINDS, ENTITY_KIND_LABEL, PRIORITY_CLASSES, PRIORITY_CLASS_LABEL } from '@/domain/organisation';
 import { useI18n } from '@/i18n/client';
 import {
-  addRoleAction, createEntityAction, createFacilityAction, createProjectAction, createSiteAction, createUserAction, removeRoleAction, setUserActiveAction,
+  addRoleAction, createEntityAction, linkMatrixAction, createFacilityAction, createProjectAction, createSiteAction, createUserAction, removeRoleAction, setUserActiveAction,
 } from './actions';
 import { readConnectorsAction } from './connectors';
 import s from './forms.module.css';
@@ -97,38 +97,47 @@ export function ActiveToggle({ userId, active }: { userId: string; active: boole
   );
 }
 
-export function NewEntityForm() {
+/** A Crucible code proposed from a Matrix one: upper case, underscores as dashes. */
+const codeFrom = (matrix: string) => matrix.toUpperCase().replace(/[^A-Z0-9-]+/g, '-').slice(0, 20);
+
+/** `from`: a Matrix subsidiary not yet in Crucible (CR-060): code and name filled in, linked to it. */
+export function NewEntityForm({ from }: { from?: { code: string; name: string } }) {
   const { t } = useI18n();
+  const id = from ? `ne-${from.code}` : 'ne';
   return (
     <ActionForm action={createEntityAction} submit="Add the entity" done="Entity added">
-      <Field label={t('Code')} htmlFor="ne-code" required>
-        <Input id="ne-code" name="code" required maxLength={20} />
+      {from && <input type="hidden" name="matrixCode" value={from.code} />}
+      <Field label={t('Code')} htmlFor={`${id}-code`} required>
+        <Input id={`${id}-code`} name="code" required maxLength={20} defaultValue={from ? codeFrom(from.code) : undefined} />
       </Field>
-      <Field label={t('Name')} htmlFor="ne-name" required>
-        <Input id="ne-name" name="name" required />
+      <Field label={t('Name')} htmlFor={`${id}-name`} required>
+        <Input id={`${id}-name`} name="name" required defaultValue={from?.name} />
       </Field>
-      <Field label={t('Kind')} htmlFor="ne-kind" required>
-        <Select id="ne-kind" name="kind" options={ENTITY_KINDS.map((k) => ({ value: k, label: t(ENTITY_KIND_LABEL[k]) }))} />
+      <Field label={t('Kind')} htmlFor={`${id}-kind`} required>
+        <Select id={`${id}-kind`} name="kind" defaultValue={from ? 'partner' : undefined} options={ENTITY_KINDS.map((k) => ({ value: k, label: t(ENTITY_KIND_LABEL[k]) }))} />
       </Field>
     </ActionForm>
   );
 }
 
-export function NewSiteForm() {
+/** `from`: a Matrix site not yet in Crucible (CR-060): code, name, city and country filled in, linked to it. */
+export function NewSiteForm({ from }: { from?: { code: string; name: string; city: string | null; countryIso2: string } }) {
   const { t } = useI18n();
+  const id = from ? `nsi-${from.code}` : 'nsi';
   return (
     <ActionForm action={createSiteAction} submit="Add the site" done="Site added">
-      <Field label={t('Code')} htmlFor="nsi-code" required hint={t('The Matrix site code when it exists')}>
-        <Input id="nsi-code" name="code" required maxLength={20} />
+      {from && <input type="hidden" name="matrixCode" value={from.code} />}
+      <Field label={t('Code')} htmlFor={`${id}-code`} required hint={t('The Matrix site code when it exists')}>
+        <Input id={`${id}-code`} name="code" required maxLength={20} defaultValue={from ? codeFrom(from.code) : undefined} />
       </Field>
-      <Field label={t('Name')} htmlFor="nsi-name" required>
-        <Input id="nsi-name" name="name" required />
+      <Field label={t('Name')} htmlFor={`${id}-name`} required>
+        <Input id={`${id}-name`} name="name" required defaultValue={from?.name} />
       </Field>
-      <Field label={t('City')} htmlFor="nsi-city">
-        <Input id="nsi-city" name="city" />
+      <Field label={t('City')} htmlFor={`${id}-city`}>
+        <Input id={`${id}-city`} name="city" defaultValue={from?.city ?? undefined} />
       </Field>
-      <Field label={t('Country')} htmlFor="nsi-country" hint={t('ISO code, e.g. FR')}>
-        <Input id="nsi-country" name="countryIso2" maxLength={2} defaultValue="FR" />
+      <Field label={t('Country')} htmlFor={`${id}-country`} hint={t('ISO code, e.g. FR')}>
+        <Input id={`${id}-country`} name="countryIso2" maxLength={2} defaultValue={from?.countryIso2 ?? 'FR'} />
       </Field>
     </ActionForm>
   );
@@ -190,6 +199,19 @@ export function NewProjectForm({ entities, from }: { entities: Ref[]; from?: { c
         <input id="np-conf" type="checkbox" name="confidential" />
         {t('Confidential project')}
       </label>
+    </ActionForm>
+  );
+}
+
+/** Links a site or an entity to its Matrix site or subsidiary (CR-060), or unlinks it. */
+export function LinkMatrixForm({ kind, code, current, options }: { kind: 'site' | 'entity'; code: string; current: string | null; options: Ref[] }) {
+  const { t } = useI18n();
+  return (
+    <ActionForm action={linkMatrixAction} submit="Link" done="Linked" inline variant="ghost">
+      <input type="hidden" name="kind" value={kind} />
+      <input type="hidden" name="code" value={code} />
+      <Select size="inline" name="matrixCode" defaultValue={current ?? ''} aria-label={t('Matrix')}
+        options={[{ value: '', label: '—' }, ...options.map((o) => ({ value: o.code, label: `${o.code} · ${o.name}` }))]} />
     </ActionForm>
   );
 }

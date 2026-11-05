@@ -9,11 +9,11 @@ import { Table, Td, Th } from '@/components/ds/Table';
 import { Tag } from '@/components/ds/Tag';
 import { canSee } from '@/config/screens';
 import { ENTITY_KIND_LABEL, PRIORITY_CLASS_LABEL } from '@/domain/organisation';
-import { NewEntityForm, NewFacilityForm, NewProjectForm, NewSiteForm } from '@/features/admin/forms';
+import { LinkMatrixForm, NewEntityForm, NewFacilityForm, NewProjectForm, NewSiteForm } from '@/features/admin/forms';
 import { dataText } from '@/i18n/data-text';
 import { organisation } from '@/server/dal/admin';
 import { getDb } from '@/server/db/client';
-import { keystoneRdProjectsToAdd } from '@/server/integrations/connectors';
+import { keystoneRdProjectsToAdd, matrixReferentials } from '@/server/integrations/connectors';
 import { getI18n, getViewer } from '@/server/session';
 
 export default async function OrganisationPage() {
@@ -21,7 +21,12 @@ export default async function OrganisationPage() {
   if (!canSee(viewer.role, 'admin-org')) notFound();
   const org = await organisation();
   // CR-060: the R&D projects of Keystone not yet in Crucible, read at display time (empty until pub_projets is granted).
-  const fromKeystone = await keystoneRdProjectsToAdd(await getDb());
+  const db = await getDb();
+  const fromKeystone = await keystoneRdProjectsToAdd(db);
+  // CR-060: the sites and subsidiaries of Matrix (empty until pub_sites and pub_filiales are granted).
+  const matrix = await matrixReferentials(db);
+  const freeSites = matrix.sites.filter((x) => !x.linkedTo);
+  const freeSubs = matrix.subsidiaries.filter((x) => !x.linkedTo);
   const admin = viewer.role === 'admin';
   const ref = (x: { code: string; name: string }) => ({ code: x.code, name: dataText(x.name, lang) });
   return (
@@ -34,6 +39,7 @@ export default async function OrganisationPage() {
               <Th>{t('Code')}</Th>
               <Th>{t('Name')}</Th>
               <Th>{t('Kind')}</Th>
+              <Th>{t('Matrix')}</Th>
             </tr>
           </thead>
           <tbody>
@@ -42,6 +48,9 @@ export default async function OrganisationPage() {
                 <Td>{e.code}</Td>
                 <Td>{dataText(e.name, lang)}</Td>
                 <Td>{t(ENTITY_KIND_LABEL[e.kind])}</Td>
+                <Td>{admin && matrix.subsidiaries.length
+                  ? <LinkMatrixForm kind="entity" code={e.code} current={e.matrixCode} options={matrix.subsidiaries.filter((x) => !x.linkedTo || x.code === e.matrixCode).map(ref)} />
+                  : e.matrixCode ?? '—'}</Td>
               </tr>
             ))}
           </tbody>
@@ -56,6 +65,7 @@ export default async function OrganisationPage() {
               <Th>{t('Name')}</Th>
               <Th>{t('City')}</Th>
               <Th>{t('Country')}</Th>
+              <Th>{t('Matrix')}</Th>
             </tr>
           </thead>
           <tbody>
@@ -65,12 +75,37 @@ export default async function OrganisationPage() {
                 <Td>{dataText(s.name, lang)}</Td>
                 <Td>{s.city ?? '—'}</Td>
                 <Td>{s.countryIso2}</Td>
+                <Td>{admin && matrix.sites.length
+                  ? <LinkMatrixForm kind="site" code={s.code} current={s.matrixCode} options={matrix.sites.filter((x) => !x.linkedTo || x.code === s.matrixCode).map(ref)} />
+                  : s.matrixCode ?? '—'}</Td>
               </tr>
             ))}
           </tbody>
         </Table>
         {admin && <div><Folded summary="Add a site"><NewSiteForm /></Folded></div>}
       </SectionCard>
+      {admin && freeSites.length + freeSubs.length > 0 && (
+        <SectionCard title={t('Sites and subsidiaries of Matrix not in Crucible')} hint={String(freeSites.length + freeSubs.length)}
+          subtitle={t('Matrix is the reference of the sites and subsidiaries (D14, D21): add one, or link an existing site or entity above; its name then follows Matrix.')} scroll>
+          <Table>
+            <thead><tr><Th>{t('Matrix')}</Th><Th>{t('Name')}</Th><Th>{t('Kind')}</Th><Th /></tr></thead>
+            <tbody>
+              {freeSites.map((x) => (
+                <tr key={`s-${x.code}`}>
+                  <Td>{x.code}</Td><Td>{dataText(x.name, lang)}</Td><Td>{t('Site')}</Td>
+                  <Td><Folded summary="Add to Crucible" size="xs"><NewSiteForm from={x} /></Folded></Td>
+                </tr>
+              ))}
+              {freeSubs.map((x) => (
+                <tr key={`f-${x.code}`}>
+                  <Td>{x.code}</Td><Td>{dataText(x.name, lang)}</Td><Td>{t('Entity')}</Td>
+                  <Td><Folded summary="Add to Crucible" size="xs"><NewEntityForm from={x} /></Folded></Td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </SectionCard>
+      )}
       <SectionCard title={t('Facilities')} scroll>
         <Table>
           <thead>
