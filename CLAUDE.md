@@ -163,7 +163,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   (`keystone.pub_projets`: name follows Keystone, `projects.keystone_closed`, `drizzle/0028`) and `readCursusPeople`
   (`cursus.pub_salaries`: name follows Cursus, a person who left is set aside) in `src/server/integrations/connectors.ts`;
   `keystoneRdProjectsToAdd` lists the open R&D projects of Keystone not in Crucible on `/admin/organisation` (added with the
-  project form, Keystone code filled in). Vigie suspensions (V-2) never filed with Vigie.
+  project form, Keystone code filled in). Vigie suspensions (V-2): filed with Matrix as M-19 on 5 Nov 2026 (Matrix#73).
 - **Delivery 21 (sites and entities read from Matrix, CR-060 continued) is done** (`docs/DELIVERY-21.md`, X-23 added; M-6 done by
   Matrix 4 Nov 2026: laboratoire 67 and PDE on site `smc`, subsidiary `SMC` EPC France): `sites.matrix_code` and
   `entities.matrix_code` (`drizzle/0029`), set by the administrator (`linkMatrixAction`, or a site / entity added from Matrix on
