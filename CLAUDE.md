@@ -163,12 +163,19 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   (`keystone.pub_projets`: name follows Keystone, `projects.keystone_closed`, `drizzle/0028`) and `readCursusPeople`
   (`cursus.pub_salaries`: name follows Cursus, a person who left is set aside) in `src/server/integrations/connectors.ts`;
   `keystoneRdProjectsToAdd` lists the open R&D projects of Keystone not in Crucible on `/admin/organisation` (added with the
-  project form, Keystone code filled in). Vigie suspensions (V-2): filed with Matrix as M-19 on 5 Nov 2026 (Matrix#73).
+  project form, Keystone code filled in). Vigie suspensions (V-2): filed with Matrix as M-21 on 5 Nov 2026 (Matrix#73).
 - **Delivery 21 (sites and entities read from Matrix, CR-060 continued) is done** (`docs/DELIVERY-21.md`, X-23 added; M-6 done by
   Matrix 4 Nov 2026: laboratoire 67 and PDE on site `smc`, subsidiary `SMC` EPC France): `sites.matrix_code` and
   `entities.matrix_code` (`drizzle/0029`), set by the administrator (`linkMatrixAction`, or a site / entity added from Matrix on
   `/admin/organisation`); `readMatrixSites` / `readMatrixEntities` make the name (and a site's city and country) follow
   `matrix.pub_sites` / `matrix.pub_filiales`; `matrixReferentials` lists Matrix's ones with their link.
+- **Edition from Matrix (Matrix's request M-19, done 6 Nov 2026)**: `crucible.pub_editer(p_table, p_action, p_cle, p_valeurs, p_par,
+  p_motif)` (`drizzle/0030_pub_editer.sql`, `docs/ECHANGES.md` §5): the IT department corrects the reference tables (entities,
+  sites, facilities, resources without the booking limits, projects, people, test types, skills) from Matrix's viewer; closed
+  lists of tables and columns, Crucible's checks, « retirer » archives, a name that follows another tool is refused, audited
+  (area Administration, actor « <name> (Matrix) »). Bookings, audit trail, append-only tables, accounts, tokens, exclusion
+  rules stay closed. A new open table or column is added to this function by a new migration (`pub_editer` is replaced, its
+  signature never changes).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

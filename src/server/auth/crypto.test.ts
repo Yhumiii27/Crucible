@@ -36,10 +36,13 @@ describe('encoding and tokens', () => {
 
 describe('sealed cookies', () => {
   it('round-trips a payload', async () => {
-    const v = await seal({ uid: 'u1', exp: now() + 60 }, SECRET, 'session');
+    // A long marker: a two-letter one ("u1") turned up by chance in the random base64url text about once in a few hundred runs.
+    const uid = 'user-plaintext-marker-0042';
+    const v = await seal({ uid, exp: now() + 60 }, SECRET, 'session');
     expect(v).toMatch(/^v1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
-    expect(v).not.toContain('u1');
-    expect(await unseal(v, SECRET, 'session')).toMatchObject({ uid: 'u1' });
+    expect(v).not.toContain(uid);
+    expect(v).not.toContain(Buffer.from(JSON.stringify({ uid })).toString('base64url').slice(0, 12));
+    expect(await unseal(v, SECRET, 'session')).toMatchObject({ uid });
   });
 
   it('refuses tampering, another purpose, another secret, expiry and garbage', async () => {

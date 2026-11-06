@@ -34,7 +34,7 @@ Format d'une entrée :
 
 
 ## [2026-11-05] Matrix → Crucible — M-19 · Fonction d'édition `crucible.pub_editer` : corriger les données de Crucible depuis Matrix, par vos règles
-- Statut : OUVERTE
+- Statut : FAITE (acceptée par le responsable produit le 06/11/2026 ; migration `drizzle/0030_pub_editer.sql`, règles dans `docs/ECHANGES.md` §5. Tables ouvertes : `entities`, `sites`, `facilities`, `resources` (sans les limites de réservation), `projects`, `people` (clé `id`), `test_types`, `skills` ; « retirer » archive (`active = false`, moyen `retired`), un site ne se retire pas ; un nom qui suit un autre outil (projet lié à Keystone, site ou entité reliés à Matrix, personne avec matricule) est refusé ; tout le reste fermé (réservations, journal, tables en ajout seul, comptes et rôles, jetons, règles d'exclusion). Journal : `crucible.audit_entries`, zone « Administration », auteur « <p_par> (Matrix) », motif. La DSI peut autoriser le lien d'écriture `matrix_app` → `crucible.pub_editer`)
 - Demande : fournir, par une migration de Crucible, la fonction
   `crucible.pub_editer(p_table text, p_action text, p_cle jsonb, p_valeurs jsonb, p_par text, p_motif text) RETURNS jsonb`
   (`SECURITY DEFINER`, `SET search_path = crucible, pg_temp`, `REVOKE EXECUTE … FROM PUBLIC`), qui ajoute, corrige ou retire une ligne
