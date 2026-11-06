@@ -32,3 +32,29 @@ Format d'une entrée :
 - Détails techniques : vues de Crucible reprises par Matrix : pub_journal, pub_moyens, pub_reservations, pub_occupation_hebdo (4 vues). Écritures reçues d'autres outils : aucune aujourd'hui. Une vue reprise garde son nom, ses colonnes, son commentaire et ses lecteurs ; seule sa propriété change. Contrôles : `droits.verifier()` (vue `pub_` encore à l'outil : attention, « pas encore reprise »). Pour un essai local (PGlite, base de démonstration), vos migrations anciennes continuent de créer les vues : seule une **nouvelle** migration ne doit plus en créer ni en modifier.
 - Validé par Guillaume le : 2026-11-01
 
+
+## [2026-11-05] Matrix → Crucible — M-19 · Fonction d'édition `crucible.pub_editer` : corriger les données de Crucible depuis Matrix, par vos règles
+- Statut : FAITE (acceptée par le responsable produit le 06/11/2026 ; migration `drizzle/0030_pub_editer.sql`, règles dans `docs/ECHANGES.md` §5. Tables ouvertes : `entities`, `sites`, `facilities`, `resources` (sans les limites de réservation), `projects`, `people` (clé `id`), `test_types`, `skills` ; « retirer » archive (`active = false`, moyen `retired`), un site ne se retire pas ; un nom qui suit un autre outil (projet lié à Keystone, site ou entité reliés à Matrix, personne avec matricule) est refusé ; tout le reste fermé (réservations, journal, tables en ajout seul, comptes et rôles, jetons, règles d'exclusion). Journal : `crucible.audit_entries`, zone « Administration », auteur « <p_par> (Matrix) », motif. La DSI peut autoriser le lien d'écriture `matrix_app` → `crucible.pub_editer`)
+- Demande : fournir, par une migration de Crucible, la fonction
+  `crucible.pub_editer(p_table text, p_action text, p_cle jsonb, p_valeurs jsonb, p_par text, p_motif text) RETURNS jsonb`
+  (`SECURITY DEFINER`, `SET search_path = crucible, pg_temp`, `REVOKE EXECUTE … FROM PUBLIC`), qui ajoute, corrige ou retire une ligne
+  d'une table de Crucible en appliquant vos règles et votre journal :
+  - `p_action` = `ajouter` | `corriger` | `retirer` (un retrait peut être un archivage) ; `p_cle` = clé primaire de la ligne
+    (null pour `ajouter`) ; `p_valeurs` = colonnes à écrire (null pour `retirer`) ;
+  - `p_par` = nom de la personne connectée à Matrix (Microsoft Entra ID, rôle Administrateur) ; `p_motif` = motif saisi
+    (obligatoire) ;
+  - refus par `RAISE EXCEPTION` (message montré tel quel dans Matrix) ; la fonction renvoie la ligne après modification,
+    sans colonne sensible ;
+  - elle refuse les tables que Crucible ne veut pas ouvrir et toute colonne de `droits.colonnes_sensibles` (Matrix ne les
+    transmet jamais, mais la fonction ne doit pas en dépendre) ;
+  - règle propre à Crucible à respecter : journal d'audit en ajout seul ; aucune réservation confirmée ne bouge sans décision humaine tracée (la fonction refuse ces tables ou applique cette règle).
+  Une fonction par table (`crucible.pub_editer_<table>`, mêmes paramètres sans `p_table`) reste possible et passe avant la
+  générique. Une fois la migration passée, passer cette entrée à FAITE : la DSI autorise alors le lien d'écriture dans Matrix.
+- Justification : décision M-19 du 05/11/2026 (responsable produit) : « pour le moment, l'admin IT peut modifier toutes les
+  données à l'exception des données sensibles RGPD », **par les outils** : Matrix n'écrit jamais lui-même dans vos tables
+  (M-18) ; la DSI corrige depuis la visionneuse de Matrix, Crucible garde ses règles et son journal.
+- Détails techniques : convention complète et exemple dans `docs/edition-par-les-outils.md` du dépôt Matrix. Le droit
+  d'exécution est un lien « écriture » `matrix_app` → `crucible.pub_editer`, décidé dans Matrix (« Liens entre outils ») et posé
+  par `droits.accorder_execution` ; `droits.verifier()` signale une fonction `pub_` exécutable par tous ou sans
+  `search_path` fixé. Rien ne change pour Crucible tant que la fonction n'existe pas : la visionneuse reste en lecture seule.
+- Validé par Guillaume le : 2026-11-05

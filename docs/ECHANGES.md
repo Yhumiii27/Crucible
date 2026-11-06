@@ -69,8 +69,19 @@ de leurs colonnes, une entrée dans le `REQUESTS.md` de Matrix (la migration éc
 
 ## 5. Ce que les autres écrivent chez Crucible
 
-Rien aujourd’hui : aucun outil n’a demandé à écrire chez Crucible. Si un outil en a besoin (par exemple Keystone qui
-demanderait un essai, ou Vigie qui suspendrait un moyen), Crucible lui fournira :
+**Matrix — `crucible.pub_editer`** (demande M-19 de Matrix du 05/11/2026, acceptée le 06/11/2026, migration
+`drizzle/0030_pub_editer.sql`) : la DSI corrige les référentiels de Crucible depuis la visionneuse de Matrix — entités,
+sites, installations, moyens (sans les limites de réservation), projets, personnes, types d’essai, compétences ; « retirer »
+archive (un site ne se retire pas) ; un nom qui suit un autre outil (projet lié à Keystone, site ou entité reliés à Matrix,
+personne avec un matricule) se corrige dans cet outil. Fermés : réservations, journal d’audit et tables en ajout seul,
+comptes et rôles, jetons, règles d’exclusion, lignes lues d’un autre outil. Chaque modification est journalisée (zone
+« Administration », auteur « <nom> (Matrix) », motif). Convention de Matrix (`docs/edition-par-les-outils.md` de Matrix) :
+fonction générique `pub_editer(p_table, p_action, p_cle, p_valeurs, p_par, p_motif)`, exécutée par `matrix_app` après le lien
+« écriture » décidé dans Matrix. Seule exception à « sans SQL dynamique » : les noms de table et de colonne y sont pris dans une
+liste fermée, les valeurs toujours liées (`USING`).
+
+Si un autre outil a besoin d’écrire (par exemple Keystone qui demanderait un essai, ou Vigie qui suspendrait un moyen),
+Crucible lui fournira :
 
 - une **API** quand l’écriture demande un fichier, un appel à un service externe ou plus d’une transaction ;
 - sinon une **fonction `crucible.pub_<verbe>_<objet>`**, créée par une migration de Crucible : propriétaire `crucible_app`,
