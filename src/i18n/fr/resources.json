@@ -459,5 +459,19 @@
   "Works": "Travaux",
   "written answer": "réponse écrite",
   "Year-end shutdown": "Fermeture de fin d’année",
-  "You may not book this resource for this project": "Vous ne pouvez pas réserver ce moyen pour ce projet"
+  "You may not book this resource for this project": "Vous ne pouvez pas réserver ce moyen pour ce projet",
+  "An outside intervention Vigie publishes on a zone makes its resources unavailable; the bookings it covers are flagged, never moved.": "Une intervention extérieure publiée par Vigie sur une zone rend ses moyens indisponibles ; les réservations concernées sont signalées, jamais déplacées.",
+  "Enter the Vigie zone numbers, separated by commas": "Saisissez les numéros des zones Vigie, séparés par des virgules",
+  "No resource is in a Vigie zone.": "Aucun moyen n’est rattaché à une zone Vigie.",
+  "Outside works on a booked resource": "Travaux extérieurs sur un moyen réservé",
+  "Save the zones": "Enregistrer les zones",
+  "Separated by commas; empty: in no zone.": "Séparés par des virgules ; vide : dans aucune zone.",
+  "Taken into account at the next read of the connectors": "Pris en compte à la prochaine lecture des connecteurs",
+  "The test suspensions of Vigie are not readable yet.": "Les suspensions d’essais de Vigie ne sont pas encore lisibles.",
+  "This unavailability comes from Vigie: the intervention is changed there": "Cette indisponibilité vient de Vigie : l’intervention se modifie dans Vigie",
+  "Vigie test suspensions": "Suspensions d’essais Vigie",
+  "Vigie zone numbers": "Numéros des zones Vigie",
+  "Vigie zones": "Zones Vigie",
+  "Zones published by Vigie": "Zones publiées par Vigie",
+  "Zones saved": "Zones enregistrées"
 }

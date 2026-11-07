@@ -27,16 +27,16 @@ accordée par `has_table_privilege`). Toutes les vues sont accordées à `crucib
 
 | Vue | Outil | Usage | Lue par le code aujourd’hui | Demande d’origine |
 |---|---|---|---|---|
-| `keystone.pub_projets` | Keystone | projet Keystone rattaché à un projet R&D | prévu (écran Connecteurs) | K-1, S-1 |
+| `keystone.pub_projets` | Keystone | projet Keystone rattaché à un projet R&D | **oui**, toutes les heures (livraison 20 : nom, projet clos, projets à ajouter) | K-1, S-1 |
 | `keystone.pub_jalons` | Keystone | jalons lus au lieu d’être saisis | **oui**, toutes les heures (livraison 8, `src/server/integrations/connectors.ts`) | K-2 |
-| `cursus.pub_salaries` | Cursus | personnes qui conduisent les essais | prévu | CU-2, S-3 |
+| `cursus.pub_salaries` | Cursus | personnes qui conduisent les essais | **oui**, toutes les heures (livraison 20 : nom, sortie) | CU-2, S-3 |
 | `cursus.pub_titres_detenus` | Cursus | habilitations des opérateurs | **oui** (`src/features/planning/actions.ts`, lecture des titres) | CU-2, S-3 |
 | `cursus.pub_absences` | Cursus | absences des opérateurs, sans motif | **oui**, toutes les heures (livraison 8) | CU-1 |
 | `codex.pub_documents` | Codex | protocoles et rapports référencés | **oui**, à l’affichage (état et révision en vigueur, jamais le titre ; `src/server/dal/codex.ts`) | CX-1, S-6 |
 | `vigie.pub_controles` | Vigie | contrôles réglementaires des moyens | **oui**, toutes les heures (livraison 8) | V-1, S-4 |
-| `vigie.pub_suspensions_essais` | Vigie | essais suspendus pendant une intervention extérieure | prévu | V-2, R-7 |
-| `matrix.pub_sites` | Matrix | sites des installations | prévu | M-6 |
-| `matrix.pub_filiales` | Matrix | entités qui partagent les installations | prévu | M-6 |
+| `vigie.pub_suspensions_essais` | Vigie | essais suspendus pendant une intervention extérieure | lecture prête (livraison 22), active dès que Matrix crée la publication (M-21) | V-2, R-7 |
+| `matrix.pub_sites` | Matrix | sites des installations | **oui**, toutes les heures (livraison 21, sites reliés) | M-6 |
+| `matrix.pub_filiales` | Matrix | entités qui partagent les installations | **oui**, toutes les heures (livraison 21, entités reliées) | M-6 |
 
 Accordées par Matrix sans lecture prévue dans le code à ce jour : `cursus.pub_titres`, `codex.pub_revisions_document`,
 `codex.pub_programmes_recherche` (CX-2), `matrix.pub_organigramme`. Elles restent demandées : elles serviront aux

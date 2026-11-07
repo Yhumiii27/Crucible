@@ -11,7 +11,7 @@ import { enqueue, offline } from '@/features/offline/queue';
 import {
   addClosureAction, addUnavailabilityAction, setAcquisitionAction, cancelBookingAction, confirmBookingAction, createResourceAction, finishBookingAction, importHistoryAction,
   markNoShowAction, proposeRuleAction, recordInspectionAction, removeUnavailabilityAction, requestBookingAction, retireRuleAction, setAgreementAction,
-  setFacilityHoursAction, setResourceLimitsAction, setResourceStatusAction, startBookingAction, validateRuleAction,
+  setFacilityHoursAction, setResourceLimitsAction, setResourceStatusAction, setVigieZonesAction, startBookingAction, validateRuleAction,
 } from './actions';
 import s from './forms.module.css';
 
@@ -169,6 +169,25 @@ export function UnavailabilityForm({ resources }: { resources: { id: string; cod
       </Field>
       <Field label={t('To')} htmlFor="un-to">
         <Input id="un-to" name="toOn" type="date" />
+      </Field>
+    </ActionForm>
+  );
+}
+
+/** The Vigie zones a resource is in (V-2); `zones` = the zones Vigie publishes, when its view is readable. */
+export function VigieZonesForm({ resources, zones }: { resources: { id: string; code: string }[]; zones: { id: number; name: string }[] | null }) {
+  const { t } = useI18n();
+  return (
+    <ActionForm action={setVigieZonesAction} submit="Save the zones" done="Zones saved">
+      <Field label={t('Resource')} htmlFor="vz-res" required>
+        <Select id="vz-res" name="resourceId" options={resources.map((r) => ({ value: r.id, label: r.code }))} />
+      </Field>
+      <Field
+        label={t('Vigie zone numbers')}
+        htmlFor="vz-zones"
+        hint={zones?.length ? `${t('Zones published by Vigie')} : ${zones.map((z) => `${z.id} (${z.name})`).join(', ')}` : t('Separated by commas; empty: in no zone.')}
+      >
+        <Input id="vz-zones" name="zones" placeholder="12, 14" />
       </Field>
     </ActionForm>
   );

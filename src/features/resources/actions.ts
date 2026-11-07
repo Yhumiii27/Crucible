@@ -11,6 +11,7 @@ import { DEFAULT_HOURS, inspectionDueOn, isHhmm } from '@/domain/calendar';
 import { isIsoDate } from '@/domain/clock';
 import { parseHistory } from '@/domain/history-import';
 import { maintenanceDueOn } from '@/domain/maintenance';
+import { zoneIdsOf } from '@/domain/vigie-suspensions';
 import { DEFAULT_NOTICE_WORKDAYS } from '@/domain/needs';
 import {
   checkAgreement, checkExclusionRule, checkInspection, checkResource, checkSlotInput, checkTitle, checkUnavailability, RESOURCE_STATUSES, type ResourceStatus,
@@ -21,7 +22,7 @@ import { businessNow, businessToday } from '@/server/clock';
 import { getDb } from '@/server/db/client';
 import { writeAudit } from '@/server/db/helpers';
 import {
-  bookings, closures, entityAgreements, exclusionRuleResources, exclusionRules, facilities, facilityHours, facilityPartners, formResponses, formTemplates, inspections, maintenancePlans, projects, resources, testNeeds, unavailabilities,
+  bookings, closures, entityAgreements, exclusionRuleResources, exclusionRules, facilities, facilityHours, facilityPartners, formResponses, formTemplates, inspections, maintenancePlans, projects, resources, testNeeds, unavailabilities, vigieZoneResources,
 } from '@/server/db/schema';
 import type { Tx } from '@/server/db/types';
 import { calendarsOf, rulesOf } from '@/server/dal/resources';
@@ -213,12 +214,39 @@ export async function removeUnavailabilityAction(id: string): Promise<ActionResu
     const [u] = await tx.select({ u: unavailabilities, code: resources.code, facilityCode: resources.facilityCode }).from(unavailabilities)
       .innerJoin(resources, eq(resources.id, unavailabilities.resourceId)).where(eq(unavailabilities.id, id));
     if (!u || !(await managed(tx, v, u.facilityCode))) return REFUSED;
+    if (u.u.source === 'vigie') return { ok: false, error: 'This unavailability comes from Vigie: the intervention is changed there' };
     facilityCode = u.facilityCode;
     await tx.delete(unavailabilities).where(eq(unavailabilities.id, id));
     await writeAudit(tx, audit(v, 'Facilities', `Resource ${u.code}`, `unavailability removed: ${u.u.label}`, { entityType: 'unavailability', entityId: id, before: { label: u.u.label, startsAt: u.u.startsAt.toISOString(), endsAt: u.u.endsAt.toISOString() } }));
     return { ok: true };
   });
   if (r.ok) revalidate(`/facilities/${facilityCode}`, '/planning');
+  return r;
+}
+
+/**
+ * The Vigie zones a resource is in (V-2): the test suspensions Vigie publishes for these zones make it unavailable at the next
+ * read of the connectors. Replaces the resource's zones; an empty field removes them. Facility managers and coordinators.
+ */
+export async function setVigieZonesAction(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const v = await getViewer();
+  const zones = zoneIdsOf(fd.get('zones'));
+  if (zones == null) return { ok: false, error: 'Enter the Vigie zone numbers, separated by commas' };
+  const resourceId = String(fd.get('resourceId') ?? '');
+  const db = await getDb();
+  let facilityCode = '';
+  const r = await db.transaction(async (tx): Promise<ActionResult> => {
+    const [res] = await tx.select().from(resources).where(eq(resources.id, resourceId));
+    if (!res || !(await managed(tx, v, res.facilityCode))) return REFUSED;
+    facilityCode = res.facilityCode;
+    const before = (await tx.select({ zoneId: vigieZoneResources.zoneId }).from(vigieZoneResources).where(eq(vigieZoneResources.resourceId, res.id))).map((z) => z.zoneId).sort((a, b) => a - b);
+    if (before.join(',') === zones.join(',')) return { ok: true };
+    await tx.delete(vigieZoneResources).where(eq(vigieZoneResources.resourceId, res.id));
+    if (zones.length) await tx.insert(vigieZoneResources).values(zones.map((zoneId) => ({ zoneId, resourceId: res.id, setByName: v.name })));
+    await writeAudit(tx, audit(v, 'Facilities', `Resource ${res.code}`, `Vigie zones: ${zones.length ? zones.join(', ') : 'none'}`, { entityType: 'resource', entityId: res.id, before: { zones: before }, after: { zones } }));
+    return { ok: true, warnings: ['Taken into account at the next read of the connectors'] };
+  });
+  if (r.ok) revalidate(`/facilities/${facilityCode}`);
   return r;
 }
 
