@@ -17,6 +17,7 @@ const VIEW_LABEL: Record<ReadView, string> = {
   'vigie.pub_controles': 'Vigie inspections',
   'matrix.pub_sites': 'Matrix sites',
   'matrix.pub_filiales': 'Matrix subsidiaries',
+  'vigie.pub_suspensions_essais': 'Vigie test suspensions',
 };
 
 /** "Keystone milestones · 4 read · 1 added · 0 changed · 0 removed" (segments translated one by one). */

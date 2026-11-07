@@ -56,11 +56,21 @@ export const unavailabilities = crucible.table('unavailabilities', {
   label: text('label').notNull(),
   startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
   endsAt: timestamp('ends_at', { withTimezone: true }).notNull(),
-  /** `manual` (Crucible), later `vigie` (V-1) or `incident` (delivery 5). */
+  /** `manual` (Crucible), `vigie` (an outside intervention read from Vigie, V-2 / M-21) or `incident` (delivery 5). */
   source: text('source').notNull().default('manual'),
   createdByName: text('created_by_name').notNull(),
   ...timestamps,
+  /** For `vigie`: `suspension:<activite_id>` of vigie.pub_suspensions_essais. */
+  sourceRef: text('source_ref'),
 }, (t) => [index('unavailabilities_resource_idx').on(t.resourceId, t.startsAt)]);
+
+/** Zones of Vigie's site map (essais, atex) and the resources of Crucible each one holds (V-2): kept by the facility managers. */
+export const vigieZoneResources = crucible.table('vigie_zone_resources', {
+  zoneId: integer('zone_id').notNull(),
+  resourceId: uuid('resource_id').notNull().references(() => resources.id, { onDelete: 'cascade' }),
+  setByName: text('set_by_name').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [primaryKey({ name: 'vigie_zone_resources_pk', columns: [t.zoneId, t.resourceId] })]);
 
 /** Periodic regulatory inspections of a resource (R-6), entered in Crucible or read from Vigie once it publishes them (S-4, V-1). */
 export const inspections = crucible.table('inspections', {

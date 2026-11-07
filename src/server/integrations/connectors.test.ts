@@ -65,10 +65,10 @@ const fromKeystone = () => t.db.select().from(projectMilestones).where(eq(projec
 describe('views not published yet', () => {
   it('nothing is read nor changed; the screen says so', async () => {
     const before = (await t.db.select().from(auditEntries)).length;
-    expect((await read()).map((r) => [r.view, r.readable])).toEqual([['keystone.pub_projets', false], ['keystone.pub_jalons', false], ['cursus.pub_salaries', false], ['cursus.pub_absences', false], ['vigie.pub_controles', false], ['matrix.pub_sites', false], ['matrix.pub_filiales', false]]);
+    expect((await read()).map((r) => [r.view, r.readable])).toEqual([['keystone.pub_projets', false], ['keystone.pub_jalons', false], ['cursus.pub_salaries', false], ['cursus.pub_absences', false], ['vigie.pub_controles', false], ['matrix.pub_sites', false], ['matrix.pub_filiales', false], ['vigie.pub_suspensions_essais', false]]);
     expect((await t.db.select().from(auditEntries)).length).toBe(before);
     as('admin');
-    expect(await readConnectorsAction()).toEqual({ ok: true, warnings: ['Keystone projects · not readable yet', 'Keystone milestones · not readable yet', 'Cursus employees · not readable yet', 'Cursus absences · not readable yet', 'Vigie inspections · not readable yet', 'Matrix sites · not readable yet', 'Matrix subsidiaries · not readable yet'] });
+    expect(await readConnectorsAction()).toEqual({ ok: true, warnings: ['Keystone projects · not readable yet', 'Keystone milestones · not readable yet', 'Cursus employees · not readable yet', 'Cursus absences · not readable yet', 'Vigie inspections · not readable yet', 'Matrix sites · not readable yet', 'Matrix subsidiaries · not readable yet', 'Vigie test suspensions · not readable yet'] });
   });
 
   it('a view published but not granted to Crucible is not read', async () => {
@@ -173,6 +173,7 @@ describe('the Connectors screen', () => {
       'Vigie inspections · 1 read · 0 added · 0 changed · 0 removed',
       'Matrix sites · not readable yet',
       'Matrix subsidiaries · not readable yet',
+      'Vigie test suspensions · not readable yet',
     ] });
   });
 });

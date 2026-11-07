@@ -936,6 +936,19 @@
     "blocks": "L21"
   },
   {
+    "id": "X-24",
+    "group": "extra",
+    "title": "Suspensions d’essais lues dans Vigie (V-2)",
+    "context": "Vigie publiera les interventions extérieures qui suspendent les essais d’une zone de son plan de site (vue pub_suspensions_essais, demande M-21). Ses zones ne portent pas les codes des moyens de Crucible.",
+    "proposal": "Le responsable de l’installation dit dans quelles zones Vigie se trouve chaque moyen ; chaque suspension rend le moyen indisponible (journées entières), suit Vigie et ne se retire pas dans Crucible ; les réservations couvertes ne bougent pas, les responsables de l’installation sont prévenus.",
+    "alts": [
+      "Bloquer seulement la plage horaire donnée par Vigie",
+      "Proposer d’office un scénario de reprise pour les réservations touchées",
+      "Relier les zones par le code du moyen saisi dans Vigie"
+    ],
+    "blocks": "L22"
+  },
+  {
     "id": "D-1",
     "group": "data",
     "kind": "data",

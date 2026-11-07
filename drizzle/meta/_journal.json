@@ -218,6 +218,13 @@
       "when": 1793958057120,
       "tag": "0030_pub_editer",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794074024346,
+      "tag": "0031_vigie_suspensions",
+      "breakpoints": true
     }
   ]
 }

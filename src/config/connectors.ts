@@ -24,7 +24,7 @@ export const READ_CONNECTORS: readonly ConnectorDef[] = [
   { view: 'cursus.pub_absences', tool: 'Cursus', use: 'Absences of the operators', request: 'CU-1', delivery: 'L4' },
   { view: 'codex.pub_documents', tool: 'Codex', use: 'Protocols and test reports referenced', request: 'S-6', delivery: 'L3' },
   { view: 'vigie.pub_controles', tool: 'Vigie', use: 'Regulatory inspections of the resources', request: 'V-1 · S-4', delivery: 'L5' },
-  { view: 'vigie.pub_suspensions_essais', tool: 'Vigie', use: 'Tests suspended during an outside intervention', request: 'R-7', delivery: 'L5' },
+  { view: 'vigie.pub_suspensions_essais', tool: 'Vigie', use: 'Tests suspended during an outside intervention', request: 'V-2 · M-21', delivery: 'L22' },
   { view: 'matrix.pub_sites', tool: 'Matrix', use: 'Sites of the facilities', request: 'M-6', delivery: 'L1' },
   { view: 'matrix.pub_filiales', tool: 'Matrix', use: 'Entities sharing the facilities', request: 'M-6', delivery: 'L1' },
 ];
