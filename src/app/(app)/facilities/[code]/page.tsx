@@ -16,7 +16,7 @@ import { canSee } from '@/config/screens';
 import { GRANULARITY_LABEL, RESOURCE_KIND_LABEL, RESOURCE_STATUS_LABEL, RULE_STATUS_LABEL, UNAVAILABILITY_KIND_LABEL } from '@/domain/resources';
 import { managedFacilities } from '@/domain/rights';
 import {
-  AcquisitionForm, ClosureForm, HoursForm, InspectionForm, LimitsForm, NewResourceForm, RemoveUnavailabilityButton, ResourceStatusSelect, UnavailabilityForm,
+  AcquisitionForm, ClosureForm, HoursForm, InspectionForm, LimitsForm, NewResourceForm, RemoveUnavailabilityButton, ResourceStatusSelect, UnavailabilityForm, VigieZonesForm,
 } from '@/features/resources/forms';
 import { EquipmentForm } from '@/features/planning/forms';
 import { DeviceForm, RevokeDeviceButton } from '@/features/measure/forms';
@@ -42,6 +42,7 @@ import { facilityForms } from '@/server/dal/forms';
 import { facilityMaintenance } from '@/server/dal/maintenance';
 import { facilityEquipment } from '@/server/dal/planning';
 import { facilitySheet } from '@/server/dal/resources';
+import { vigieZones } from '@/server/integrations/connectors';
 import { getI18n, getViewer } from '@/server/session';
 import st from './facility.module.css';
 
@@ -59,6 +60,7 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
   const manager = managedFacilities(viewer.role, viewer.assignments).includes(facility.code);
   const apiList = tab === 'api' ? await facilityApiClients(facility.code) : null;
   const rates = tab === 'rates' ? await facilityRates(facility.code) : null;
+  const zones = tab === 'calendar' ? await vigieZones() : null;
   const stock = tab === 'consumables' ? await facilityConsumables(facility.code, today) : null;
   const rateEntities = [facility.operatorEntityCode, ...facility.partnerEntityCodes];
   const forms = tab === 'forms' ? await facilityForms(facility.code, new Date(now.getTime() - 30 * 86_400_000)) : null;
@@ -87,6 +89,7 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
         <>
           <Folded summary="Change the opening hours" size="md"><HoursForm facilityCode={facility.code} hours={sheet.hours} /></Folded>
           <Folded summary="Add a closure" size="md"><ClosureForm facilityCode={facility.code} /></Folded>
+          {resRefs.length > 0 && <Folded summary="Vigie zones" size="md"><VigieZonesForm resources={resRefs} zones={zones} /></Folded>}
           {resRefs.length > 0 && <Folded summary="Add an unavailability" variant="primary" size="md"><UnavailabilityForm resources={resRefs} /></Folded>}
         </>
       )}
@@ -262,10 +265,10 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
                     <tr key={u.id}>
                       <Td>{u.resourceCode}</Td>
                       <Td>{t(UNAVAILABILITY_KIND_LABEL[u.kind])}</Td>
-                      <Td>{dataText(u.label, lang)}</Td>
+                      <Td>{dataText(u.label, lang)}{u.source === 'vigie' && <Tag tone="outline" size="sm" style={{ marginLeft: 8 }}>Vigie</Tag>}</Td>
                       <Td>{fmtDate(u.startsAt, lang)}</Td>
                       <Td>{fmtDate(new Date(u.endsAt.getTime() - 1), lang)}</Td>
-                      {manager && <Td><RemoveUnavailabilityButton id={u.id} /></Td>}
+                      {manager && <Td>{u.source !== 'vigie' && <RemoveUnavailabilityButton id={u.id} />}</Td>}
                     </tr>
                   ))}
                 </tbody>
@@ -273,6 +276,18 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
             ) : (
               <EmptyState>{t('No unavailability in the last 30 days or ahead.')}</EmptyState>
             )}
+          </SectionCard>
+          <SectionCard title={t('Vigie zones')} subtitle={t('An outside intervention Vigie publishes on a zone makes its resources unavailable; the bookings it covers are flagged, never moved.')}>
+            {sheet.vigieZones.length ? (
+              sheet.vigieZones.map((z) => (
+                <span key={z.resourceCode} className="text-muted">
+                  <strong>{z.resourceCode}</strong> · {z.zoneIds.map((id) => { const known = zones?.find((x) => x.id === id); return known ? `${id} (${known.name})` : String(id); }).join(', ')}
+                </span>
+              ))
+            ) : (
+              <EmptyState>{t('No resource is in a Vigie zone.')}</EmptyState>
+            )}
+            {zones == null && <span className="text-muted">{t('The test suspensions of Vigie are not readable yet.')}</span>}
           </SectionCard>
         </>
       )}

@@ -33,5 +33,6 @@ export const NOTIFICATION_KINDS = {
   form_incident: 'Incident reported on a test',
   test_result: 'Result of your test',
   consumable_alert: 'Consumables to see to',
+  outside_works: 'Outside works on a booked resource',
 } as const;
 export type NotificationKind = keyof typeof NOTIFICATION_KINDS;

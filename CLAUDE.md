@@ -176,6 +176,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   (area Administration, actor « <name> (Matrix) »). Bookings, audit trail, append-only tables, accounts, tokens, exclusion
   rules stay closed. A new open table or column is added to this function by a new migration (`pub_editer` is replaced, its
   signature never changes).
+- **Delivery 22 (test suspensions read from Vigie, CR-060 continued, V-2) is done** (`docs/DELIVERY-22.md`, X-24 added): prepared before
+  Matrix publishes `vigie.pub_suspensions_essais` (M-21, Matrix#73); `vigie_zone_resources` (`drizzle/0031`, kept by the facility
+  managers with `setVigieZonesAction`, tab "calendar"); `readVigieSuspensions` (`src/domain/vigie-suspensions.ts` `suspensionPlan`)
+  makes each suspension a `works` unavailability (source `vigie`, `source_ref` `suspension:<id>`, whole days) that follows Vigie and
+  cannot be removed in Crucible; covered bookings are never moved, the facility's managers get `outside_works`.
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

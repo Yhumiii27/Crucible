@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-11-06",
+ "updated": "2026-11-07",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -142,6 +142,10 @@
   {
    "date": "2026-11-06",
    "text": "Demande M-19 de Matrix faite (accord du 06/11) : fonction crucible.pub_editer, la DSI corrige les référentiels de Crucible depuis la visionneuse de Matrix. Demande V-2 renumérotée M-21 chez Matrix."
+  },
+  {
+   "date": "2026-11-07",
+   "text": "Livraison 22 (suite de CR-060, « continue ») : lecture de vigie.pub_suspensions_essais préparée (V-2, M-21) — zones Vigie des moyens, indisponibilités « travaux » suivant Vigie, réservations couvertes signalées. X-24 ajoutée (défaut appliqué). 455 tests."
   }
  ],
  "items": [
@@ -507,12 +511,13 @@
     "src/server/integrations/connectors.ts : lecture de keystone.pub_jalons, cursus.pub_absences, vigie.pub_controles",
     "src/server/dal/codex.ts, src/components/app/CodexRef.tsx : état des références Codex",
     "src/server/integrations/connectors.ts : readKeystoneProjects, readCursusPeople, keystoneRdProjectsToAdd",
-    "src/server/integrations/connectors.ts : readMatrixSites, readMatrixEntities, matrixReferentials ; linkMatrixAction"
+    "src/server/integrations/connectors.ts : readMatrixSites, readMatrixEntities, matrixReferentials ; linkMatrixAction",
+    "src/server/integrations/connectors.ts : readVigieSuspensions, vigieZones ; src/domain/vigie-suspensions.ts ; setVigieZonesAction"
    ],
    "progress": {
     "state": "en_cours",
-    "delivery": "Livraisons 3, 4, 8, 20, 21",
-    "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. Livraison 4 : lecture des titres de cursus.pub_titres_detenus (compétences rattachées à un titre, personnes avec matricule) dès que la vue est accordée. Livraison 8 (31 oct. 2026, DELIVERY-8.md) : jalons keystone.pub_jalons, absences cursus.pub_absences et contrôles vigie.pub_controles lus toutes les heures (tâche connectors-read) et à la demande ; ce qui est lu se modifie dans son outil. 1er nov. 2026 : état des références Codex lu à l’affichage dans codex.pub_documents (révision en vigueur, inconnu, obsolète, archivé). 4 nov. 2026 (livraison 20, X-22) : projets R&D lus dans keystone.pub_projets (nom, clos dans Keystone, projets à ajouter), salariés lus dans cursus.pub_salaries (nom, sortie). 5 nov. 2026 (livraison 21, X-23) : sites et filiales reliés à matrix.pub_sites et pub_filiales (M-6 faite : site smc, filiale SMC). Reste : suspensions Vigie (V-2) — demande M-21 (d’abord numérotée M-19) déposée à Matrix le 05/11/2026 (Yhumiii27/Matrix#73), lecture à brancher quand la publication existera."
+    "delivery": "Livraisons 3, 4, 8, 20, 21, 22",
+    "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. Livraison 4 : lecture des titres de cursus.pub_titres_detenus (compétences rattachées à un titre, personnes avec matricule) dès que la vue est accordée. Livraison 8 (31 oct. 2026, DELIVERY-8.md) : jalons keystone.pub_jalons, absences cursus.pub_absences et contrôles vigie.pub_controles lus toutes les heures (tâche connectors-read) et à la demande ; ce qui est lu se modifie dans son outil. 1er nov. 2026 : état des références Codex lu à l’affichage dans codex.pub_documents (révision en vigueur, inconnu, obsolète, archivé). 4 nov. 2026 (livraison 20, X-22) : projets R&D lus dans keystone.pub_projets (nom, clos dans Keystone, projets à ajouter), salariés lus dans cursus.pub_salaries (nom, sortie). 5 nov. 2026 (livraison 21, X-23) : sites et filiales reliés à matrix.pub_sites et pub_filiales (M-6 faite : site smc, filiale SMC). 7 nov. 2026 (livraison 22, X-24) : lecture des suspensions d’essais vigie.pub_suspensions_essais prête (zones Vigie des moyens, indisponibilités « travaux », réservations signalées) ; elle s’active dès que Matrix crée la publication (M-21, Yhumiii27/Matrix#73 fusionnée) et l’accorde à Crucible."
    }
   },
   {

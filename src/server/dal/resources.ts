@@ -10,7 +10,7 @@ import type { BookingStatus } from '@/domain/resources';
 import { addDaysIso, parisInstant } from '@/lib/dates';
 import { getDb } from '@/server/db/client';
 import {
-  bookings, closures, entities, entityAgreements, exclusionRuleResources, exclusionRules, facilityHours, inspections, projects, resources, unavailabilities,
+  bookings, closures, entities, entityAgreements, exclusionRuleResources, exclusionRules, facilityHours, inspections, projects, resources, unavailabilities, vigieZoneResources,
 } from '@/server/db/schema';
 import type { DB, Tx } from '@/server/db/types';
 import type { Viewer } from '@/server/viewer';
@@ -76,13 +76,14 @@ export async function facilitySheet(viewer: Viewer, code: string, today: string)
   const res = await db.select().from(resources).where(eq(resources.facilityCode, code)).orderBy(asc(resources.code));
   const ids = res.map((r) => r.id);
   const since = parisInstant(addDaysIso(today, -30), '00:00');
-  const [cal, unav, insp, rules, agreements] = await Promise.all([
+  const [cal, unav, insp, rules, agreements, zones] = await Promise.all([
     calendarsOf(db, [code]),
     ids.length ? db.select().from(unavailabilities).where(and(inArray(unavailabilities.resourceId, ids), gte(unavailabilities.endsAt, since))).orderBy(asc(unavailabilities.startsAt)) : [],
     ids.length ? db.select().from(inspections).where(and(inArray(inspections.resourceId, ids), eq(inspections.active, true))).orderBy(asc(inspections.label)) : [],
     rulesOf(db, [code]),
     db.select({ entityCode: entityAgreements.entityCode, entityName: entities.name, quotaDaysPerMonth: entityAgreements.quotaDaysPerMonth, noticeWorkdays: entityAgreements.noticeWorkdays, note: entityAgreements.note })
       .from(entityAgreements).innerJoin(entities, eq(entities.code, entityAgreements.entityCode)).where(eq(entityAgreements.facilityCode, code)),
+    ids.length ? db.select().from(vigieZoneResources).where(inArray(vigieZoneResources.resourceId, ids)).orderBy(asc(vigieZoneResources.zoneId)) : [],
   ]);
   const codeOf = new Map(res.map((r) => [r.id, r.code]));
   return {
@@ -94,6 +95,8 @@ export async function facilitySheet(viewer: Viewer, code: string, today: string)
     inspections: insp.map((i) => ({ ...i, resourceCode: codeOf.get(i.resourceId) ?? '', dueOn: inspectionDueOn(i.lastOn, i.periodMonths) })),
     rules,
     agreements,
+    /** Vigie zones per resource code (V-2). */
+    vigieZones: res.map((r) => ({ resourceCode: r.code, zoneIds: zones.filter((z) => z.resourceId === r.id).map((z) => z.zoneId) })).filter((x) => x.zoneIds.length),
   };
 }
 
