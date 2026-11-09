@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-11-07",
+ "updated": "2026-11-09",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -146,6 +146,10 @@
   {
    "date": "2026-11-07",
    "text": "Livraison 22 (suite de CR-060, « continue ») : lecture de vigie.pub_suspensions_essais préparée (V-2, M-21) — zones Vigie des moyens, indisponibilités « travaux » suivant Vigie, réservations couvertes signalées. X-24 ajoutée (défaut appliqué). 455 tests."
+  },
+  {
+   "date": "2026-11-09",
+   "text": "M-21 acceptée par Matrix (Yhumiii27/Matrix#82) : publication vigie.pub_suspensions_essais définie avec le contrat que lit la livraison 22 ; reste son application sur le serveur en service."
   }
  ],
  "items": [
@@ -502,7 +506,7 @@
    "kind": "integration",
    "priority": "plus_tard",
    "status": "bloque_systeme_externe",
-   "waiting_on": "Matrix (M-21), Vigie",
+   "waiting_on": "Matrix (M-21 acceptée : application sur le serveur en service)",
    "effort": "L",
    "sources": [
     "docs/DEMANDES-*.md"
@@ -517,7 +521,7 @@
    "progress": {
     "state": "en_cours",
     "delivery": "Livraisons 3, 4, 8, 20, 21, 22",
-    "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. Livraison 4 : lecture des titres de cursus.pub_titres_detenus (compétences rattachées à un titre, personnes avec matricule) dès que la vue est accordée. Livraison 8 (31 oct. 2026, DELIVERY-8.md) : jalons keystone.pub_jalons, absences cursus.pub_absences et contrôles vigie.pub_controles lus toutes les heures (tâche connectors-read) et à la demande ; ce qui est lu se modifie dans son outil. 1er nov. 2026 : état des références Codex lu à l’affichage dans codex.pub_documents (révision en vigueur, inconnu, obsolète, archivé). 4 nov. 2026 (livraison 20, X-22) : projets R&D lus dans keystone.pub_projets (nom, clos dans Keystone, projets à ajouter), salariés lus dans cursus.pub_salaries (nom, sortie). 5 nov. 2026 (livraison 21, X-23) : sites et filiales reliés à matrix.pub_sites et pub_filiales (M-6 faite : site smc, filiale SMC). 7 nov. 2026 (livraison 22, X-24) : lecture des suspensions d’essais vigie.pub_suspensions_essais prête (zones Vigie des moyens, indisponibilités « travaux », réservations signalées) ; elle s’active dès que Matrix crée la publication (M-21, Yhumiii27/Matrix#73 fusionnée) et l’accorde à Crucible."
+    "note": "Vues publiées pub_moyens et pub_reservations (droits posés par Matrix ; copie dans partage/80-crucible.sql : demande M-7 à valider) ; écran des connecteurs. Demandes transmises le 22/10 : Keystone K-2 (pub_jalons), Cursus CU-1 (pub_absences), Vigie V-1 (pub_controles). Lectures à brancher quand les vues seront publiées. Livraison 4 : lecture des titres de cursus.pub_titres_detenus (compétences rattachées à un titre, personnes avec matricule) dès que la vue est accordée. Livraison 8 (31 oct. 2026, DELIVERY-8.md) : jalons keystone.pub_jalons, absences cursus.pub_absences et contrôles vigie.pub_controles lus toutes les heures (tâche connectors-read) et à la demande ; ce qui est lu se modifie dans son outil. 1er nov. 2026 : état des références Codex lu à l’affichage dans codex.pub_documents (révision en vigueur, inconnu, obsolète, archivé). 4 nov. 2026 (livraison 20, X-22) : projets R&D lus dans keystone.pub_projets (nom, clos dans Keystone, projets à ajouter), salariés lus dans cursus.pub_salaries (nom, sortie). 5 nov. 2026 (livraison 21, X-23) : sites et filiales reliés à matrix.pub_sites et pub_filiales (M-6 faite : site smc, filiale SMC). 7 nov. 2026 (livraison 22, X-24) : lecture des suspensions d’essais vigie.pub_suspensions_essais prête (zones Vigie des moyens, indisponibilités « travaux », réservations signalées) ; elle s’active dès que Matrix crée la publication (M-21, Yhumiii27/Matrix#73) et l’accorde à Crucible ; M-21 acceptée le 07/11/2026 (Yhumiii27/Matrix#82 : contrat identique à celui que Crucible lit), reste son application sur le serveur en service."
    }
   },
   {
