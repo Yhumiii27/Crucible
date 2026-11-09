@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { syncOfflineEventsAction } from '@/features/resources/actions';
 import { useI18n } from '@/i18n/client';
-import { QUEUE_EVENT, offline, readQueue, writeQueue } from './queue';
+import { QUEUE_EVENT, offline, queueOf, readQueue, setOwner, writeQueue } from './queue';
 
 /** The queue and the network state change on these events. */
 function subscribe(changed: () => void) {
@@ -15,23 +15,24 @@ function subscribe(changed: () => void) {
   };
 }
 
-export function OfflineSync() {
+/** `owner`: the account of the session (its user id): only its own records are counted and sent. */
+export function OfflineSync({ owner }: { owner: string }) {
   const { t } = useI18n();
   const router = useRouter();
   const [refused, setRefused] = useState<string[]>([]);
-  const waiting = useSyncExternalStore(subscribe, () => readQueue().length, () => 0);
+  const waiting = useSyncExternalStore(subscribe, () => queueOf(owner).length, () => 0);
   const isOffline = useSyncExternalStore(subscribe, offline, () => false);
   const busy = useRef(false);
 
   const send = useCallback(async () => {
-    const list = readQueue();
+    const list = queueOf(owner);
     if (!list.length || offline() || busy.current) return;
     busy.current = true;
     try {
       const results = await syncOfflineEventsAction(list);
       // Every record answered is done with (applied or refused for good); the rest waits.
       const answered = new Set(results.map((r) => `${r.bookingId}|${r.kind}`));
-      const left = readQueue().filter((e) => !answered.has(`${e.bookingId}|${e.kind}`) || !list.some((x) => x.bookingId === e.bookingId && x.kind === e.kind && x.at === e.at));
+      const left = readQueue().filter((e) => e.owner !== owner || !answered.has(`${e.bookingId}|${e.kind}`) || !list.some((x) => x.bookingId === e.bookingId && x.kind === e.kind && x.at === e.at));
       writeQueue(left);
       setRefused(results.filter((r) => !r.ok).map((r) => r.error ?? ''));
       if (results.some((r) => r.ok)) router.refresh();
@@ -40,9 +41,10 @@ export function OfflineSync() {
     } finally {
       busy.current = false;
     }
-  }, [router]);
+  }, [router, owner]);
 
   useEffect(() => {
+    setOwner(owner);
     const online = () => void send();
     // Once the page is shown, then each time the network comes back.
     const first = window.setTimeout(online, 0);
@@ -51,7 +53,7 @@ export function OfflineSync() {
       window.clearTimeout(first);
       window.removeEventListener('online', online);
     };
-  }, [send]);
+  }, [send, owner]);
 
   if (!waiting && !refused.length && !isOffline) return null;
   return (

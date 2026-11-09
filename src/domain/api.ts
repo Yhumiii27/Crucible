@@ -1,6 +1,7 @@
 // REST API and webhooks of the bench systems (CR-083, X-17): what a client may declare, the period of a bookings read, the
 // booking as the API shows it (a confidential project masked, as in the published view pub_reservations, S-7) and the delay
-// before the next attempt of a webhook that failed. Pure: no import.
+// before the next attempt of a webhook that failed. Pure: no import but the Paris dates.
+import { addDaysIso, parisInstant } from '@/lib/dates';
 
 /** Kinds of the events: a booking created or changed status, a booking moved, an incident on a resource declared or closed. */
 export const API_EVENT_KINDS = [
@@ -59,15 +60,16 @@ const DAY = 86_400_000;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * The period of a bookings read: `from` and `to` are days (YYYY-MM-DD, `to` included) or instants (ISO 8601); by default 7 days
+ * The period of a bookings read: `from` and `to` are Paris days (YYYY-MM-DD, `to` included) or instants (ISO 8601); by default 7 days
  * back to 30 days ahead of `now`. At most API_MAX_DAYS days.
  */
 export function apiPeriod(fromRaw: string | null, toRaw: string | null, now: number): Checked<{ from: number; to: number }> {
   const read = (s: string | null, end: boolean): number | null | undefined => {
     if (s == null || s === '') return undefined;
     if (DATE_RE.test(s)) {
-      const t = Date.parse(`${s}T00:00:00Z`);
-      return Number.isNaN(t) ? null : end ? t + DAY : t;
+      // A day is a Paris day, as everywhere in Crucible: from its midnight to the next one (summer and winter time).
+      if (Number.isNaN(Date.parse(`${s}T00:00:00Z`))) return null;
+      return parisInstant(end ? addDaysIso(s, 1) : s, '00:00').getTime();
     }
     if (!/^\d{4}-\d{2}-\d{2}T/.test(s)) return null;
     const t = Date.parse(s);

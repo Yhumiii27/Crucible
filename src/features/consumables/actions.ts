@@ -4,7 +4,7 @@
 // discard, with the reason; a move is never changed), set the quantity a test type needs per test (0 removes it). Audited.
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { checkConsumable, checkCorrection, checkReceipt, quantityOf } from '@/domain/consumables';
+import { balances, checkConsumable, checkCorrection, checkReceipt, quantityOf } from '@/domain/consumables';
 import { managedFacilities } from '@/domain/rights';
 import { parisParts } from '@/lib/dates';
 import { businessNow } from '@/server/clock';
@@ -93,6 +93,12 @@ export async function correctStockAction(_prev: ActionResult | null, fd: FormDat
       const [l] = isUuid(lotId) ? await tx.select().from(consumableLots).where(and(eq(consumableLots.id, lotId), eq(consumableLots.consumableId, c.id))) : [];
       if (!l) return { ok: false, error: 'Choose a lot of this consumable' };
       lot = l.id;
+    }
+    // What goes out comes out of a lot when the consumable has some left in lots: the lots and their alerts stay true.
+    if (x.value.quantity < 0) {
+      const { byLot } = balances(await tx.select({ consumableId: consumableMoves.consumableId, lotId: consumableMoves.lotId, quantity: consumableMoves.quantity }).from(consumableMoves).where(eq(consumableMoves.consumableId, c.id)));
+      if (!lot && [...byLot.values()].some((q) => q > 0)) return { ok: false, error: 'Choose the lot the quantity comes out of' };
+      if (lot && -x.value.quantity > (byLot.get(lot) ?? 0)) return { ok: false, error: 'This lot does not hold that much' };
     }
     fac = c.facilityCode;
     await tx.insert(consumableMoves).values({ consumableId: c.id, lotId: lot, kind: x.value.kind, quantity: x.value.quantity, reason: x.value.reason, byName: v.name, at: now });

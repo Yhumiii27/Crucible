@@ -207,6 +207,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-09 — Revue de qualité des livraisons 15 à 22 (docs/REVUE-L15-L22.md) : 8 corrections — copie hors ligne effacée à la déconnexion, enregistrements hors ligne liés à leur compte, prévision des consommables, sorties de stock par lot, jours de Paris dans l’API, signalements Vigie sans doublon. 458 tests.
 - 2026-11-09 — M-21 acceptée par Matrix (Yhumiii27/Matrix#82) : publication vigie.pub_suspensions_essais définie avec le contrat que lit la livraison 22 ; reste son application sur le serveur en service.
 - 2026-11-07 — Livraison 22 (suite de CR-060, « continue ») : lecture de vigie.pub_suspensions_essais préparée (V-2, M-21) — zones Vigie des moyens, indisponibilités « travaux » suivant Vigie, réservations couvertes signalées. X-24 ajoutée (défaut appliqué). 455 tests.
 - 2026-11-06 — Demande M-19 de Matrix faite (accord du 06/11) : fonction crucible.pub_editer, la DSI corrige les référentiels de Crucible depuis la visionneuse de Matrix. Demande V-2 renumérotée M-21 chez Matrix.

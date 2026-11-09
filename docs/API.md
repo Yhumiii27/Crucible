@@ -26,7 +26,7 @@
 | Requête | Réponse |
 |---|---|
 | `GET /api/v1/resources` | `{ facility, resources: [{ code, name, kind, status, capacity, granularity, setupMinutes, teardownMinutes, bufferMinutes, minNoticeHours, maxDays }] }` |
-| `GET /api/v1/bookings?from=&to=&resource=` | `{ facility, from, to, bookings: [Booking] }` — réservations qui chevauchent la période, tous statuts, historique importé compris. `from`, `to` : jour `AAAA-MM-JJ` (`to` inclus) ou instant ISO 8601 ; par défaut 7 jours avant à 30 jours après maintenant ; 186 jours au plus. `resource` : code d’un moyen de l’installation. |
+| `GET /api/v1/bookings?from=&to=&resource=` | `{ facility, from, to, bookings: [Booking] }` — réservations qui chevauchent la période, tous statuts, historique importé compris. `from`, `to` : jour `AAAA-MM-JJ` de Paris (de minuit à minuit, heure de Paris ; `to` inclus) ou instant ISO 8601 ; par défaut 7 jours avant à 30 jours après maintenant ; 186 jours au plus. `resource` : code d’un moyen de l’installation. |
 | `GET /api/v1/bookings/<réf>` | `{ booking: Booking }` ou `404` |
 | `GET /api/v1/events?after=<id>` | `{ facility, events: [Event], next }` — 100 événements au plus après `after` (0 par défaut), du plus ancien au plus récent ; rappeler avec `after=next` jusqu’à une liste vide. Pour un système qui ne peut pas recevoir de webhook. |
 

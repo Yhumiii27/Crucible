@@ -55,7 +55,7 @@ export default async function MySchedulePage() {
   return (
     <>
       <PageHeader screen="my-schedule" />
-      <OfflineSync />
+      <OfflineSync owner={viewer.userId} />
       {days.length ? (
         days.map((d) => (
           <SectionCard key={d} title={`${fmtDate(d, lang)}${d === today ? ` · ${t('Today')}` : ''}`}>

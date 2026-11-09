@@ -157,7 +157,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - **Delivery 19 (phones and offline, CR-082) is done** (`docs/DELIVERY-19.md`, X-21 added): top bar and menu drawer up to
   1024 px (`src/components/app/shell/mobile-menu.tsx`), web app manifest (`src/app/manifest.ts`, opens My schedule), service
   worker `/sw.js` (`src/app/sw.js/route.ts`: last copy of My schedule and the app's static files only, dropped at sign-out);
-  starts and ends without network queued on the phone (`src/features/offline/`) and applied by `syncOfflineEventsAction` at the
+  starts and ends without network queued on the phone, each tied to the account that recorded it (`src/features/offline/`) and applied by `syncOfflineEventsAction` at the
   instant recorded with every check of the screen (48 h at most); Playwright phone journey `tests/e2e/mobile.spec.ts`.
 - **Delivery 20 (projects and people read, CR-060 continued) is done** (`docs/DELIVERY-20.md`, X-22 added): `readKeystoneProjects`
   (`keystone.pub_projets`: name follows Keystone, `projects.keystone_closed`, `drizzle/0028`) and `readCursusPeople`

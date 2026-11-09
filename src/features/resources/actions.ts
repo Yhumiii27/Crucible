@@ -599,6 +599,8 @@ export interface OfflineEvent {
   kind: 'start' | 'end';
   /** Instant recorded on the phone (ms since the epoch). */
   at: number;
+  /** Account that recorded it: only that account's session applies it (a phone shared by a team). */
+  owner?: string;
 }
 
 export type OfflineSyncResult = { bookingId: string; kind: string; ok: boolean; error?: string }[];
@@ -619,6 +621,10 @@ export async function syncOfflineEventsAction(events: OfflineEvent[]): Promise<O
     const at = typeof e?.at === 'number' && Number.isFinite(e.at) ? new Date(Math.min(e.at, now.getTime())) : null;
     if (!/^[0-9a-f-]{36}$/i.test(bookingId) || !kind || !at) {
       out.push({ bookingId, kind: String(e?.kind ?? ''), ok: false, error: 'Invalid offline record' });
+      continue;
+    }
+    if (e.owner !== v.userId) {
+      out.push({ bookingId, kind, ok: false, error: 'Recorded offline by another account: sign in with it to send it' });
       continue;
     }
     if (e.at > now.getTime() + 5 * 60_000) {

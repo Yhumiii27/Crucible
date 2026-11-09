@@ -25,13 +25,14 @@ self.addEventListener('activate', (event) => {
 });
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  // Sign-out is a POST: the copies of the pages go with the session (checked before the GET filter).
   if (url.pathname.startsWith('/api/auth/sign-out')) {
     event.waitUntil(caches.delete(PAGES));
     return;
   }
+  if (req.method !== 'GET') return;
   if (url.pathname.startsWith('/_next/static/')) {
     event.respondWith(caches.open(STATIC).then(async (c) => {
       const hit = await c.match(req);

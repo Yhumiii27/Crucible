@@ -22,7 +22,8 @@ describe('checkApiClient', () => {
 describe('apiPeriod', () => {
   it('7 days back to 30 days ahead by default; days include their end; at most 186 days', () => {
     expect(apiPeriod(null, null, NOW)).toEqual({ ok: true, value: { from: NOW - 7 * DAY, to: NOW + 30 * DAY } });
-    expect(apiPeriod('2026-10-01', '2026-10-31', NOW)).toEqual({ ok: true, value: { from: Date.parse('2026-10-01T00:00:00Z'), to: Date.parse('2026-11-01T00:00:00Z') } });
+    // Paris days: 1 Oct 00:00 (summer time, UTC+2) to 1 Nov 00:00 (winter time, UTC+1).
+    expect(apiPeriod('2026-10-01', '2026-10-31', NOW)).toEqual({ ok: true, value: { from: Date.parse('2026-09-30T22:00:00Z'), to: Date.parse('2026-10-31T23:00:00Z') } });
     expect(apiPeriod('2026-10-01T08:00:00+02:00', null, NOW)).toEqual({ ok: true, value: { from: Date.parse('2026-10-01T06:00:00Z'), to: Date.parse('2026-10-01T06:00:00Z') + 37 * DAY } });
     expect(apiPeriod('yesterday', null, NOW)).toMatchObject({ ok: false });
     expect(apiPeriod('2026-10-31', '2026-10-01', NOW)).toEqual({ ok: false, error: 'to must be after from' });

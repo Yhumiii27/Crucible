@@ -250,8 +250,13 @@ export async function readVigieSuspensions(tx: Tx, by: ReadBy): Promise<ReadRepo
   }
   if (plan.remove.length) await tx.delete(unavailabilities).where(inArray(unavailabilities.id, plan.remove));
   rep.removed = plan.remove.length;
-  // The bookings an added or changed suspension covers: flagged to the facility's managers (each time it is added or changed).
-  for (const u of [...plan.add, ...plan.change]) {
+  // The bookings an added suspension, or one whose days changed, covers: flagged to the facility's managers (a change of its
+  // text alone flags nothing again).
+  const moved = plan.change.filter((c) => {
+    const before = existing.find((x) => x.id === c.id)!;
+    return before.startsAt.getTime() !== c.startsAt.getTime() || before.endsAt.getTime() !== c.endsAt.getTime();
+  });
+  for (const u of [...plan.add, ...moved]) {
     const covered = await tx.select({ id: bookings.id, ref: bookings.ref, code: resources.code, facilityCode: resources.facilityCode }).from(bookings)
       .innerJoin(resources, eq(resources.id, bookings.resourceId))
       .where(and(eq(bookings.resourceId, u.resourceId), inArray(bookings.status, ['requested', 'confirmed']), lt(bookings.startsAt, u.endsAt), gt(bookings.endsAt, u.startsAt)));

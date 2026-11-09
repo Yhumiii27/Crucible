@@ -2,9 +2,11 @@ import 'server-only';
 // Consumables and stock (CR-076, X-20): the facility tab, the quantities taken when a test ends (called in the transaction that
 // ends it, from the screen or a device), the bookings to come that the stock cannot cover, and the daily alerts to the facility's
 // managers. The stock is never stored: it is the sum of the moves.
-import { and, asc, desc, eq, gte, inArray, isNotNull } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, inArray, isNotNull } from 'drizzle-orm';
 import { ALERT_LABEL, alertsOf, balances, pickLots, shortages, type Lot, type Move } from '@/domain/consumables';
 import { mondayOf } from '@/domain/calendar';
+import { parisParts } from '@/lib/dates';
+import { businessNow } from '@/server/clock';
 import { getDb } from '@/server/db/client';
 import { bookings, consumableLots, consumableMoves, consumables, notifications, resources, testNeeds, testTypeConsumables, testTypes } from '@/server/db/schema';
 import type { DB, Tx } from '@/server/db/types';
@@ -86,6 +88,7 @@ export async function bookingShortages(bookingIds: readonly string[]): Promise<M
   const out = new Map<string, string[]>();
   if (!bookingIds.length) return out;
   const db = await getDb();
+  const now = await businessNow(db);
   const rows = await db.select({ id: bookings.id, startsAt: bookings.startsAt, status: bookings.status, facilityCode: resources.facilityCode, testTypeCode: testNeeds.testTypeCode })
     .from(bookings).innerJoin(resources, eq(resources.id, bookings.resourceId)).innerJoin(testNeeds, eq(testNeeds.id, bookings.needId))
     .where(and(inArray(bookings.id, [...bookingIds]), isNotNull(testNeeds.testTypeCode)));
@@ -96,12 +99,14 @@ export async function bookingShortages(bookingIds: readonly string[]): Promise<M
     if (!items.length) continue;
     const reqs = await db.select().from(testTypeConsumables).where(inArray(testTypeConsumables.consumableId, items.map((c) => c.id)));
     if (!reqs.length) continue;
-    // Every booking still to come on the facility counts, in start order, not only those shown.
+    // Every booking still to come on the facility counts (not one already over: a test never closed is not demand), in start
+    // order, not only those shown.
     const ahead = await db.select({ id: bookings.id, startsAt: bookings.startsAt, testTypeCode: testNeeds.testTypeCode }).from(bookings)
       .innerJoin(resources, eq(resources.id, bookings.resourceId)).innerJoin(testNeeds, eq(testNeeds.id, bookings.needId))
-      .where(and(eq(resources.facilityCode, fac), inArray(bookings.status, ['requested', 'confirmed']), isNotNull(testNeeds.testTypeCode)));
+      .where(and(eq(resources.facilityCode, fac), inArray(bookings.status, ['requested', 'confirmed']), isNotNull(testNeeds.testTypeCode), gt(bookings.endsAt, now)))
+      .orderBy(asc(bookings.startsAt));
     const { lots, moves } = await stockFacts(db, items.map((c) => c.id));
-    const short = shortages(ahead.map((a) => ({ id: a.id, testTypeCode: a.testTypeCode, day: a.startsAt.toISOString().slice(0, 10) })), reqs, lots, moves);
+    const short = shortages(ahead.map((a) => ({ id: a.id, testTypeCode: a.testTypeCode, day: parisParts(a.startsAt).iso })), reqs, lots, moves);
     for (const r of live.filter((x) => x.facilityCode === fac)) {
       const s = short.get(r.id);
       if (s) out.set(r.id, s.map((x) => { const c = items.find((i) => i.id === x.consumableId)!; return `${c.name} ${x.short} ${c.unit}`; }));

@@ -43,16 +43,27 @@ describe('alertsOf', () => {
 });
 
 describe('shortages', () => {
-  it('in start order, the stock not expired by the day less the earlier bookings', () => {
+  it('in start order, each booking takes the lots as its end would; what is left after them covers the next', () => {
     const reqs = [{ testTypeCode: 'FIRING', consumableId: 'c', quantity: 8 }];
     const s = shortages([
-      { id: 'late', testTypeCode: 'FIRING', day: '2026-11-03' },
       { id: 'early', testTypeCode: 'FIRING', day: '2026-10-23' },
       { id: 'other', testTypeCode: 'TENSILE', day: '2026-10-23' },
       { id: 'none', testTypeCode: null, day: '2026-10-23' },
+      { id: 'late', testTypeCode: 'FIRING', day: '2026-11-03' },
+      { id: 'later', testTypeCode: 'FIRING', day: '2026-11-04' },
     ], reqs, lots, moves);
-    // 18 in stock; on 23 Oct lot D (2) has expired: 16 ≥ 8; on 3 Nov B and D have expired: 18 − 7 − 8 = 3 < 8.
-    expect(Object.fromEntries(s)).toEqual({ late: [{ consumableId: 'c', short: 5 }] });
+    // 23 Oct: B (5, expires 25 Oct) then 3 of A; 3 Nov: A 4 + C 4 = 8, covered (B was used before it expired); 4 Nov: nothing left.
+    expect(Object.fromEntries(s)).toEqual({ later: [{ consumableId: 'c', short: 8 }] });
+  });
+
+  it('the stock kept without a lot is used once the lots are', () => {
+    const reqs = [{ testTypeCode: 'FIRING', consumableId: 'c', quantity: 8 }];
+    const s = shortages([{ id: 'a', testTypeCode: 'FIRING', day: '2026-12-01' }], reqs, lots, [...moves, { consumableId: 'c', lotId: null, quantity: 3 }]);
+    // On 1 Dec: A 7 + C 4 usable, 8 taken from the lots; nothing short.
+    expect(s.size).toBe(0);
+    const t = shortages([{ id: 'a', testTypeCode: 'FIRING', day: '2027-01-15' }], reqs, lots, [...moves, { consumableId: 'c', lotId: null, quantity: 3 }]);
+    // On 15 Jan 2027 only C (4) and the 3 without a lot: 1 short.
+    expect(Object.fromEntries(t)).toEqual({ a: [{ consumableId: 'c', short: 1 }] });
   });
 });
 
