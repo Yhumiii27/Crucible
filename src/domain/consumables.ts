@@ -3,7 +3,7 @@
 // never changed). A test type needs given quantities per test: when a test of that type ends, its quantities are taken from the
 // lots that expire first (an expired lot is never used); what the lots cannot give is recorded without a lot, so the stock shows
 // the shortage. Alerts: stock under its threshold, a lot expired with some left, a lot expiring within 30 days. A booking still
-// to come is flagged when the stock left after the earlier bookings cannot cover it. Pure: no import.
+// to come is flagged when the lots left after the earlier bookings (taken as their ends would) cannot cover it. Pure: no import.
 
 export const MOVE_KINDS = ['receipt', 'use', 'adjust', 'discard'] as const;
 export type MoveKind = (typeof MOVE_KINDS)[number];
@@ -103,26 +103,35 @@ export interface Requirement {
 }
 
 /**
- * Bookings to come that the usable stock cannot cover, in start order: the stock that has not expired by the booking's day,
- * less what the earlier bookings need. Returns, per booking id, the consumables short and by how much.
+ * Bookings to come that the usable stock cannot cover, in the order given (start order: the caller sorts them): each takes
+ * what its test type needs as the end of the test would (pickLots: the lots not expired on its day, the earliest expiry first),
+ * then from the stock kept without a lot. Returns, per booking id, the consumables short and by how much.
  */
 export function shortages(
   upcoming: readonly { id: string; testTypeCode: string | null; day: string }[],
   requirements: readonly Requirement[], lots: readonly Lot[], moves: readonly Move[],
 ): Map<string, { consumableId: string; short: number }[]> {
   const { stock, byLot } = balances(moves);
-  const used = new Map<string, number>();
+  const left = new Map(byLot);
+  // Stock without a lot (a count found more than the lots hold): usable once the lots are used.
+  const loose = new Map<string, number>();
+  for (const [c, total] of stock) {
+    const inLots = lots.filter((l) => l.consumableId === c).reduce((s, l) => s + (byLot.get(l.id) ?? 0), 0);
+    loose.set(c, Math.max(0, r3(total - inLots)));
+  }
   const out = new Map<string, { consumableId: string; short: number }[]>();
-  for (const b of [...upcoming].sort((x, y) => x.day.localeCompare(y.day))) {
+  for (const b of upcoming) {
     if (!b.testTypeCode) continue;
     for (const req of requirements.filter((r) => r.testTypeCode === b.testTypeCode)) {
-      // What has expired by the booking's day cannot be used for it.
-      const expired = lots.filter((l) => l.consumableId === req.consumableId && l.expiresOn != null && l.expiresOn < b.day).reduce((s, l) => s + Math.max(0, byLot.get(l.id) ?? 0), 0);
-      const available = r3((stock.get(req.consumableId) ?? 0) - expired - (used.get(req.consumableId) ?? 0));
-      used.set(req.consumableId, r3((used.get(req.consumableId) ?? 0) + req.quantity));
-      if (available < req.quantity) {
+      const pick = pickLots(lots, left, req.consumableId, req.quantity, b.day);
+      for (const t of pick.takes) left.set(t.lotId, r3((left.get(t.lotId) ?? 0) - t.quantity));
+      const free = loose.get(req.consumableId) ?? 0;
+      const fromLoose = Math.min(free, pick.short);
+      loose.set(req.consumableId, r3(free - fromLoose));
+      const short = r3(pick.short - fromLoose);
+      if (short > 0) {
         const list = out.get(b.id) ?? [];
-        list.push({ consumableId: req.consumableId, short: r3(req.quantity - Math.max(0, available)) });
+        list.push({ consumableId: req.consumableId, short });
         out.set(b.id, list);
       }
     }

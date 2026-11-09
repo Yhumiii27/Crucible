@@ -473,5 +473,7 @@
   "Vigie zone numbers": "Numéros des zones Vigie",
   "Vigie zones": "Zones Vigie",
   "Zones published by Vigie": "Zones publiées par Vigie",
-  "Zones saved": "Zones enregistrées"
+  "Zones saved": "Zones enregistrées",
+  "Choose the lot the quantity comes out of": "Choisissez le lot d’où sort la quantité",
+  "This lot does not hold that much": "Ce lot n’en contient pas autant"
 }

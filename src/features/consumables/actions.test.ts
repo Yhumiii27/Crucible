@@ -94,6 +94,9 @@ describe('consumables of the PDE', () => {
     as('facility_manager');
     const lot = (await facilityConsumables('PDE', '2026-10-27')).items[0].lots.find((l) => l.lotRef === 'L2')!;
     expect(await correctStockAction(null, form({ consumableId: igniters, kind: 'discard', lotId: lot.id, quantity: '5', reason: '' }))).toEqual({ ok: false, error: 'Give the reason' });
+    // What goes out comes out of a lot, and no more than it holds: the lots and their alerts stay true.
+    expect(await correctStockAction(null, form({ consumableId: igniters, kind: 'discard', lotId: '', quantity: '5', reason: 'Expired' }))).toEqual({ ok: false, error: 'Choose the lot the quantity comes out of' });
+    expect(await correctStockAction(null, form({ consumableId: igniters, kind: 'discard', lotId: lot.id, quantity: '6', reason: 'Expired' }))).toEqual({ ok: false, error: 'This lot does not hold that much' });
     expect(await correctStockAction(null, form({ consumableId: igniters, kind: 'discard', lotId: lot.id, quantity: '5', reason: 'Expired' }))).toEqual({ ok: true });
     expect((await facilityConsumables('PDE', '2026-10-27')).items[0]).toMatchObject({ stock: -2, lots: [] });
     const refused = async (q: Promise<unknown>) => {

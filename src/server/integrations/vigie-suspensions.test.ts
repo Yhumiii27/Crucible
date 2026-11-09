@@ -2,7 +2,8 @@
 // - a facility manager says which Vigie zones a resource of their facility is in (only theirs; audited);
 // - once vigie.pub_suspensions_essais is published and granted, each suspension of such a zone makes the resource unavailable
 //   (works, whole days), the bookings it covers stay where they are and are flagged to the facility's managers;
-// - the unavailability follows Vigie (changed, withdrawn) and cannot be removed in Crucible.
+// - the unavailability follows Vigie (changed, withdrawn) and cannot be removed in Crucible; a change of its text alone flags
+//   nothing again.
 import pg from 'pg';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -112,9 +113,12 @@ describe('vigie.pub_suspensions_essais (V-2, M-21)', () => {
     const [u] = await fromVigie();
     as('facility_manager');
     expect(await removeUnavailabilityAction(u.id)).toEqual({ ok: false, error: 'This unavailability comes from Vigie: the intervention is changed there' });
+    const flagged = await t.db.$count(notifications, eq(notifications.kind, 'outside_works'));
     await publish(row(7, 12, day, day, 'Câblage et essais'));
     expect(await read()).toMatchObject({ changed: 1 });
     expect((await fromVigie())[0].label).toBe('Vigie · Elec Est · Câblage et essais · 08:00-12:00');
+    // Only its text changed: the bookings are not flagged again.
+    expect(await t.db.$count(notifications, eq(notifications.kind, 'outside_works'))).toBe(flagged);
     await publish(row(8, 99, day, day));
     expect(await read()).toMatchObject({ removed: 1 });
     expect(await fromVigie()).toEqual([]);
