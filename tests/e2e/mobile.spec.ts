@@ -13,10 +13,13 @@ test('My schedule on a phone, with and without network', async ({ page, context,
   await expect(page.getByRole('heading', { name: 'Mon planning' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
-  // The menu: a drawer opened from the top bar, closed by a link followed in it.
-  await page.getByRole('button', { name: 'Menu' }).click();
+  // The menu: a drawer opened from the top bar, closed by a link followed in it. The heading is server-rendered: a click before
+  // the page is hydrated does nothing, so the click is repeated until the drawer opens.
   const menu = page.getByRole('complementary', { name: 'Menu principal' });
-  await expect(menu).toBeVisible();
+  await expect(async () => {
+    await page.getByRole('button', { name: 'Menu', exact: true }).click();
+    await expect(menu).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
   await page.getByRole('button', { name: 'Fermer le menu' }).click();
   await expect(menu).toBeHidden();
 
