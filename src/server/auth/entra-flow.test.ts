@@ -166,3 +166,36 @@ describe('Entra ID sign-in', () => {
     expect(res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=state`);
   });
 });
+
+describe('central sign-in of Clavis (CRUCIBLE_ROLES_FROM_TOKEN=on)', () => {
+  beforeEach(() => useEntra({ CRUCIBLE_ROLES_FROM_TOKEN: 'on' }));
+
+  it('takes the roles from the token: an unknown e-mail gets an account with its global role', async () => {
+    const r = await signIn({ oid: 'oid-safety-2', email: 'second.safety@epc-groupe.example', name: 'Second Safety', roles: ['safety'] });
+    expect(r.res.headers.get('location')).toBe(`${ORIGIN}/facilities`);
+    const u = await userByEmail('second.safety@epc-groupe.example');
+    expect(u).toMatchObject({ displayName: 'Second Safety', entraObjectId: 'oid-safety-2', grantedRoles: ['safety'] });
+    useSession(r);
+    expect(await getViewer()).toMatchObject({ role: 'safety', roles: ['safety'] });
+  });
+
+  it('keeps a scoped role only while Clavis grants it; the facility still comes from the Crucible assignment', async () => {
+    const granted = await signIn({ oid: 'oid-damien', preferred_username: 'd.petit@epc2i.example', roles: ['Crucible.Facility_Manager'] });
+    useSession(granted);
+    const v = await getViewer();
+    expect(v).toMatchObject({ role: 'facility_manager' });
+    expect(v.assignments).toEqual([{ role: 'facility_manager', scopeKind: 'facility', scopeRef: 'PDE' }]);
+
+    jar.clear();
+    const withdrawn = await signIn({ oid: 'oid-damien', preferred_username: 'd.petit@epc2i.example', roles: ['viewer', 'rd_director'] });
+    useSession(withdrawn);
+    expect(await getViewer()).toMatchObject({ role: 'rd_director', roles: ['rd_director'] });
+  });
+
+  it('refuses a token without a Crucible role, and a scoped role nobody gave a scope to yet', async () => {
+    expect((await signIn({ oid: 'oid-none', email: 'none@epc-groupe.example', roles: [] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
+    expect((await signIn({ oid: 'oid-tech', email: 'new.tech@epc-groupe.example', roles: ['technician'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_scope`);
+    expect(await userByEmail('new.tech@epc-groupe.example')).toBeUndefined();
+  });
+});
+

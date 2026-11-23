@@ -3,7 +3,8 @@
 // accounts the administrator created; roles and scopes come from Crucible's own role assignments (docs/spec/01 §4), not from
 // the token. An e-mail listed in CRUCIBLE_ADMIN_EMAILS gets an account with the administrator role at its first sign-in
 // (bootstrap of a new database, N-4).
-import { sortRoles, type RoleKey } from '@/config/roles';
+import { ROLE_SCOPE, sortRoles, type RoleKey } from '@/config/roles';
+import type { RoleAssignment } from './rights';
 
 /** The claims Crucible reads from an Entra ID token (v2.0 ID token). */
 export interface IdentityClaims {
@@ -44,7 +45,8 @@ export type SignInRefusal =
   | 'unknown_user' // no Crucible account has this e-mail
   | 'no_role' // the account holds no valid role assignment
   | 'inactive' // the account is deactivated
-  | 'account_mismatch'; // the account is already linked to another Microsoft account
+  | 'account_mismatch' // the account is already linked to another Microsoft account
+  | 'no_scope'; // roles from Clavis need a scope (entity, facility, project) no Crucible assignment gives yet
 
 /** Refusal reasons as written in the audit trail (EN source strings). */
 export const SIGN_IN_REFUSAL_LABEL: Record<SignInRefusal, string> = {
@@ -53,6 +55,7 @@ export const SIGN_IN_REFUSAL_LABEL: Record<SignInRefusal, string> = {
   no_role: 'No Crucible role',
   inactive: 'Account deactivated',
   account_mismatch: 'Linked to another Microsoft account',
+  no_scope: 'Role granted by Clavis without a Crucible scope',
 };
 
 /** Errors of the sign-in flow that are not identity refusals. */
@@ -67,6 +70,7 @@ export const SIGN_IN_ERROR: Record<SignInError, string> = {
   no_role: 'No Crucible role is assigned to your account. Ask the Crucible administrator to assign you a role.',
   inactive: 'Your Crucible account is deactivated.',
   account_mismatch: 'This Crucible account is already linked to another Microsoft account.',
+  no_scope: 'Your role in Crucible needs a scope (entity, facility or project). Ask the Crucible administrator to assign it.',
   expired: 'The sign-in took too long. Please try again.',
   state: 'The sign-in could not be verified. Please try again.',
   provider: 'Microsoft sign-in was cancelled or refused.',
@@ -88,8 +92,30 @@ export interface SignInAccount {
 }
 
 export type SignInDecision =
-  | { ok: true; userId: string | null; createAdmin: boolean; roles: RoleKey[] }
+  | { ok: true; userId: string | null; createAdmin: boolean; roles: RoleKey[]; createFromToken?: boolean }
   | { ok: false; reason: SignInRefusal };
+
+/**
+ * Roles granted by the central sign-in (Clavis, CRUCIBLE_ROLES_FROM_TOKEN=on): Crucible's role keys read from the token
+ * `roles` claim, case-insensitive, a "crucible." / "crucible:" / "crucible_" prefix allowed; unknown values are dropped.
+ */
+export function grantedRolesFromClaims(claims: { roles?: unknown }): RoleKey[] {
+  const raw = Array.isArray(claims.roles) ? claims.roles : [];
+  return sortRoles(raw.filter((r): r is string => typeof r === 'string').map((r) => r.trim().toLowerCase().replace(/^crucible[.:_-]/, '')));
+}
+
+/**
+ * The assignments in force when Clavis grants the roles (owner, 23 Nov 2026: every application takes its roles from Clavis;
+ * the scope stays an assignment in the application). A global role granted by Clavis applies at once; a scoped role (entity,
+ * facility, project) counts only through a Crucible assignment, and only while Clavis grants it. `granted` null: roles kept
+ * in Crucible alone (Entra ID), the stored assignments as they are.
+ */
+export function effectiveAssignments(granted: readonly RoleKey[] | null, stored: readonly RoleAssignment[]): RoleAssignment[] {
+  if (granted == null) return [...stored];
+  const scoped = stored.filter((a) => granted.includes(a.role) && ROLE_SCOPE[a.role] !== 'global');
+  const global = granted.filter((r) => ROLE_SCOPE[r] === 'global').map((role): RoleAssignment => ({ role, scopeKind: 'global', scopeRef: null }));
+  return [...global, ...scoped];
+}
 
 /**
  * Who signs in. `byObjectId` = the account already linked to this Microsoft account (stable even when the e-mail changes);
@@ -102,17 +128,25 @@ export function decideSignIn(input: {
   byObjectId: SignInAccount | null;
   byEmail: SignInAccount | null;
   adminEmails: readonly string[];
+  /** Roles granted by Clavis (null: roles kept in Crucible alone). With them, an unknown e-mail creates its account. */
+  granted?: readonly RoleKey[] | null;
 }): SignInDecision {
   let account = input.byObjectId;
+  const granted = input.granted ?? null;
+  if (granted && !granted.length) return { ok: false, reason: 'no_role' };
   if (!account) {
     if (!input.email) return { ok: false, reason: 'no_email' };
     account = input.byEmail;
+    if (!account && granted) {
+      const roles = sortRoles(effectiveAssignments(granted, []).map((a) => a.role));
+      return roles.length ? { ok: true, userId: null, createAdmin: false, createFromToken: true, roles } : { ok: false, reason: 'no_scope' };
+    }
     if (!account) return input.adminEmails.includes(input.email) ? { ok: true, userId: null, createAdmin: true, roles: ['admin'] } : { ok: false, reason: 'unknown_user' };
     if (account.entraObjectId && account.entraObjectId !== input.oid) return { ok: false, reason: 'account_mismatch' };
   }
   if (!account.active) return { ok: false, reason: 'inactive' };
   const roles = sortRoles(account.roles);
-  if (!roles.length) return { ok: false, reason: 'no_role' };
+  if (!roles.length) return { ok: false, reason: granted ? 'no_scope' : 'no_role' };
   return { ok: true, userId: account.userId, createAdmin: false, roles };
 }
 
