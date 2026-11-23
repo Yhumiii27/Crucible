@@ -140,6 +140,8 @@ const VARS = {
     .refine((v) => v.split(',').every((e) => normaliseEmail(e) != null), 'must be a comma-separated list of e-mail addresses')
     .transform((v) => [...new Set(v.split(',').map((e) => normaliseEmail(e)!))])
     .optional(),
+  // Central sign-in of Clavis (owner, 23 Nov 2026): roles from the token, an unknown e-mail gets an account.
+  CRUCIBLE_ROLES_FROM_TOKEN: z.enum(['on', 'off'], { message: 'must be "on" or "off"' }).optional(),
   ENTRA_TENANT_ID: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'must be a GUID').optional(),
   ENTRA_ISSUER: httpUrl.optional(),
   ENTRA_CLIENT_ID: z.string().optional(),

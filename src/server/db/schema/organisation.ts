@@ -1,7 +1,8 @@
 // Organisation (docs/spec/02-objets.md §1, §3–4): entities (EPC2i, EPC France…), sites, facilities and the partner entities
 // they are shared with, R&D projects (minimal record of delivery 1; needs and milestones come with delivery 3), users and
 // their role assignments with a scope (docs/spec/01 §2).
-import { boolean, date, index, integer, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { boolean, check, date, index, integer, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import type { RoleKey, ScopeKind } from '@/config/roles';
 import type { EntityKind, PriorityClass } from '@/domain/organisation';
 import { crucible } from './_schema';
@@ -80,8 +81,15 @@ export const users = crucible.table('users', {
   entityCode: text('entity_code').references(() => entities.code),
   active: boolean('active').notNull().default(true),
   lastSignInAt: timestamp('last_sign_in_at', { withTimezone: true }),
+  /**
+   * Roles granted by the central sign-in (Clavis, CRUCIBLE_ROLES_FROM_TOKEN=on) at the last sign-in; null when Crucible alone
+   * keeps the roles (Entra ID). With them, global roles apply directly and scoped assignments only for these roles.
+   */
+  grantedRoles: text('granted_roles').array().$type<RoleKey[]>(),
   ...timestamps,
-});
+}, (t) => [
+  check('users_granted_roles_known', sql`${t.grantedRoles} is null or ${t.grantedRoles} <@ array['rd_director', 'coordinator', 'safety', 'facility_manager', 'project_lead', 'technician', 'partner', 'viewer', 'admin']::text[]`),
+]);
 
 export const roleAssignments = crucible.table('role_assignments', {
   id: id(),

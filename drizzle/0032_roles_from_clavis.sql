@@ -1,0 +1,2 @@
+ALTER TABLE "crucible"."users" ADD COLUMN "granted_roles" text[];--> statement-breakpoint
+ALTER TABLE "crucible"."users" ADD CONSTRAINT "users_granted_roles_known" CHECK ("crucible"."users"."granted_roles" is null or "crucible"."users"."granted_roles" <@ array['rd_director', 'coordinator', 'safety', 'facility_manager', 'project_lead', 'technician', 'partner', 'viewer', 'admin']::text[]);

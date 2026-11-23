@@ -10,6 +10,8 @@
 //   ENTRA_CLIENT_SECRET           its client secret
 //   ENTRA_REDIRECT_URI            https://<host>/api/auth/callback (registered as a Web redirect URI)
 //   ENTRA_POST_LOGOUT_REDIRECT_URI optional; default <origin of the redirect URI>/sign-in?signedOut=1
+//   CRUCIBLE_ROLES_FROM_TOKEN     on | off (default): the roles come from the token of the central sign-in (Clavis) — global
+//                                 roles apply directly, scoped ones through a Crucible assignment; an unknown e-mail gets an account
 export class AuthConfigError extends Error {}
 
 export type AuthMode = 'demo' | 'entra';
@@ -55,6 +57,8 @@ export interface EntraConfig {
   clientSecret: string;
   redirectUri: string;
   postLogoutRedirectUri: string;
+  /** Roles from the token of the central sign-in (Clavis), CRUCIBLE_ROLES_FROM_TOKEN=on. */
+  rolesFromToken: boolean;
   session: SessionConfig;
 }
 
@@ -113,6 +117,7 @@ export function entraConfig(e: Env = env()): EntraConfig {
     clientSecret: need('ENTRA_CLIENT_SECRET'),
     redirectUri,
     postLogoutRedirectUri: postLogout,
+    rolesFromToken: (e.CRUCIBLE_ROLES_FROM_TOKEN ?? '').trim().toLowerCase() === 'on',
     session: sessionConfig(e),
   };
 }

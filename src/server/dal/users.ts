@@ -1,8 +1,8 @@
 import 'server-only';
 // User accounts and their role assignments (docs/spec/01 §2, §4). Only valid assignments in force on `today` count.
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, or } from 'drizzle-orm';
 import { sortRoles, type RoleKey } from '@/config/roles';
-import { SIGN_IN_REFUSAL_LABEL, decideSignIn, type SignInRefusal } from '@/domain/auth';
+import { SIGN_IN_REFUSAL_LABEL, decideSignIn, effectiveAssignments, type SignInRefusal } from '@/domain/auth';
 import { isValidAssignment, type RoleAssignment } from '@/domain/rights';
 import { businessToday } from '@/server/clock';
 import { getConfig } from '@/server/config';
@@ -34,10 +34,12 @@ async function accountsWhere(q: Q, where: ReturnType<typeof eq>, today: string):
   if (!rows.length) return [];
   const assigned = await q.select().from(roleAssignments).where(inArray(roleAssignments.userId, rows.map((r) => r.id)));
   return rows.map((u) => {
-    const assignments = assigned
+    const stored = assigned
       .filter((a) => a.userId === u.id && inForce(a, today))
       .map((a): RoleAssignment => ({ role: a.role, scopeKind: a.scopeKind, scopeRef: a.scopeRef }))
       .filter(isValidAssignment);
+    // Central sign-in (Clavis): the roles it granted at the last sign-in rule; Crucible assignments only give their scope.
+    const assignments = effectiveAssignments(u.grantedRoles ?? null, stored);
     return {
       userId: u.id, email: u.email, displayName: u.displayName, jobTitle: u.jobTitle, entityCode: u.entityCode, active: u.active,
       entraObjectId: u.entraObjectId, assignments, roles: sortRoles(assignments.map((a) => a.role)),
@@ -71,20 +73,31 @@ export type SignInResult = { ok: true; account: UserAccount } | { ok: false; rea
  * Entra sign-in: the account of the Microsoft object id, else of the e-mail (linked to the object id at its first sign-in),
  * else a new administrator account for an e-mail of CRUCIBLE_ADMIN_EMAILS (N-4). Every outcome is audited.
  */
-export async function signInUser(input: { oid: string; email: string | null; name: string | null }): Promise<SignInResult> {
+export async function signInUser(input: { oid: string; email: string | null; name: string | null; granted?: RoleKey[] | null }): Promise<SignInResult> {
   const db = await getDb();
   const today = await businessToday();
   const { adminEmails } = getConfig();
+  const granted = input.granted ?? null;
   return db.transaction(async (tx) => {
+    // Central sign-in (Clavis): the roles of this token replace the ones granted at the previous sign-in, before deciding.
+    if (granted) {
+      const [row] = await tx.select({ id: users.id }).from(users).where(input.email ? or(eq(users.entraObjectId, input.oid), eq(users.email, input.email)) : eq(users.entraObjectId, input.oid));
+      if (row) await tx.update(users).set({ grantedRoles: granted, updatedAt: new Date() }).where(eq(users.id, row.id));
+    }
     const byObjectId = await accountByObjectId(input.oid, today, tx);
     const byEmail = byObjectId || !input.email ? null : await accountByEmail(input.email, today, tx);
-    const decision = decideSignIn({ oid: input.oid, email: input.email, byObjectId, byEmail, adminEmails });
+    const decision = decideSignIn({ oid: input.oid, email: input.email, byObjectId, byEmail, adminEmails, granted });
     const who = input.email ?? input.oid;
     if (!decision.ok) {
       await writeAudit(tx, { actorName: input.name ?? who, actorUserId: (byObjectId ?? byEmail)?.userId ?? null, objectRef: `User ${who}`, change: `Sign-in refused · ${SIGN_IN_REFUSAL_LABEL[decision.reason]}`, area: 'Sign-in' });
       return { ok: false, reason: decision.reason };
     }
     let userId = decision.userId;
+    if (decision.createFromToken) {
+      const [u] = await tx.insert(users).values({ email: input.email!, displayName: input.name?.trim() || input.email!, entraObjectId: input.oid, grantedRoles: granted! }).returning({ id: users.id });
+      userId = u.id;
+      await writeAudit(tx, { actorName: 'System', actorUserId: null, objectRef: `User ${who}`, change: `Account created at first sign-in through Clavis (${granted!.join(', ')})`, area: 'Sign-in', entityType: 'user', entityId: userId });
+    }
     if (decision.createAdmin) {
       const [u] = await tx.insert(users).values({ email: input.email!, displayName: input.name?.trim() || input.email!, entraObjectId: input.oid }).returning({ id: users.id });
       userId = u.id;

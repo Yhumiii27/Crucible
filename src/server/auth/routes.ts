@@ -5,7 +5,7 @@ import 'server-only';
 // on the sign-in route, so a refused account cannot loop through Microsoft.
 import { NextResponse, type NextRequest } from 'next/server';
 import { activeRoleOf } from '@/config/roles';
-import { AUTH_PATHS, emailFromClaims, safeReturnTo, type SignInError } from '@/domain/auth';
+import { AUTH_PATHS, emailFromClaims, grantedRolesFromClaims, safeReturnTo, type SignInError } from '@/domain/auth';
 import { recordSignOut, signInUser } from '@/server/dal/users';
 import { authMode, entraConfig, sessionConfig, type EntraConfig, type SessionConfig } from './config';
 import { pkceChallenge, randomToken, safeEqual } from './crypto';
@@ -95,7 +95,11 @@ export async function handleCallback(req: NextRequest): Promise<Response> {
   if (!oid) return fail('token');
   let result;
   try {
-    result = await signInUser({ oid, email: emailFromClaims(claims), name: typeof claims.name === 'string' ? claims.name : null });
+    result = await signInUser({
+      oid, email: emailFromClaims(claims), name: typeof claims.name === 'string' ? claims.name : null,
+      // Central sign-in of Clavis: the roles come from the token (owner, 23 Nov 2026: no application is an exception).
+      granted: cfg.rolesFromToken ? grantedRolesFromClaims(claims) : null,
+    });
   } catch (e) {
     console.error('[auth] sign-in failed:', e);
     return fail('failed', true);

@@ -225,6 +225,13 @@
       "when": 1794074024346,
       "tag": "0031_vigie_suspensions",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1795450126519,
+      "tag": "0032_roles_from_clavis",
+      "breakpoints": true
     }
   ]
 }
