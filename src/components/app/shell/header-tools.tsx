@@ -1,8 +1,11 @@
 'use client';
 // Tools of the page header (Keystone's header islands, docs/spec/01 §5 there; delivery 5b): global search, the bell and its
-// latest notifications, the assistant's button (delivery 6), the status date, the language toggle, Export (CSV of the screen's current view, when it has one).
+// latest notifications, the assistant's button (delivery 6), the status date, the language toggle and the dark / light display toggle
+// right of it (Norma 1.0), Export (CSV of the screen's current view, when it has one).
 // Strings arrive translated from the server, typed text as typed.
 import { Bell, CalendarBlank, Export, FileCode, FileCsv, MagnifyingGlass } from '@phosphor-icons/react/dist/ssr';
+import { ThemeToggle } from '@norma/charte/ds/ThemeToggle';
+import type { Theme } from '@norma/charte/ds/theme';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -235,8 +238,8 @@ function ExportButton({ screen }: { screen: string | null }) {
   );
 }
 
-export function HeaderTools({ items, unread, statusDate, lang, exportScreen, bell, assistant }: {
-  items: BellItem[]; unread: number; statusDate: string; lang: Lang; exportScreen: string | null; bell: boolean; assistant: boolean;
+export function HeaderTools({ items, unread, statusDate, lang, theme, exportScreen, bell, assistant }: {
+  items: BellItem[]; unread: number; statusDate: string; lang: Lang; theme: Theme; exportScreen: string | null; bell: boolean; assistant: boolean;
 }) {
   const { t } = useI18n();
   return (
@@ -249,6 +252,7 @@ export function HeaderTools({ items, unread, statusDate, lang, exportScreen, bel
         {t('Status date')} · {statusDate}
       </span>
       <LangToggle lang={lang} />
+      <ThemeToggle theme={theme} />
       <ExportButton screen={exportScreen} />
     </div>
   );

@@ -47,6 +47,9 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Norma (shared rules, charter and dependencies of the suite)
+        run: node norma/outils/norma.mjs verifier
+
       - name: Install
         run: npm ci
 

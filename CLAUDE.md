@@ -1,3 +1,8 @@
+@norma/REGLES.md
+
+The line above imports the common rules of the EPC2I suite (Norma, versioned copy in `norma/`, checked by `npm run norma:check`);
+they change in `Yhumiii27/Norma` only, never in this copy. The rules below are Crucible's own.
+
 # Crucible — instructions for Claude sessions
 
 Crucible is the group's application for **planning and arbitrating the shared R&D test resources**: laboratoire 67 (shared
@@ -215,8 +220,8 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - Typed text is displayed as typed (never through `t()`); the audit trail is append-only; every Server Function validates
   input and rights server-side; migrations are generated, never edited.
 - Every verified lot goes to `main` through a PR merged once CI is green.
-- Ports on the owner's Mac (T-2 proposal): **3500** (Crucible) and **3510** (tests). Never use or kill 3000, 3100, 3110,
-  3200, 3210, 3217, 3310, 3400, 3410, 5173.
+- Ports on the owner's Mac (T-2 proposal): **3500** (Crucible) and **3510** (tests). Never use or kill another tool's port
+  of `norma/registre/outils.json` (3000, 3100, 3110, 3200, 3210, 3217, 3310, 3400, 3410, 3600, 3610, 3700, 3800, 3810, 5173).
 
 ## Setup and checks
 

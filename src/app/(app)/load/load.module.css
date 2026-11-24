@@ -68,7 +68,7 @@
 
 .over {
   background: var(--color-accent-700);
-  color: #fff;
+  color: var(--color-accent-100);
   border-color: var(--color-accent-300);
   font-weight: 600;
 }

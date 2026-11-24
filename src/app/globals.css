@@ -1,4 +1,4 @@
-/* App-level globals (copied from Keystone). Tokens and DS classes live in styles/nocturne.css. */
+/* App-level globals (copied from Keystone). Tokens and DS classes live in norma/charte/nocturne.css (Norma 1.0, both themes). */
 :root {
   --font-heading: var(--font-inter), 'Inter', system-ui, sans-serif;
   --font-body: var(--font-inter), 'Inter', system-ui, sans-serif;

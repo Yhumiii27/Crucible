@@ -9,7 +9,7 @@ import { fmtDate, fmtInstant } from '@/lib/format';
 import { businessToday } from '@/server/clock';
 import { myNotifications } from '@/server/dal/incidents';
 import { isExportable } from '@/server/export/views';
-import { getI18n, getViewer } from '@/server/session';
+import { getI18n, getTheme, getViewer } from '@/server/session';
 import { HeaderTools, type BellItem } from './header-tools';
 import styles from './header.module.css';
 
@@ -30,7 +30,7 @@ export interface PageHeaderProps {
 }
 
 export async function PageHeader({ screen, title, crumbs = [], crumbData, aside, primary, toolbar }: PageHeaderProps) {
-  const [{ t, lang }, viewer, today] = await Promise.all([getI18n(), getViewer(), businessToday()]);
+  const [{ t, lang }, viewer, today, theme] = await Promise.all([getI18n(), getViewer(), businessToday(), getTheme()]);
   const def = SCREEN_BY_ID[screen];
   const outside = !canSee(viewer.role, screen);
   const bell = viewer.role !== 'admin';
@@ -68,7 +68,7 @@ export async function PageHeader({ screen, title, crumbs = [], crumbData, aside,
             {aside}
           </div>
         </div>
-        <HeaderTools items={items} unread={notes.unread} statusDate={fmtDate(today, lang)} lang={lang} bell={bell} assistant={bell} exportScreen={isExportable(screen) && !outside ? screen : null} />
+        <HeaderTools items={items} unread={notes.unread} statusDate={fmtDate(today, lang)} lang={lang} theme={theme} bell={bell} assistant={bell} exportScreen={isExportable(screen) && !outside ? screen : null} />
       </header>
       {(toolbar || (primary && !outside)) && (
         <div className={styles.pageBar} data-print-hide>

@@ -18,7 +18,8 @@
     "worker": "tsx --conditions=react-server scripts/worker.ts",
     "backup": "tsx --conditions=react-server scripts/backup.ts",
     "restore": "tsx --conditions=react-server scripts/restore.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "norma:check": "node norma/outils/norma.mjs verifier"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.128.0",

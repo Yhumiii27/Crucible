@@ -13,6 +13,8 @@ import { FR_RULES } from './fr-rules';
 import { frExact } from './translate';
 
 const SRC = path.join(process.cwd(), 'src');
+// Norma's components Crucible renders (norma/charte/ds): their strings go through Crucible's t(), so their French is here too.
+const NORMA_USED = [path.join(process.cwd(), 'norma', 'charte', 'ds', 'ThemeToggle.tsx')];
 const EXCLUDED_DIRS = new Set([path.join(SRC, 'test')]);
 const isSource = (f: string) => /\.(ts|tsx)$/.test(f) && !/\.test\.tsx?$/.test(f) && !f.endsWith('.d.ts');
 
@@ -66,7 +68,7 @@ function passes(s: string): boolean {
 }
 
 describe('French completeness', () => {
-  const literals = scanLiterals(walk(SRC));
+  const literals = scanLiterals([...walk(SRC), ...NORMA_USED]);
 
   it('the scan finds the t() literals', () => {
     expect(literals.length).toBeGreaterThan(20);
