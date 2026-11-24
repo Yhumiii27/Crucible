@@ -26,7 +26,7 @@ export default async function NotificationsPage() {
     <>
       <PageHeader screen="notifications"
         primary={
-          <Folded summary="Subscribe from Outlook" size="md">
+          <Folded summary="Subscribe from Outlook">
             <p className="text-muted">{t('Your tests, or a resource, in your Outlook calendar (and so in Teams), updated every hour with your rights.')}</p>
             <CalendarFeedForm resources={resources.map((r) => ({ value: r.id, label: r.code }))} />
           </Folded>

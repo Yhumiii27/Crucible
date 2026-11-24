@@ -1,23 +1,21 @@
 'use client';
-// Tools of the page header (Keystone's header islands, docs/spec/01 §5 there; delivery 5b): global search, the bell and its
-// latest notifications, the assistant's button (delivery 6), the status date, the language toggle and the dark / light display toggle
-// right of it (Norma 1.0), Export (CSV of the screen's current view, when it has one).
+// Crucible's own islands of the page header (Norma 2.0, charte/COQUE.md § 3): the global search (search slot), the assistant
+// (help slot, delivery 6), the bell and its latest notifications (bell slot) and the export of the screen's current view (a
+// secondary action of the page; a menu row when the « Actions » menu takes the actions). The order, the status date and the
+// language / display pair come from the charte's PageHeader and HeaderTools.
 // Strings arrive translated from the server, typed text as typed.
-import { Bell, CalendarBlank, Export, FileCode, FileCsv, MagnifyingGlass } from '@phosphor-icons/react/dist/ssr';
-import { ThemeToggle } from '@norma/charte/ds/ThemeToggle';
-import type { Theme } from '@norma/charte/ds/theme';
+import { Bell, Export, FileCode, FileCsv, MagnifyingGlass, Sparkle } from '@phosphor-icons/react/dist/ssr';
+import { useHeaderMenu } from '@norma/charte/ds/HeaderActions';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { IconButton } from '@/components/ds/Button';
 import { cx } from '@/components/ds/cx';
-import { MenuEmpty, MenuHeader, MenuItem } from '@/components/ds/Menu';
+import { MenuHeader, MenuItem } from '@/components/ds/Menu';
 import { Popover } from '@/components/ds/Popover';
-import { Segmented } from '@/components/ds/Segmented';
-import { AssistantButton } from '@/features/assistant/panel';
+import { openAssistant } from '@/features/assistant/panel';
 import { markNotificationsReadAction } from '@/features/incidents/actions';
 import { useI18n } from '@/i18n/client';
-import type { Lang } from '@/i18n/translate';
-import { setLang } from '@/server/actions/preferences';
 import { searchAction, type SearchHit } from '@/server/actions/search';
 import styles from './header.module.css';
 
@@ -30,7 +28,8 @@ export interface BellItem {
   read: boolean;
 }
 
-function GlobalSearch() {
+/** Global search of resources, needs, bookings, projects (U-3), inside the charte's `.coque-header-search`. */
+export function GlobalSearch() {
   const { t } = useI18n();
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
@@ -55,10 +54,10 @@ function GlobalSearch() {
   const visible = open && query.length >= 2;
   const fresh = result?.query === query;
   return (
-    <div className={styles.search}>
-      <MagnifyingGlass size={13} className={styles.searchIcon} />
+    <>
+      <MagnifyingGlass size={13} className="coque-header-search-icon" aria-hidden />
       <input
-        className={cx('input', styles.searchInput)}
+        className="input"
         value={q}
         onChange={(e) => {
           setQ(e.target.value);
@@ -87,11 +86,18 @@ function GlobalSearch() {
           </div>
         </>
       )}
-    </div>
+    </>
   );
 }
 
-function Notifications({ items, unread }: { items: BellItem[]; unread: number }) {
+/** The assistant's button (help slot): an icon button named « Assistant ». */
+export function AssistantHelp() {
+  const { t } = useI18n();
+  return <IconButton icon={Sparkle} label={t('Assistant')} variant="secondary" size={32} onClick={() => openAssistant()} aria-haspopup="dialog" />;
+}
+
+/** The bell (bell slot) and its panel of the latest notifications. */
+export function Notifications({ items, unread }: { items: BellItem[]; unread: number }) {
   const { t } = useI18n();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -112,14 +118,14 @@ function Notifications({ items, unread }: { items: BellItem[]; unread: number })
     <div ref={ref} className={styles.rel}>
       <button
         type="button"
-        className={cx('btn btn-icon btn-secondary', styles.bell)}
+        className="btn btn-icon btn-secondary coque-bell"
         onClick={() => setOpen((o) => !o)}
         title={t('Notifications')}
         aria-label={unread ? `${t('Notifications')} · ${unread} ${t('unread')}` : t('Notifications')}
         aria-expanded={open}
       >
-        <Bell size={15} />
-        {unread > 0 && <span className={styles.bellBadge}>{unread}</span>}
+        <Bell size={15} aria-hidden />
+        {unread > 0 && <span className="coque-bell-badge">{unread}</span>}
       </button>
       {open && (
         <div className={cx('elev-md', styles.notifPanel)}>
@@ -145,7 +151,7 @@ function Notifications({ items, unread }: { items: BellItem[]; unread: number })
               <>
                 <span className={cx(styles.dot, !n.read && styles.dotOn)} />
                 <span className={styles.notifIcon}>
-                  <Bell size={14} />
+                  <Bell size={14} aria-hidden />
                 </span>
                 <span className={styles.stack}>
                   <span className={styles.notifText}>{n.title}</span>
@@ -173,32 +179,12 @@ function Notifications({ items, unread }: { items: BellItem[]; unread: number })
   );
 }
 
-function LangToggle({ lang }: { lang: Lang }) {
-  const router = useRouter();
-  const [, start] = useTransition();
-  return (
-    <Segmented
-      label="Language"
-      value={lang}
-      onChange={(v) =>
-        start(async () => {
-          await setLang(v);
-          router.refresh();
-        })
-      }
-      options={[
-        { value: 'fr' as Lang, label: 'FR' },
-        { value: 'en' as Lang, label: 'EN' },
-      ]}
-    />
-  );
-}
-
-function ExportButton({ screen }: { screen: string | null }) {
+/** Export of the screen's current view (CSV, or JSON for a BI tool, CR-077): a secondary action of the page. */
+export function ExportAction({ screen }: { screen: string }) {
   const { t } = useI18n();
+  const menu = useHeaderMenu();
   const run = (json = false) => {
-    if (!screen) return;
-    // A download (Content-Disposition: attachment): the page stays. JSON (CR-077) for a BI tool.
+    // A download (Content-Disposition: attachment): the page stays.
     const q = new URLSearchParams(window.location.search);
     if (json) q.set('format', 'json');
     const a = document.createElement('a');
@@ -207,13 +193,26 @@ function ExportButton({ screen }: { screen: string | null }) {
     document.body.appendChild(a);
     a.click();
     a.remove();
+    menu?.close();
   };
+  const rows = (
+    <>
+      <MenuHeader>{t('Export this view')}</MenuHeader>
+      <MenuItem icon={FileCsv} onClick={() => run()}>
+        {t('CSV (Excel)')}
+      </MenuItem>
+      <MenuItem icon={FileCode} onClick={() => run(true)}>
+        {t('JSON (BI tools)')}
+      </MenuItem>
+    </>
+  );
+  if (menu) return rows;
   return (
     <Popover
-      triggerClassName="btn btn-secondary"
+      triggerClassName={cx('btn btn-secondary', styles.smBtn)}
       trigger={
         <>
-          <Export size={15} />
+          <Export size={15} aria-hidden />
           {t('Export')}
         </>
       }
@@ -221,39 +220,8 @@ function ExportButton({ screen }: { screen: string | null }) {
       minWidth="200px"
       zIndex={30}
     >
-      <MenuHeader>{t('Export this view')}</MenuHeader>
-      {screen ? (
-        <>
-          <MenuItem icon={FileCsv} onClick={() => run()}>
-            {t('CSV (Excel)')}
-          </MenuItem>
-          <MenuItem icon={FileCode} onClick={() => run(true)}>
-            {t('JSON (BI tools)')}
-          </MenuItem>
-        </>
-      ) : (
-        <MenuEmpty>{t('Nothing to export on this screen')}</MenuEmpty>
-      )}
+      {rows}
     </Popover>
   );
 }
 
-export function HeaderTools({ items, unread, statusDate, lang, theme, exportScreen, bell, assistant }: {
-  items: BellItem[]; unread: number; statusDate: string; lang: Lang; theme: Theme; exportScreen: string | null; bell: boolean; assistant: boolean;
-}) {
-  const { t } = useI18n();
-  return (
-    <div className={styles.actions} data-print-hide>
-      <GlobalSearch />
-      {assistant && <AssistantButton />}
-      {bell && <Notifications items={items} unread={unread} />}
-      <span className={styles.statusDate}>
-        <CalendarBlank size={13} />
-        {t('Status date')} · {statusDate}
-      </span>
-      <LangToggle lang={lang} />
-      <ThemeToggle theme={theme} />
-      <ExportButton screen={exportScreen} />
-    </div>
-  );
-}

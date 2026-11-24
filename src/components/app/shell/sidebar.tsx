@@ -4,13 +4,14 @@
 // entries grouped by theme, with counts (decisions waiting, open proposals and conflicts, inspections due). The Facility section
 // holds the facility switcher (Keystone's project switcher: my facilities / all I see, search); its entries are the tabs of the
 // facility of the URL, else the last one used (cookie crucible-facility). At the bottom the "View as" switcher (demo mode) or
-// the account menu (Entra mode). The language toggle and the bell are in the page header.
-import { X, Buildings, CalendarX, CurrencyEur, Package, Plugs, CaretDown, CaretRight, CaretUpDown, Check, Eye, Flask, Gauge, ListChecks, MagnifyingGlass, Polygon, SealCheck, SignOut, Toolbox, Wrench } from '@phosphor-icons/react/dist/ssr';
+// the account menu (Entra mode). Rendered with the charte's components (Norma 2.0, charte/COQUE.md § 2: Sidebar, PageSearch,
+// NavList, NavSection, NavEntry; classes of coque.css). The language / display pair and the bell are in the page header.
+import { Buildings, CalendarX, CurrencyEur, Package, Plugs, CaretDown, CaretUpDown, Check, Eye, Flask, Gauge, ListChecks, MagnifyingGlass, Polygon, SealCheck, SignOut, Toolbox, Wrench } from '@phosphor-icons/react/dist/ssr';
 import type { Icon } from '@phosphor-icons/react';
-import { useMobileMenu } from './mobile-menu';
-import Link from 'next/link';
+import { useCoque } from '@norma/charte/ds/AppShell';
+import { Sidebar as CoqueSidebar, NavEntry as NavEntryLink, NavList, NavSection, NavSections, PageSearch, type PageHit } from '@norma/charte/ds/Sidebar';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState, useTransition, type CSSProperties, type KeyboardEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { cx } from '@/components/ds/cx';
 import { Segmented } from '@/components/ds/Segmented';
@@ -92,33 +93,16 @@ export function Sidebar({ role, personas, account, facilities, lastFacility, fol
   const { t } = useI18n();
   const pathname = usePathname();
   const tab = useSearchParams().get('tab');
-  const router = useRouter();
   const known = new Set(facilities.map((c) => c.code));
   // Without a facility in the URL: the last one used, else the viewer's first own facility, else the first one they see.
   const fallback = (lastFacility && known.has(lastFacility) ? lastFacility : null) ?? facilities.find((c) => c.mine)?.code ?? facilities[0]?.code ?? null;
   const nav = buildNav(role, pathname, tab, fallback);
   const [folded, setFolded] = useState<string[]>(initialFolded);
-  const [q, setQ] = useState('');
-  const searchRef = useRef<HTMLInputElement>(null);
-  const menu = useMobileMenu();
 
   // The facility of the URL becomes the last one used.
   useEffect(() => {
     if (nav.facility && known.has(nav.facility) && nav.facility !== lastFacility) setCookie('crucible-facility', nav.facility);
   });
-
-  // ⌘K / Ctrl+K focuses the page search.
-  useEffect(() => {
-    const onKey = (e: globalThis.KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
-        e.preventDefault();
-        searchRef.current?.focus();
-        searchRef.current?.select();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
 
   const toggle = (key: string) => {
     const next = folded.includes(key) ? folded.filter((k) => k !== key) : [...folded, key];
@@ -126,119 +110,69 @@ export function Sidebar({ role, personas, account, facilities, lastFacility, fol
     setCookie('crucible-nav', next.join(','));
   };
 
-  const all = useMemo(() => [...nav.fixed, ...nav.sections.flatMap((s) => s.groups.flatMap((g) => g.entries.map((e) => ({ ...e, section: s.label }))))], [nav]);
-  const sectionBadge = (sec: (typeof nav.sections)[number]) => sec.groups.reduce((n, g) => n + g.entries.reduce((m, e) => m + (badges[e.key] ?? 0), 0), 0);
-  const query = q.trim().toLowerCase();
-  const hits = query ? all.filter((e) => e.href && (t(e.label).toLowerCase().includes(query) || e.label.toLowerCase().includes(query))).slice(0, 12) : [];
-  const onSearchKey = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') setQ('');
-    else if (e.key === 'Enter' && hits[0]?.href) {
-      router.push(hits[0].href);
-      setQ('');
-    }
-  };
-
   const iconOf = (n: NavEntry): Icon => TAB_ICONS[n.icon] ?? SCREEN_ICONS[n.icon as keyof typeof SCREEN_ICONS] ?? Eye;
-  const entry = (n: NavEntry, item: boolean) => {
-    const Icon = iconOf(n);
-    const count = badges[n.key];
-    const inner = (
-      <>
-        <Icon size={16} className={styles.icon} />
-        <span className={styles.label}>{t(n.label)}</span>
-        {!!count && <span className={styles.badge}>{count}</span>}
-      </>
-    );
-    return n.href ? (
-      <Link key={n.key} href={n.href} className={cx(styles.entry, item && styles.item, n.active && styles.active)} aria-current={n.active ? 'page' : undefined}>
-        {inner}
-      </Link>
+  // Every page the viewer may open, for the ⌘K page search (a facility tab without a facility chosen is not one).
+  const pages: PageHit[] = useMemo(
+    () => [
+      ...nav.fixed.map((e) => ({ e, section: undefined as string | undefined })),
+      ...nav.sections.flatMap((sec) => sec.groups.flatMap((g) => g.entries.map((e) => ({ e, section: t(sec.label) })))),
+    ]
+      .filter(({ e }) => e.href)
+      .map(({ e, section }) => ({ href: e.href!, label: t(e.label), section, icon: iconOf(e), badge: badges[e.key] || undefined })),
+    [nav, t, badges],
+  );
+  const sectionBadge = (sec: (typeof nav.sections)[number]) => sec.groups.reduce((n, g) => n + g.entries.reduce((m, e) => m + (badges[e.key] ?? 0), 0), 0);
+
+  const entry = (n: NavEntry, item: boolean) =>
+    n.href ? (
+      <NavEntryLink key={n.key} href={n.href} label={t(n.label)} icon={iconOf(n)} active={n.active} badge={badges[n.key] || undefined} item={item} />
     ) : (
-      <span key={n.key} className={cx(styles.entry, item && styles.item, styles.disabled)} aria-disabled="true" title={t('Choose a facility first')}>
-        {inner}
+      // A facility tab while no facility is chosen: shown, not a link.
+      <span key={n.key} className={cx('coque-entry', item && 'is-item', styles.disabled)} aria-disabled="true" title={t('Choose a facility first')}>
+        {(() => {
+          const I = iconOf(n);
+          return <I size={16} className="coque-entry-icon" aria-hidden />;
+        })()}
+        <span className="coque-entry-label">{t(n.label)}</span>
       </span>
     );
-  };
 
   return (
-    <>
-    <div className={cx(styles.backdrop, menu.open && styles.backdropOn)} onClick={() => menu.setOpen(false)} aria-hidden="true" />
-    <aside id="main-menu" className={cx(styles.aside, menu.open && styles.open)} aria-label={t('Main menu')}
-      onClick={(e) => (e.target as HTMLElement).closest('a') && menu.setOpen(false)}>
-      <div className={styles.brand}>
-        <div className={styles.logo}>
-          <Polygon size={15} />
-        </div>
-        <div className={styles.wordmark}>Crucible</div>
-        <button type="button" className={cx('btn btn-ghost btn-icon', styles.close)} onClick={() => menu.setOpen(false)} aria-label={t('Close the menu')}>
-          <X size={16} />
-        </button>
-      </div>
-      <div className={styles.search}>
-        <MagnifyingGlass size={13} className={styles.searchIcon} />
-        <input
-          ref={searchRef}
-          className={cx('input', styles.searchInput)}
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={onSearchKey}
-          placeholder={t('Go to a page…')}
-          aria-label={t('Go to a page…')}
-        />
-        <span className={styles.kbd}>⌘K</span>
-      </div>
-      {query ? (
-        <div className={styles.list}>
-          {hits.map((n) => {
-            const Icon = iconOf(n);
+    <CoqueSidebar name="Crucible" icon={Polygon} footer={account ? <AccountMenu account={account} /> : <ViewAs role={role} personas={personas} />}>
+      <PageSearch pages={pages}>
+        <NavList>{nav.fixed.map((n) => entry(n, false))}</NavList>
+        <NavSections>
+          {nav.sections.map((sec) => {
+            const open = !folded.includes(sec.key) || sec.active;
+            const badge = sectionBadge(sec);
             return (
-              <Link key={n.key} href={n.href!} onClick={() => setQ('')} className={cx(styles.entry, styles.hit, n.active && styles.active)}>
-                <Icon size={16} className={styles.icon} />
-                <span className={styles.hitText}>
-                  <span className={styles.hitLabel}>{t(n.label)}</span>
-                  <span className={styles.hitSection}>{'section' in n ? t(n.section as string) : ''}</span>
-                </span>
-              </Link>
+              <NavSection
+                key={sec.key}
+                label={t(sec.label)}
+                open={open}
+                onToggle={() => toggle(sec.key)}
+                bright={sec.active}
+                badge={!open && badge ? badge : undefined}
+                count={!open && !badge ? sec.groups.reduce((n, g) => n + g.entries.length, 0) : undefined}
+              >
+                {sec.key === 'facility' && <FacilitySwitcher options={facilities} current={nav.facility} />}
+                {sec.groups.map((g) => (
+                  <div key={g.label ?? '-'} className={styles.groupBlock}>
+                    {g.label && (
+                      <div className="coque-group" role="presentation">
+                        <span>{t(g.label)}</span>
+                        <span className="coque-group-rule" />
+                      </div>
+                    )}
+                    {g.entries.map((n) => entry(n, true))}
+                  </div>
+                ))}
+              </NavSection>
             );
           })}
-          {!hits.length && <span className={styles.empty}>{t('No page matches')}</span>}
-        </div>
-      ) : (
-        <>
-          <div className={styles.list}>{nav.fixed.map((n) => entry(n, false))}</div>
-          <div className={styles.sections}>
-            {nav.sections.map((sec) => {
-              const open = !folded.includes(sec.key) || sec.active;
-              const Chev = open ? CaretDown : CaretRight;
-              return (
-                <div key={sec.key} className={styles.section}>
-                  <button type="button" className={cx(styles.secHead, styles.bright)} onClick={() => toggle(sec.key)} aria-expanded={open}>
-                    <Chev size={11} className={styles.icon} />
-                    <span className={styles.label}>{t(sec.label)}</span>
-                    {!open && (sectionBadge(sec) ? <span className={styles.secBadge}>{sectionBadge(sec)}</span> : <span className={styles.secCount}>{sec.groups.reduce((n, g) => n + g.entries.length, 0)}</span>)}
-                  </button>
-                  {open && sec.key === 'facility' && <FacilitySwitcher options={facilities} current={nav.facility} />}
-                  {open &&
-                    sec.groups.map((g) => (
-                      <div key={g.label ?? '-'} className={styles.groupBlock}>
-                        {g.label && (
-                          <div className={styles.group} role="presentation">
-                            <span className={styles.groupLabel}>{t(g.label)}</span>
-                            <span className={styles.rule} />
-                          </div>
-                        )}
-                        {g.entries.map((n) => entry(n, true))}
-                      </div>
-                    ))}
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
-      {account ? <AccountMenu account={account} /> : <ViewAs role={role} personas={personas} />}
-    </aside>
-    </>
+        </NavSections>
+      </PageSearch>
+    </CoqueSidebar>
   );
 }
 
@@ -255,6 +189,7 @@ function FacilitySwitcher({ options, current }: { options: FacilityOption[]; cur
   const ref = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<CSSProperties>({});
+  const { closeNav } = useCoque();
   // The menu is wider than the sidebar: it opens in a layer of the page, next to the button.
   useEffect(() => {
     if (!open) return;
@@ -279,7 +214,10 @@ function FacilitySwitcher({ options, current }: { options: FacilityOption[]; cur
   const pick = (code: string) => {
     setOpen(false);
     setQ('');
-    if (code !== current || !pathname.startsWith('/facilities/')) router.push(swapFacilityInPath(pathname, tab, code));
+    if (code !== current || !pathname.startsWith('/facilities/')) {
+      router.push(swapFacilityInPath(pathname, tab, code));
+      closeNav();
+    }
   };
   return (
     <div ref={ref} className={styles.facPick}>
@@ -367,13 +305,13 @@ function ViewAs({ role, personas }: { role: RoleKey; personas: SidebarPersona[] 
           ))}
         </div>
       )}
-      <button type="button" className={styles.trigger} onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open}>
-        <div className={styles.avatar}>{viewer.initials}</div>
-        <div className={styles.who}>
-          <span className={styles.triggerName}>{viewer.name}</span>
-          <span className={styles.whoRole}>{t(ROLE_LABEL[viewer.role])}</span>
-        </div>
-        <CaretUpDown className={styles.caret} />
+      <button type="button" className="coque-user" onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open}>
+        <span className="coque-avatar">{viewer.initials}</span>
+        <span className="coque-who">
+          <span className="coque-who-name">{viewer.name}</span>
+          <span className="coque-who-role">{t(ROLE_LABEL[viewer.role])}</span>
+        </span>
+        <CaretUpDown className="coque-user-caret" aria-hidden />
       </button>
     </div>
   );
@@ -420,13 +358,13 @@ function AccountMenu({ account }: { account: SidebarAccount }) {
           </form>
         </div>
       )}
-      <button type="button" className={styles.trigger} onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open}>
-        <div className={styles.avatar}>{account.initials}</div>
-        <div className={styles.who}>
-          <span className={styles.triggerName}>{account.name}</span>
-          <span className={styles.whoRole}>{t(ROLE_LABEL[account.role])}</span>
-        </div>
-        <CaretUpDown className={styles.caret} />
+      <button type="button" className="coque-user" onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open}>
+        <span className="coque-avatar">{account.initials}</span>
+        <span className="coque-who">
+          <span className="coque-who-name">{account.name}</span>
+          <span className="coque-who-role">{t(ROLE_LABEL[account.role])}</span>
+        </span>
+        <CaretUpDown className="coque-user-caret" aria-hidden />
       </button>
     </div>
   );

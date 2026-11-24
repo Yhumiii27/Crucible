@@ -1,49 +1,7 @@
-/* Page header (prototype lines 76–136, docs/spec/01 §5 and §7, docs/spec/02 C-02/C-03). */
-.header {
-  display: flex;
-  align-items: flex-end;
-  gap: 16px;
-  flex-wrap: wrap;
-}
+/* Crucible's own parts of the shell (Norma 2.0: the header, the toolbar, the pair and the top bar come from
+   norma/charte/coque.css): the panels of the global search and of the bell, the facility switcher's menu. Values from the
+   charte's variables only. */
 
-.left {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-right: auto;
-}
-
-.crumb {
-  font-size: 12px;
-  color: var(--color-neutral-400);
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.sep {
-  color: var(--color-neutral-600);
-}
-
-.titleRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.title {
-  margin: 0;
-  font-size: 26px;
-}
-
-.roTag {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-/* Shared popover chrome (C-20) */
 .rel {
   position: relative;
 }
@@ -54,31 +12,31 @@
   z-index: 48;
 }
 
+/* A header button of size `sm` (the export's popover trigger). */
+.smBtn:global(.btn) {
+  font-size: var(--text-control);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Facility switcher (Keystone's project switcher) */
 .menuHead {
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
   color: var(--color-neutral-500);
   padding: 4px 8px 6px;
-}
-
-/* Project switcher (lines 79–95) */
-.pickBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 9px;
-  border-radius: 6px;
-  border: 1px solid var(--color-neutral-800);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  font-size: 12.5px;
-  cursor: pointer;
-}
-
-.pickBtn:hover {
-  border-color: var(--color-neutral-600);
 }
 
 .accentIcon {
@@ -124,8 +82,8 @@
 
 .pickInput:global(.input) {
   padding-left: 28px;
-  min-height: 32px;
-  font-size: 12.5px;
+  min-height: var(--control-h);
+  font-size: var(--text-control);
   width: 100%;
 }
 
@@ -136,10 +94,10 @@
   align-items: center;
   padding: 6px 8px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--color-text);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--text-ui);
   text-align: left;
   cursor: pointer;
   background: transparent;
@@ -153,19 +111,6 @@
   background: var(--color-neutral-900);
 }
 
-.stack {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.3;
-  min-width: 0;
-}
-
-.ellipsis {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .optSub {
   font-size: 11px;
   color: var(--color-neutral-400);
@@ -177,39 +122,13 @@
   gap: 6px;
 }
 
-.roEye {
-  display: inline-flex;
-  color: var(--color-neutral-500);
-}
-
 .menuEmpty {
-  font-size: 12px;
+  font-size: var(--text-small);
   color: var(--color-neutral-500);
   padding: 8px;
 }
 
-/* Global search (lines 99–107) */
-.search {
-  position: relative;
-  min-width: 220px;
-  flex: 1 1 220px;
-  max-width: 360px;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 10px;
-  top: 9px;
-  color: var(--color-neutral-500);
-  pointer-events: none;
-}
-
-.searchInput:global(.input) {
-  padding-left: 30px;
-  min-height: 32px;
-  font-size: 12.5px;
-}
-
+/* Global search panel (opens under the charte's .coque-header-search) */
 .searchPanel {
   position: absolute;
   z-index: 49;
@@ -233,10 +152,10 @@
   align-items: center;
   padding: 7px 8px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--color-text);
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--text-control);
   text-align: left;
   cursor: pointer;
   background: transparent;
@@ -262,31 +181,12 @@
 }
 
 .searchEmpty {
-  font-size: 12.5px;
+  font-size: var(--text-control);
   color: var(--color-neutral-500);
   padding: 8px;
 }
 
-/* Notifications (lines 108–117) */
-.bell:global(.btn) {
-  position: relative;
-}
-
-.bellBadge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 8px;
-  font-size: 10px;
-  display: grid;
-  place-items: center;
-  background: var(--color-accent);
-  color: var(--color-bg);
-}
-
+/* Notifications panel (bell) */
 .notifPanel {
   position: absolute;
   z-index: 49;
@@ -310,13 +210,13 @@
 }
 
 .notifTitle {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--text-ui);
+  font-weight: var(--weight-strong);
   margin-right: auto;
 }
 
 .markAll:global(.btn) {
-  font-size: 12px;
+  font-size: var(--text-small);
   padding: 2px 8px;
 }
 
@@ -327,7 +227,7 @@
   align-items: start;
   padding: 8px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--color-text);
   font: inherit;
   text-align: left;
@@ -368,13 +268,7 @@
 }
 
 .notifText {
-  font-size: 13px;
-  text-wrap: pretty;
-}
-
-.notifSub {
-  font-size: 11.5px;
-  color: var(--color-neutral-400);
+  font-size: var(--text-ui);
   text-wrap: pretty;
 }
 
@@ -390,110 +284,12 @@
   text-wrap: pretty;
 }
 
-/* Status date, actions */
-.statusDate {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--color-neutral-400);
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-/* "Next step" band under the header of a CAPEX page. */
-.nextStep {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-accent-800);
-  background: color-mix(in srgb, var(--color-accent-900) 70%, transparent);
-}
-
-.nextText {
-  flex: 1;
-  font-size: 13.5px;
-  color: var(--color-accent-100);
-}
-
-.nextText strong {
-  font-weight: 600;
-}
-
-/* R-139 "View as client" (secondary): a link styled as a button; icon only on tablets (R-146) to keep the actions on one row. */
-.previewBtn:global(.btn) {
+a.notifFoot {
+  color: var(--color-accent-300);
   text-decoration: none;
 }
 
-/* Outside banner (lines 126–128) */
-.outside {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12.5px;
-  color: var(--color-neutral-300);
-  padding: 9px 12px;
-  border-radius: var(--radius-md);
-  background: var(--color-neutral-900);
-  box-shadow: inset 0 0 0 1px var(--color-neutral-800);
-}
-
-.outsideText {
-  text-wrap: pretty;
-  margin-right: auto;
-}
-
-.homeBtn:global(.btn) {
-  font-size: 12px;
-  text-decoration: none;
-}
-
-.homeBtn:global(.btn):hover {
-  color: var(--color-accent);
-}
-
-/* Zone bar (lines 130–136) */
-.zoneBar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: -4px;
-}
-
-.zoneLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--color-neutral-400);
-}
-
-.zoneName {
-  color: var(--color-neutral-200);
-}
-
-/* ── Tablet layout (R-146; media queries = TABLET_MEDIA / TOUCH_MEDIA in ./tablet.ts) ── */
 @media (max-width: 1024px) {
-  .title {
-    font-size: 22px;
-  }
-
-  .actions {
-    flex-wrap: wrap;
-  }
-
-  .previewLabel {
-    display: none;
-  }
-
   /* The search box may wrap to the left edge: its result panel opens to the right. */
   .searchPanel {
     left: 0;
@@ -501,43 +297,15 @@
   }
 }
 
-/* Touch targets of 40 px (R-146) */
+/* Touch targets of 40 px */
 @media (max-width: 1024px), (pointer: coarse) {
-  .pickBtn,
   .pickOpt,
   .hit,
   .notif {
-    min-height: 40px;
+    min-height: var(--touch-target);
   }
 
-  .searchInput:global(.input),
   .pickInput:global(.input) {
-    min-height: 40px;
+    min-height: var(--touch-target);
   }
-
-  .searchIcon {
-    top: 13px;
-  }
-}
-
-/* Row under the header (delivery 5b): filters and period navigation on the left, the page's actions on the right. */
-.pageBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: -6px;
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-a.notifFoot {
-  color: var(--color-accent-300);
-  text-decoration: none;
 }

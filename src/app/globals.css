@@ -35,6 +35,15 @@ button {
   }
 
   body {
-    background: #fff !important;
+    background: Canvas !important;
+    color: CanvasText;
   }
+}
+
+/* Norma 2.0 header (charte/COQUE.md § 3): when a page's header wraps (long title tags, three actions), the wrapped line —
+   the common tools and the language / display pair — is packed to the right, so that the pair stays the last element at the
+   right end. The first line is unchanged (the title block's auto margin takes the free space). To be proposed in Norma's
+   coque.css. */
+.coque-header {
+  justify-content: flex-end;
 }

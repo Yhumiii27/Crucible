@@ -38,7 +38,7 @@ export default async function MyNeedsPage({ searchParams }: PageProps<'/my/needs
     <>
       <PageHeader screen="my-needs"
         primary={projects.length > 0 && resources.length > 0 ? (
-          <Folded summary="Record a need" variant="primary" size="md" open={!!draft}>
+          <Folded summary="Record a need" variant="primary" open={!!draft}>
             {draft && <p className="tag tag-outline" role="note">{t('Prepared by the assistant: check every field before recording')} · {draft.citation}</p>}
             <p className="text-muted">{t('A request is made at least 10 working days before the test (F-5); a late request is accepted when there is room, and counted.')}</p>
             <NeedForm projects={projects} milestones={milestones} resources={resources} testTypes={testTypes} today={today}

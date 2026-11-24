@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '@norma/charte/nocturne.css';
 import './globals.css';
 import '@norma/charte/touch.css';
+import '@norma/charte/coque.css';
 import { interClassName } from '@/fonts/inter';
 import { I18nProvider } from '@/i18n/client';
 import { getLang, getTheme } from '@/server/session';

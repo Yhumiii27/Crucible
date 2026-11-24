@@ -14,7 +14,9 @@ import { frExact } from './translate';
 
 const SRC = path.join(process.cwd(), 'src');
 // Norma's components Crucible renders (norma/charte/ds): their strings go through Crucible's t(), so their French is here too.
-const NORMA_USED = [path.join(process.cwd(), 'norma', 'charte', 'ds', 'ThemeToggle.tsx')];
+const NORMA_USED = ['ThemeToggle.tsx', 'AppShell.tsx', 'Sidebar.tsx', 'PageHeader.tsx', 'HeaderActions.tsx', 'HeaderTools.tsx', 'Drawer.tsx'].map((f) =>
+  path.join(process.cwd(), 'norma', 'charte', 'ds', f),
+);
 const EXCLUDED_DIRS = new Set([path.join(SRC, 'test')]);
 const isSource = (f: string) => /\.(ts|tsx)$/.test(f) && !/\.test\.tsx?$/.test(f) && !f.endsWith('.d.ts');
 

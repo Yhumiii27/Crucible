@@ -3,7 +3,6 @@
   "Active role": "Rôle actif",
   "Administrator": "Administrateur",
   "Close": "Fermer",
-  "Close the menu": "Fermer le menu",
   "Confidential": "Confidentiel",
   "Conflicts & arbitration": "Conflits et arbitrages",
   "Connectors": "Connecteurs",
@@ -59,5 +58,8 @@
   "Recorded offline by another account: sign in with it to send it": "Enregistré hors ligne par un autre compte : connectez-vous avec ce compte pour l’envoyer",
   "Dark / light display": "Affichage",
   "Dark display": "Affichage sombre",
-  "Light display": "Affichage clair"
+  "Light display": "Affichage clair",
+  "Language": "Langue",
+  "Close menu": "Fermer le menu",
+  "Skip to main content": "Aller au contenu"
 }

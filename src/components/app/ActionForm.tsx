@@ -5,8 +5,10 @@
 import { NotePencil, Plus } from '@phosphor-icons/react/dist/ssr';
 import type { Icon } from '@phosphor-icons/react';
 import { createContext, useActionState, useContext, useEffect, useState, useTransition, type ReactNode } from 'react';
+import { useHeaderMenu } from '@norma/charte/ds/HeaderActions';
 import { Button, type ButtonSize, type ButtonVariant } from '@/components/ds/Button';
 import { Drawer } from '@/components/ds/Drawer';
+import { MenuItem } from '@/components/ds/Menu';
 import { showToast } from '@/components/ds/Toast';
 import { useI18n } from '@/i18n/client';
 import s from './ActionForm.module.css';
@@ -59,6 +61,23 @@ export function ActionButton({ run, label, done, variant = 'secondary' }: { run:
   const { t } = useI18n();
   const [state, setState] = useState<ActionResult | null>(null);
   const [pending, start] = useTransition();
+  const menu = useHeaderMenu();
+  // In the page header's « Actions » menu (Norma 2.0): a menu row; the result shows as a notice.
+  if (menu)
+    return (
+      <MenuItem
+        disabled={pending}
+        onClick={() =>
+          start(async () => {
+            const r = await run();
+            menu.close();
+            showToast(r.ok ? [t(done), ...(r.warnings ?? []).map((w) => t(w))].join(' · ') : t(r.error));
+          })
+        }
+      >
+        {t(label)}
+      </MenuItem>
+    );
   return (
     <span className={s.inline}>
       <Button variant={variant} size="sm" disabled={pending} onClick={() => start(async () => setState(await run()))}>
@@ -86,14 +105,34 @@ export function Folded({ summary, children, open, variant = 'secondary', size = 
   const { t } = useI18n();
   const [isOpen, setOpen] = useState(!!open);
   const Ico = icon ?? (CREATE.test(summary) ? Plus : /^(Edit|Change)\b/.test(summary) ? NotePencil : undefined);
+  const menu = useHeaderMenu();
+  const panel = (
+    <Drawer open={isOpen} onClose={() => setOpen(false)} title={t(title ?? summary)}>
+      <PanelCtx.Provider value={() => setOpen(false)}>{children}</PanelCtx.Provider>
+    </Drawer>
+  );
+  // In the page header's « Actions » menu (Norma 2.0): a menu row opening the same side panel.
+  if (menu)
+    return (
+      <>
+        <MenuItem
+          icon={Ico}
+          onClick={() => {
+            setOpen(true);
+            menu.close();
+          }}
+        >
+          {t(summary)}
+        </MenuItem>
+        {panel}
+      </>
+    );
   return (
     <>
       <Button variant={variant} size={size} icon={Ico} onClick={() => setOpen(true)} aria-haspopup="dialog">
         {t(summary)}
       </Button>
-      <Drawer open={isOpen} onClose={() => setOpen(false)} title={t(title ?? summary)}>
-        <PanelCtx.Provider value={() => setOpen(false)}>{children}</PanelCtx.Provider>
-      </Drawer>
+      {panel}
     </>
   );
 }
