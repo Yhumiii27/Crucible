@@ -5,7 +5,7 @@ import 'server-only';
 import { sql } from 'drizzle-orm';
 import { codexKey, findCodexDoc, type CodexDoc } from '@/domain/codex';
 import { getDb } from '@/server/db/client';
-import { viewReadable } from '@/server/integrations/connectors';
+import { viewReadable } from '@/server/integrations/views';
 
 /** The document each reference names (undefined: unknown to Codex); null when Codex cannot be read. */
 export type CodexLookup = ((ref: string) => CodexDoc | undefined) | null;

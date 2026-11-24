@@ -16,7 +16,7 @@ import { OfflineSync } from '@/features/offline/sync';
 import { TestResult } from '@/components/app/TestResult';
 import { canHaveResult } from '@/domain/results';
 import { ResultForm } from '@/features/results/forms';
-import { codexLookup } from '@/server/dal/codex';
+import { codexLookup } from '@/server/integrations/codex/documents';
 import { bookingResults } from '@/server/dal/results';
 import { bookingShortages } from '@/server/consumables';
 import { FinishBookingForm, NoShowButton, StartBookingButton } from '@/features/resources/forms';

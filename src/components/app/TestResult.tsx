@@ -6,7 +6,7 @@ import { RESULT_OUTCOME_LABEL, RESULT_OUTCOME_TONE } from '@/domain/results';
 import { dataText } from '@/i18n/data-text';
 import type { Lang, T } from '@/i18n/translate';
 import { fmtInstant } from '@/lib/format';
-import type { CodexLookup } from '@/server/dal/codex';
+import type { CodexLookup } from '@/server/integrations/codex/documents';
 import type { BookingResult } from '@/server/dal/results';
 
 export function TestResult({ result, codex, t, lang }: { result: BookingResult; codex: CodexLookup; t: T; lang: Lang }) {

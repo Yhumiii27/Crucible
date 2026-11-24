@@ -7,7 +7,7 @@ import { Table, Td, Th } from '@/components/ds/Table';
 import { NEED_LEVEL_LABEL, NEED_STATUS_LABEL } from '@/domain/needs';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate } from '@/lib/format';
-import { codexLookup } from '@/server/dal/codex';
+import { codexLookup } from '@/server/integrations/codex/documents';
 import type { NeedRow } from '@/server/dal/needs';
 import { getI18n } from '@/server/session';
 import { EditNeed, type MilestoneRef, type ResourceRef, type TestTypeRef } from './forms';

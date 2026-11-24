@@ -26,7 +26,9 @@ import { updateMilestoneAction } from '@/features/needs/actions';
 import { removeAbsenceAction } from '@/features/planning/actions';
 import { recordInspectionAction } from '@/features/resources/actions';
 import { auditEntries, entities, inspections, people, sites, personAbsences, projectMilestones, projects, resources, testNeeds } from '@/server/db/schema';
-import { keystoneRdProjectsToAdd, matrixReferentials, readConnectors } from '@/server/integrations/connectors';
+import { readConnectors } from '@/server/integrations/connectors';
+import { keystoneRdProjectsToAdd } from '@/server/integrations/keystone/read';
+import { matrixReferentials } from '@/server/integrations/matrix/referentials';
 import { testDatabase, type TestDatabase } from '@/test/db';
 
 let t: TestDatabase;

@@ -42,7 +42,7 @@ import { facilityForms } from '@/server/dal/forms';
 import { facilityMaintenance } from '@/server/dal/maintenance';
 import { facilityEquipment } from '@/server/dal/planning';
 import { facilitySheet } from '@/server/dal/resources';
-import { vigieZones } from '@/server/integrations/connectors';
+import { vigieZones } from '@/server/integrations/vigie/read';
 import { getI18n, getViewer } from '@/server/session';
 import st from './facility.module.css';
 

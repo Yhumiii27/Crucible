@@ -115,9 +115,10 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - **Delivery 8 (reading the other tools, CR-060) is done** (`docs/DELIVERY-8.md`, X-10 added): `keystone.pub_jalons`,
   `cursus.pub_absences` and `vigie.pub_controles` are copied into Crucible's tables with their source (`keystone`, `cursus`,
   `vigie`) every hour by the job `connectors-read` and on demand ("Read now", `/admin/connectors`), once granted
-  (`src/server/integrations/connectors.ts`; a view not readable is a state). A row read from another tool is changed there:
+  (`src/server/integrations/connectors.ts` runs the reads of `keystone/`, `cursus/`, `vigie/`, `matrix/` — one folder per
+  connector under `src/server/integrations/<tool>/`, CR-N02; a view not readable is a state). A row read from another tool is changed there:
   the Server Functions refuse it in Crucible. Codex references (protocols, reports, risk analyses, substitution justifications)
-  show the state of their document read at display time from `codex.pub_documents` (`src/server/dal/codex.ts`,
+  show the state of their document read at display time from `codex.pub_documents` (`src/server/integrations/codex/documents.ts`,
   `CodexRef`; revision in force or a warning, never the title).
 - **Delivery 9 (series and limits of bookings, CR-078) is done** (`docs/DELIVERY-9.md`, X-11 added): per resource, free time
   between two bookings (capacity 1), least notice of a new request (`BookingContext.newRequest`: requests and engine
@@ -173,7 +174,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   instant recorded with every check of the screen (48 h at most); Playwright phone journey `tests/e2e/mobile.spec.ts`.
 - **Delivery 20 (projects and people read, CR-060 continued) is done** (`docs/DELIVERY-20.md`, X-22 added): `readKeystoneProjects`
   (`keystone.pub_projets`: name follows Keystone, `projects.keystone_closed`, `drizzle/0028`) and `readCursusPeople`
-  (`cursus.pub_salaries`: name follows Cursus, a person who left is set aside) in `src/server/integrations/connectors.ts`;
+  (`cursus.pub_salaries`: name follows Cursus, a person who left is set aside) in `src/server/integrations/keystone/read.ts` and `cursus/read.ts`;
   `keystoneRdProjectsToAdd` lists the open R&D projects of Keystone not in Crucible on `/admin/organisation` (added with the
   project form, Keystone code filled in). Vigie suspensions (V-2): filed with Matrix as M-21 on 5 Nov 2026 (Matrix#73).
 - **Delivery 21 (sites and entities read from Matrix, CR-060 continued) is done** (`docs/DELIVERY-21.md`, X-23 added; M-6 done by

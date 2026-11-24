@@ -24,7 +24,7 @@ import { NeedsTable } from '@/features/needs/needs-table';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate, fmtSlot } from '@/lib/format';
 import { businessToday } from '@/server/clock';
-import { codexLookup } from '@/server/dal/codex';
+import { codexLookup } from '@/server/integrations/codex/documents';
 import { projectSheet } from '@/server/dal/needs';
 import { getI18n, getViewer } from '@/server/session';
 
