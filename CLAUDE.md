@@ -45,6 +45,11 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   (`src/domain/conflicts.ts`), append-only arbitrations, safety veto. Screens `/propose`, `/conflicts`, `/people`.
 - **PDE (owner's answer P-2)**: one building split into zones — mechanical workshop, pilot, laboratory rooms — where only one
   zone works at a time (no pyrotechnic co-activity): three resources linked by the validated rule `PDE-ONE-ZONE`.
+- **One database, rights from Clavis (owner, 23–24 Nov 2026)**: signed in through Clavis (`ENTRA_ISSUER` = Clavis), with
+  `CRUCIBLE_ACCESS_FROM_CLAVIS=on` the roles Clavis grants are read in `clavis.pub_acces` (shared server, granted by Matrix)
+  at sign-in and on every request (`src/server/integrations/clavis/access.ts`, `grantedRolesFromClavisAccess`), never in the
+  token; a global role applies at once, a scoped one through a Crucible assignment (`effectiveAssignments`); a failed read
+  refuses.
 - **Owner's answers**: questionnaire "Décisions Crucible", https://claude.ai/artifact/EaWUrHKrsdaWGB1UHtL1Ym — read its
   database (ArtifactData, collection `answers`, one document per question id: `choice` = default | altN | other | discuss,
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in

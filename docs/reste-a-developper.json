@@ -1,6 +1,6 @@
 {
  "generated": "2026-10-22",
- "updated": "2026-11-09",
+ "updated": "2026-11-24",
  "branch": "claude/lucid-dirac-7bdq6x",
  "history": [
   {
@@ -154,6 +154,10 @@
   {
    "date": "2026-11-09",
    "text": "Revue de qualité des livraisons 15 à 22 (docs/REVUE-L15-L22.md) : 8 corrections — copie hors ligne effacée à la déconnexion, enregistrements hors ligne liés à leur compte, prévision des consommables, sorties de stock par lot, jours de Paris dans l’API, signalements Vigie sans doublon. 458 tests."
+  },
+  {
+   "date": "2026-11-24",
+   "text": "Une seule base : avec CRUCIBLE_ACCESS_FROM_CLAVIS=on, les rôles accordés par Clavis sont lus dans clavis.pub_acces à la connexion et à chaque requête (un rôle de périmètre compte toujours par une affectation de Crucible) ; lecture impossible = refus."
   }
  ],
  "items": [

@@ -1,7 +1,7 @@
 // Roles granted by the central sign-in of Clavis: read from the token, applied directly when global, scoped roles only
 // through a Crucible assignment and only while granted.
 import { describe, expect, it } from 'vitest';
-import { decideSignIn, effectiveAssignments, grantedRolesFromClaims } from './auth';
+import { decideSignIn, effectiveAssignments, grantedRolesFromClaims, grantedRolesFromClavisAccess } from './auth';
 
 describe('roles from the token', () => {
   it('reads Crucible role keys, case-insensitive, with an optional prefix, dropping the others', () => {
@@ -28,5 +28,14 @@ describe('roles from the token', () => {
     expect(decideSignIn({ ...base, granted: [] })).toEqual({ ok: false, reason: 'no_role' });
     expect(decideSignIn({ ...base, granted: ['technician'] })).toEqual({ ok: false, reason: 'no_scope' });
     expect(decideSignIn({ ...base, granted: null })).toEqual({ ok: false, reason: 'unknown_user' });
+  });
+});
+
+describe('roles read in clavis.pub_acces (CRUCIBLE_ACCESS_FROM_CLAVIS)', () => {
+  it('gives the role of the row only when the access opens now', () => {
+    expect(grantedRolesFromClavisAccess({ role: 'safety', ouvert: true })).toEqual(['safety']);
+    expect(grantedRolesFromClavisAccess({ role: 'rd_director', ouvert: false })).toEqual([]);
+    expect(grantedRolesFromClavisAccess({ role: 'director', ouvert: true })).toEqual([]);
+    expect(grantedRolesFromClavisAccess(null)).toEqual([]);
   });
 });

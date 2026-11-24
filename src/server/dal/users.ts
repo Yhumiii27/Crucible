@@ -29,7 +29,7 @@ export interface UserAccount {
 
 const inForce = (a: { fromOn: string | null; toOn: string | null }, today: string) => (!a.fromOn || a.fromOn <= today) && (!a.toOn || a.toOn >= today);
 
-async function accountsWhere(q: Q, where: ReturnType<typeof eq>, today: string): Promise<UserAccount[]> {
+async function accountsWhere(q: Q, where: ReturnType<typeof eq>, today: string, granted?: RoleKey[]): Promise<UserAccount[]> {
   const rows = await q.select().from(users).where(where);
   if (!rows.length) return [];
   const assigned = await q.select().from(roleAssignments).where(inArray(roleAssignments.userId, rows.map((r) => r.id)));
@@ -39,7 +39,8 @@ async function accountsWhere(q: Q, where: ReturnType<typeof eq>, today: string):
       .map((a): RoleAssignment => ({ role: a.role, scopeKind: a.scopeKind, scopeRef: a.scopeRef }))
       .filter(isValidAssignment);
     // Central sign-in (Clavis): the roles it granted at the last sign-in rule; Crucible assignments only give their scope.
-    const assignments = effectiveAssignments(u.grantedRoles ?? null, stored);
+    // `granted`: the roles just read in clavis.pub_acces (CRUCIBLE_ACCESS_FROM_CLAVIS), instead of those of the last sign-in.
+    const assignments = effectiveAssignments(granted ?? u.grantedRoles ?? null, stored);
     return {
       userId: u.id, email: u.email, displayName: u.displayName, jobTitle: u.jobTitle, entityCode: u.entityCode, active: u.active,
       entraObjectId: u.entraObjectId, assignments, roles: sortRoles(assignments.map((a) => a.role)),
@@ -47,8 +48,8 @@ async function accountsWhere(q: Q, where: ReturnType<typeof eq>, today: string):
   });
 }
 
-export async function getUserAccount(userId: string, today: string, q?: Q): Promise<UserAccount | null> {
-  return (await accountsWhere(q ?? (await getDb()), eq(users.id, userId), today))[0] ?? null;
+export async function getUserAccount(userId: string, today: string, q?: Q, granted?: RoleKey[]): Promise<UserAccount | null> {
+  return (await accountsWhere(q ?? (await getDb()), eq(users.id, userId), today, granted))[0] ?? null;
 }
 
 export async function accountByEmail(email: string, today: string, q?: Q): Promise<UserAccount | null> {

@@ -105,6 +105,15 @@ export function grantedRolesFromClaims(claims: { roles?: unknown }): RoleKey[] {
 }
 
 /**
+ * Roles granted by Clavis read in the database (CRUCIBLE_ACCESS_FROM_CLAVIS=on): the person's row of clavis.pub_acces for
+ * Crucible gives its role key when the access opens now (`ouvert`), else none.
+ */
+export function grantedRolesFromClavisAccess(row: Record<string, unknown> | null | undefined): RoleKey[] {
+  if (!row || row.ouvert !== true || typeof row.role !== 'string') return [];
+  return grantedRolesFromClaims({ roles: [row.role] });
+}
+
+/**
  * The assignments in force when Clavis grants the roles (owner, 23 Nov 2026: every application takes its roles from Clavis;
  * the scope stays an assignment in the application). A global role granted by Clavis applies at once; a scoped role (entity,
  * facility, project) counts only through a Crucible assignment, and only while Clavis grants it. `granted` null: roles kept
