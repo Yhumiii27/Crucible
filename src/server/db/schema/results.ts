@@ -1,9 +1,11 @@
 // Results of the tests (CR-081, X-18): one or more versions per booking, kept as recorded (append-only, database triggers): a
 // correction is a new version with its reason. Documents stay in Codex (references only); an ELN entry is an address.
 import { index, integer, jsonb, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import type { Measurement, ResultOutcome } from '@/domain/results';
 import { crucible } from './_schema';
 import { id } from './_common';
+import { RESULT_OUTCOMES, filled, oneOf, rule, within } from './_checks';
 import { users } from './organisation';
 import { bookings } from './resources';
 
@@ -26,4 +28,12 @@ export const testResults = crucible.table('test_results', {
   recordedByUserId: uuid('recorded_by_user_id').references(() => users.id),
   recordedByName: text('recorded_by_name').notNull(),
   recordedAt: timestamp('recorded_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [unique('test_results_booking_version_uq').on(t.bookingId, t.version), index('test_results_booking_idx').on(t.bookingId)]);
+}, (t) => [
+  unique('test_results_booking_version_uq').on(t.bookingId, t.version),
+  index('test_results_booking_idx').on(t.bookingId),
+  within('test_results_version_positive', t.version, 1, null),
+  oneOf('test_results_outcome_domain', t.outcome, RESULT_OUTCOMES),
+  rule('test_results_eln_url_shape', sql`${t.elnUrl} ~* '^https?://'`),
+  rule('test_results_correction_reason', sql`${t.version} = 1 or length(btrim(${t.reason})) > 0`),
+  filled('test_results_recorded_by_filled', t.recordedByName),
+]);

@@ -232,6 +232,13 @@
       "when": 1795450126519,
       "tag": "0032_roles_from_clavis",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1795529528019,
+      "tag": "0033_formats_in_database",
+      "breakpoints": true
     }
   ]
 }

@@ -5,8 +5,10 @@
 // - A calendar subscription is a secret address that Outlook (and so Teams) reads: the person's tests or one resource, with the
 //   person's rights at the time of each read. Kept as a hash too; revoked, never deleted.
 import { index, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { crucible } from './_schema';
 import { id } from './_common';
+import { DEVICE_KINDS, FEED_SCOPES, OCCUPANCY_EVENT_KINDS, OCCUPANCY_OUTCOMES, ROLE_KEYS, SHA256_RE, filled, oneOf, rule, shaped } from './_checks';
 import { users } from './organisation';
 import { bookings, resources } from './resources';
 
@@ -24,7 +26,13 @@ export const occupancyDevices = crucible.table('occupancy_devices', {
   lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
   revokedAt: timestamp('revoked_at', { withTimezone: true }),
   revokedByName: text('revoked_by_name'),
-}, (t) => [index('occupancy_devices_resource_idx').on(t.resourceId)]);
+}, (t) => [
+  index('occupancy_devices_resource_idx').on(t.resourceId),
+  oneOf('occupancy_devices_kind_domain', t.kind, DEVICE_KINDS),
+  filled('occupancy_devices_label_filled', t.label),
+  shaped('occupancy_devices_token_hash_shape', t.tokenHash, SHA256_RE),
+  filled('occupancy_devices_created_by_filled', t.createdByName),
+]);
 
 export const occupancyEvents = crucible.table('occupancy_events', {
   id: id(),
@@ -40,7 +48,11 @@ export const occupancyEvents = crucible.table('occupancy_events', {
   bookingId: uuid('booking_id').references(() => bookings.id),
   /** Why an event was ignored (EN source text). */
   note: text('note'),
-}, (t) => [index('occupancy_events_resource_idx').on(t.resourceId, t.occurredAt)]);
+}, (t) => [
+  index('occupancy_events_resource_idx').on(t.resourceId, t.occurredAt),
+  oneOf('occupancy_events_kind_domain', t.kind, OCCUPANCY_EVENT_KINDS),
+  oneOf('occupancy_events_outcome_domain', t.outcome, OCCUPANCY_OUTCOMES),
+]);
 
 export const calendarFeeds = crucible.table('calendar_feeds', {
   id: id(),
@@ -54,4 +66,10 @@ export const calendarFeeds = crucible.table('calendar_feeds', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   lastReadAt: timestamp('last_read_at', { withTimezone: true }),
   revokedAt: timestamp('revoked_at', { withTimezone: true }),
-}, (t) => [index('calendar_feeds_user_idx').on(t.userId)]);
+}, (t) => [
+  index('calendar_feeds_user_idx').on(t.userId),
+  oneOf('calendar_feeds_role_domain', t.role, ROLE_KEYS),
+  oneOf('calendar_feeds_scope_domain', t.scope, FEED_SCOPES),
+  rule('calendar_feeds_resource_of_scope', sql`(${t.scope} = 'resource') = (${t.resourceId} is not null)`),
+  shaped('calendar_feeds_token_hash_shape', t.tokenHash, SHA256_RE),
+]);

@@ -6,6 +6,7 @@ import { boolean, date, index, smallint, text, timestamp, unique, uuid } from 'd
 import type { MaintenanceKind } from '@/domain/maintenance';
 import { crucible } from './_schema';
 import { id, timestamps } from './_common';
+import { MAINTENANCE_KINDS, filled, oneOf, within } from './_checks';
 import { resources } from './resources';
 
 export const maintenancePlans = crucible.table('maintenance_plans', {
@@ -24,7 +25,13 @@ export const maintenancePlans = crucible.table('maintenance_plans', {
   active: boolean('active').notNull().default(true),
   updatedByName: text('updated_by_name').notNull(),
   ...timestamps,
-}, (t) => [unique('maintenance_plans_resource_label_uq').on(t.resourceId, t.label)]);
+}, (t) => [
+  unique('maintenance_plans_resource_label_uq').on(t.resourceId, t.label),
+  oneOf('maintenance_plans_kind_domain', t.kind, MAINTENANCE_KINDS),
+  filled('maintenance_plans_label_filled', t.label),
+  within('maintenance_plans_period_positive', t.periodMonths, 1, null),
+  filled('maintenance_plans_updated_by_filled', t.updatedByName),
+]);
 
 export const maintenanceRecords = crucible.table('maintenance_records', {
   id: id(),
@@ -36,4 +43,4 @@ export const maintenanceRecords = crucible.table('maintenance_records', {
   codexRef: text('codex_ref'),
   recordedByName: text('recorded_by_name').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [index('maintenance_records_plan_idx').on(t.planId, t.doneOn)]);
+}, (t) => [index('maintenance_records_plan_idx').on(t.planId, t.doneOn), filled('maintenance_records_recorded_by_filled', t.recordedByName)]);

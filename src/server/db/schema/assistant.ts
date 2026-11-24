@@ -5,6 +5,7 @@
 import { index, jsonb, smallint, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 import { crucible } from './_schema';
 import { id } from './_common';
+import { ASSISTANT_PROVIDERS, ROLE_KEYS, filled, oneOf, refRe, shaped, within } from './_checks';
 import { users } from './organisation';
 
 export const assistantConversations = crucible.table('assistant_conversations', {
@@ -16,7 +17,12 @@ export const assistantConversations = crucible.table('assistant_conversations', 
   /** Active role when the conversation started. */
   role: text('role').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [index('assistant_conversations_user_idx').on(t.userId, t.createdAt)]);
+}, (t) => [
+  index('assistant_conversations_user_idx').on(t.userId, t.createdAt),
+  shaped('assistant_conversations_ref_shape', t.ref, refRe('AS')),
+  filled('assistant_conversations_user_name_filled', t.userName),
+  oneOf('assistant_conversations_role_domain', t.role, ROLE_KEYS),
+]);
 
 export const assistantTurns = crucible.table('assistant_turns', {
   id: id(),
@@ -43,4 +49,10 @@ export const assistantTurns = crucible.table('assistant_turns', {
   notice: text('notice'),
   usage: jsonb('usage').$type<Record<string, unknown>>(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [unique('assistant_turns_seq_uq').on(t.conversationId, t.seq)]);
+}, (t) => [
+  unique('assistant_turns_seq_uq').on(t.conversationId, t.seq),
+  within('assistant_turns_seq_positive', t.seq, 1, null),
+  oneOf('assistant_turns_role_domain', t.role, ROLE_KEYS),
+  filled('assistant_turns_question_filled', t.question),
+  oneOf('assistant_turns_provider_domain', t.provider, ASSISTANT_PROVIDERS),
+]);

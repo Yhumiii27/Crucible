@@ -8,8 +8,10 @@
 //   so no write path can forget one; append-only. `seq` orders them: Crucible's writes run one at a time (write lock), so a
 //   later sequence number is always committed later, and a client's cursor never skips an event.
 import { bigint, bigserial, index, integer, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { crucible } from './_schema';
 import { id } from './_common';
+import { API_EVENT_KINDS, SHA256_RE, filled, oneOf, rule, shaped, within } from './_checks';
 import { facilities } from './organisation';
 import { incidents } from './incidents';
 import { bookings, resources } from './resources';
@@ -38,7 +40,16 @@ export const apiClients = crucible.table('api_clients', {
   lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
   revokedAt: timestamp('revoked_at', { withTimezone: true }),
   revokedByName: text('revoked_by_name'),
-}, (t) => [index('api_clients_facility_idx').on(t.facilityCode)]);
+}, (t) => [
+  index('api_clients_facility_idx').on(t.facilityCode),
+  filled('api_clients_label_filled', t.label),
+  shaped('api_clients_token_hash_shape', t.tokenHash, SHA256_RE),
+  rule('api_clients_webhook_url_shape', sql`${t.webhookUrl} ~* '^https?://'`),
+  rule('api_clients_webhook_secret', sql`${t.webhookUrl} is null or ${t.webhookSecret} is not null`),
+  within('api_clients_cursor_non_negative', t.cursor, 0, null),
+  within('api_clients_failures_non_negative', t.failures, 0, null),
+  filled('api_clients_created_by_filled', t.createdByName),
+]);
 
 export const apiEvents = crucible.table('api_events', {
   seq: bigserial('seq', { mode: 'number' }).primaryKey(),
@@ -49,4 +60,8 @@ export const apiEvents = crucible.table('api_events', {
   /** The resource it concerns (for a booking moved to another resource: one event for each). */
   resourceId: uuid('resource_id').notNull().references(() => resources.id),
   occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [index('api_events_resource_idx').on(t.resourceId, t.seq)]);
+}, (t) => [
+  index('api_events_resource_idx').on(t.resourceId, t.seq),
+  oneOf('api_events_kind_domain', t.kind, API_EVENT_KINDS),
+  rule('api_events_subject', sql`(${t.kind} like 'booking.%' and ${t.bookingId} is not null) or (${t.kind} like 'incident.%' and ${t.incidentId} is not null)`),
+]);
