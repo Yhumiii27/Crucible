@@ -14,7 +14,7 @@
 | Administration | comptes, rôles et portées (un interlocuteur partenaire reçoit une entité partenaire), entités, sites, installations et leurs partenaires ; projets et classe de priorité P1 / P2 / P3 par la direction R&D (A-1, A-5) ; chaque écriture vérifiée côté serveur et auditée | `src/domain/admin.ts`, `src/features/admin/`, `/admin/users`, `/admin/organisation` |
 | Écrans | coquille et registre des 15 écrans de la spec 05 ; accueil, installations, projets, administration ; les autres affichent « prévu pour la livraison n » ; un écran hors de l’espace du profil répond 404 | `src/app/`, `src/config/screens.ts` |
 | Jeu de démonstration (T-7) | entités EPC2i et EPC France ; laboratoire 67 (partagé avec EPC France) et PDE ; 4 projets fictifs (dont un confidentiel et un d’EPC France) ; une personne par profil | `src/server/db/seed/demo.ts` |
-| Page « reste à développer » | inventaire de Crucible | `docs/reste-a-developper.json`, `npm run remaining:page` |
+| Page « reste à développer » | inventaire de Crucible | `docs/reste-a-developper.json`, `npm run remaining:page` (retirés le 24 nov. 2026 : liste tenue dans Norma, `reste-a-faire/crucible.json`) |
 
 ## 2. Vérifications
 

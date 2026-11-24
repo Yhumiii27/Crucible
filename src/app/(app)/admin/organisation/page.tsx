@@ -13,7 +13,8 @@ import { LinkMatrixForm, NewEntityForm, NewFacilityForm, NewProjectForm, NewSite
 import { dataText } from '@/i18n/data-text';
 import { organisation } from '@/server/dal/admin';
 import { getDb } from '@/server/db/client';
-import { keystoneRdProjectsToAdd, matrixReferentials } from '@/server/integrations/connectors';
+import { keystoneRdProjectsToAdd } from '@/server/integrations/keystone/read';
+import { matrixReferentials } from '@/server/integrations/matrix/referentials';
 import { getI18n, getViewer } from '@/server/session';
 
 export default async function OrganisationPage() {

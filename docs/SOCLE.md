@@ -18,7 +18,7 @@
 | Session et « Voir en tant que » | `src/server/session.ts`, `src/server/viewer.ts` | profil par défaut : direction R&D ; `entityCode` au lieu de la filiale |
 | Profils et portées | `src/config/roles.ts`, `src/domain/rights.ts` | **réécrits** : 9 profils, portées global / entité / installation / projet (spec 01) |
 | Coquille et registre d’écrans | `src/config/screens.ts`, `src/components/app/shell/` | registre de la spec 05 ; sections Planification, Référentiel, Pilotage, Administration |
-| Design Nocturne | `norma/charte/nocturne.css` (copie de Norma 1.0, thèmes sombre et clair, depuis le 24 nov. 2026), `src/components/ds/`, `src/components/app/` | bouton d’affichage sombre / clair `norma/charte/ds/ThemeToggle.tsx` (cookie `epc2i-theme`) |
+| Design Nocturne | `norma/charte/nocturne.css` (copie de Norma, thèmes sombre et clair, depuis le 24 nov. 2026) et `norma/charte/touch.css` (cibles de 40 px sur écran tactile, importé dans `src/app/layout.tsx`), `src/components/ds/`, `src/components/app/` | bouton d’affichage sombre / clair `norma/charte/ds/ThemeToggle.tsx` (cookie `epc2i-theme`) |
 | i18n et complétude du français | `src/i18n/` | dictionnaires de Crucible |
 | Base de données | `src/server/db/` (client, transactions, migrations, provision, postgres) | schéma `crucible`, verrous `crucible.migrations` / `crucible.ecritures` |
 | Piste d’audit append-only | `writeAudit`, `audit_entries`, déclencheur | colonne `project_code` au lieu de `capex_id` |
@@ -27,7 +27,7 @@
 | Tâches planifiées, sauvegardes, Matrix | `src/server/jobs/`, `src/server/backup.ts`, `src/server/integrations/matrix/`, `scripts/` | application `crucible` |
 | Administration | `src/domain/admin.ts`, `src/features/admin/`, `src/app/(app)/admin/` | **réécrite** : entités, sites, installations et partenaires, projets |
 | Conteneur, Coolify, CI | `Dockerfile`, `deploy/`, `.github/workflows/ci.yml` | port 3500 |
-| Page « reste à développer » | `scripts/remaining-work/` | domaines de Crucible |
+| Page « reste à développer » | ~~`scripts/remaining-work/`~~ | retirée le 24 nov. 2026 (Norma 1.2.0) : liste tenue dans Norma, `reste-a-faire/crucible.json` |
 
 **Jamais copiés** : le cycle DIG-PRODI, le budget, les CAPEX (`src/domain/{lifecycle,budget,capex}.ts`, `src/features/capex/`,
 `src/server/dal/{capex,cycle}.ts`), leurs écrans et migrations, le jeu de démonstration d’Arche.

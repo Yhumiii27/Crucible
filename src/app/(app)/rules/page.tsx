@@ -21,7 +21,7 @@ import { TestTypeActiveButton, TestTypeForm } from '@/features/needs/forms';
 import { AgreementForm, ProposeRuleForm, RetireRuleForm, ValidateRuleButton } from '@/features/resources/forms';
 import { dataText } from '@/i18n/data-text';
 import { fmtDate } from '@/lib/format';
-import { codexLookup } from '@/server/dal/codex';
+import { codexLookup } from '@/server/integrations/codex/documents';
 import { testTypeCatalogue } from '@/server/dal/needs';
 import { planningRules } from '@/server/dal/planning';
 import { rulesScreen } from '@/server/dal/resources';

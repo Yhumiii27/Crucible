@@ -16,8 +16,8 @@ npm run db:local        # PostgreSQL : base epc2i, rôle crucible_app, schéma c
 cp .env.example .env.local
 npm run db:migrate      # migrations et jeu de démonstration
 npm run dev             # http://localhost:3500
-npm run questionnaire:page   # questionnaire « Décisions Crucible » (.artifacts/)
-npm run remaining:page       # page « reste à développer »
+npm run questionnaire:page   # questionnaire « Décisions Crucible » (modèle de Norma, .artifacts/)
 ```
 
-Exploitation : [`docs/EXPLOITATION.md`](docs/EXPLOITATION.md).
+Exploitation : [`docs/EXPLOITATION.md`](docs/EXPLOITATION.md). Reste à faire : liste commune de la suite, tenue dans Norma
+(`reste-a-faire/crucible.json`, page https://claude.ai/artifact/Rs7kooJdowShdYUqNS8jQf).

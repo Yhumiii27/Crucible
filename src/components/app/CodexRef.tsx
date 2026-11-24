@@ -3,7 +3,7 @@
 import { Tag } from '@/components/ds/Tag';
 import { codexRefNote } from '@/domain/codex';
 import type { T } from '@/i18n/translate';
-import type { CodexLookup } from '@/server/dal/codex';
+import type { CodexLookup } from '@/server/integrations/codex/documents';
 
 export function CodexRef({ refText, lookup, t }: { refText: string; lookup: CodexLookup; t: T }) {
   if (!lookup) return <>{refText}</>;

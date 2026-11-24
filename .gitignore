@@ -76,7 +76,7 @@ next-env.d.ts
 /tmp/
 *.log
 
-# Generated pages to publish (npm run remaining:page)
+# Generated pages to publish (npm run questionnaire:page)
 .artifacts/
 
 # verification and CI builds (CRUCIBLE_DIST_DIR=.next-ci)

@@ -168,39 +168,6 @@ describe('Entra ID sign-in', () => {
   });
 });
 
-describe('central sign-in of Clavis (CRUCIBLE_ROLES_FROM_TOKEN=on)', () => {
-  beforeEach(() => useEntra({ CRUCIBLE_ROLES_FROM_TOKEN: 'on' }));
-
-  it('takes the roles from the token: an unknown e-mail gets an account with its global role', async () => {
-    const r = await signIn({ oid: 'oid-safety-2', email: 'second.safety@epc-groupe.example', name: 'Second Safety', roles: ['safety'] });
-    expect(r.res.headers.get('location')).toBe(`${ORIGIN}/facilities`);
-    const u = await userByEmail('second.safety@epc-groupe.example');
-    expect(u).toMatchObject({ displayName: 'Second Safety', entraObjectId: 'oid-safety-2', grantedRoles: ['safety'] });
-    useSession(r);
-    expect(await getViewer()).toMatchObject({ role: 'safety', roles: ['safety'] });
-  });
-
-  it('keeps a scoped role only while Clavis grants it; the facility still comes from the Crucible assignment', async () => {
-    const granted = await signIn({ oid: 'oid-damien', preferred_username: 'd.petit@epc2i.example', roles: ['Crucible.Facility_Manager'] });
-    useSession(granted);
-    const v = await getViewer();
-    expect(v).toMatchObject({ role: 'facility_manager' });
-    expect(v.assignments).toEqual([{ role: 'facility_manager', scopeKind: 'facility', scopeRef: 'PDE' }]);
-
-    jar.clear();
-    const withdrawn = await signIn({ oid: 'oid-damien', preferred_username: 'd.petit@epc2i.example', roles: ['viewer', 'rd_director'] });
-    useSession(withdrawn);
-    expect(await getViewer()).toMatchObject({ role: 'rd_director', roles: ['rd_director'] });
-  });
-
-  it('refuses a token without a Crucible role, and a scoped role nobody gave a scope to yet', async () => {
-    expect((await signIn({ oid: 'oid-none', email: 'none@epc-groupe.example', roles: [] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
-    expect((await signIn({ oid: 'oid-tech', email: 'new.tech@epc-groupe.example', roles: ['technician'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_scope`);
-    expect(await userByEmail('new.tech@epc-groupe.example')).toBeUndefined();
-  });
-});
-
-
 describe('rights read in the database (CRUCIBLE_ACCESS_FROM_CLAVIS=on)', () => {
   const OID = '4c8d2e1f-6a7b-4c9d-8e0f-1a2b3c4d5e6f';
   // Stand-in of the view Matrix publishes on the shared server (same columns Crucible reads), made as the administrator and
@@ -237,6 +204,34 @@ describe('rights read in the database (CRUCIBLE_ACCESS_FROM_CLAVIS=on)', () => {
     await expect(getViewer()).rejects.toThrow(/REDIRECT:\/sign-in/);
     jar.clear();
     expect((await signIn({ oid: OID, email: 'db.reader@epc-groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
+  });
+
+  it('ignores the roles of the token when the access from Clavis is off: Crucible\'s own assignments rule', async () => {
+    useEntra({ CRUCIBLE_ACCESS_FROM_CLAVIS: 'off' });
+    const r = await signIn({ oid: 'oid-token-only', email: 'token.only@epc-groupe.example', roles: ['admin', 'rd_director'] });
+    expect(r.res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=unknown_user`);
+    expect(await userByEmail('token.only@epc-groupe.example')).toBeUndefined();
+  });
+
+  it('keeps a scoped role only while Clavis grants it; the facility still comes from the Crucible assignment', async () => {
+    const DAMIEN = '7e1f3a2b-5c6d-4e8f-9a0b-1c2d3e4f5a6b';
+    await admin(`insert into clavis.pub_acces values ($1, 'crucible', true, 'gestion', null, 'Crucible.Facility_Manager', true, now())`, [DAMIEN]);
+    const granted = await signIn({ oid: DAMIEN, preferred_username: 'd.petit@epc2i.example', roles: ['admin'] });
+    useSession(granted);
+    const v = await getViewer();
+    expect(v).toMatchObject({ role: 'facility_manager' });
+    expect(v.assignments).toEqual([{ role: 'facility_manager', scopeKind: 'facility', scopeRef: 'PDE' }]);
+    await admin(`update clavis.pub_acces set role = 'rd_director' where personne_id = $1`, [DAMIEN]);
+    expect(await getViewer()).toMatchObject({ role: 'rd_director', roles: ['rd_director'] });
+  });
+
+  it('refuses a person without a Crucible role in Clavis, and a scoped role nobody gave a scope to yet', async () => {
+    const NONE = '1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d';
+    const TECH = '2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e';
+    await admin(`insert into clavis.pub_acces values ($1, 'crucible', true, 'contribution', null, 'technician', true, now())`, [TECH]);
+    expect((await signIn({ oid: NONE, email: 'none@epc-groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
+    expect((await signIn({ oid: TECH, email: 'new.tech@epc-groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_scope`);
+    expect(await userByEmail('new.tech@epc-groupe.example')).toBeUndefined();
   });
 
   it('refuses when the view cannot be read, never falling back to the token', async () => {

@@ -5,7 +5,7 @@ import 'server-only';
 // on the sign-in route, so a refused account cannot loop through Microsoft.
 import { NextResponse, type NextRequest } from 'next/server';
 import { activeRoleOf } from '@/config/roles';
-import { AUTH_PATHS, emailFromClaims, grantedRolesFromClaims, grantedRolesFromClavisAccess, safeReturnTo, type SignInError } from '@/domain/auth';
+import { AUTH_PATHS, emailFromClaims, grantedRolesFromClavisAccess, safeReturnTo, type SignInError } from '@/domain/auth';
 import type { RoleKey } from '@/config/roles';
 import { readClavisAccess } from '@/server/integrations/clavis/access';
 import { recordSignOut, signInUser } from '@/server/dal/users';
@@ -95,12 +95,11 @@ export async function handleCallback(req: NextRequest): Promise<Response> {
   }
   const oid = typeof claims.oid === 'string' && claims.oid ? claims.oid : null;
   if (!oid) return fail('token');
-  // One database (CRUCIBLE_ACCESS_FROM_CLAVIS): the roles granted by Clavis are read in clavis.pub_acces, not in the token.
+  // One database (CRUCIBLE_ACCESS_FROM_CLAVIS): the roles granted by Clavis are read in clavis.pub_acces, never in the token
+  // (Norma § 6); otherwise they are Crucible's own assignments.
   let granted: RoleKey[] | null;
   try {
-    granted = cfg.accessFromClavis ? grantedRolesFromClavisAccess(await readClavisAccess(oid))
-      // Central sign-in of Clavis: the roles come from the token (owner, 23 Nov 2026: no application is an exception).
-      : cfg.rolesFromToken ? grantedRolesFromClaims(claims) : null;
+    granted = cfg.accessFromClavis ? grantedRolesFromClavisAccess(await readClavisAccess(oid)) : null;
   } catch (e) {
     console.error('[auth] clavis.pub_acces not read:', e instanceof Error ? e.message : e);
     return fail('failed', true);

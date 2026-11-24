@@ -4,7 +4,8 @@
 import { revalidatePath } from 'next/cache';
 import { canReadConnectors } from '@/domain/rights';
 import { getDb } from '@/server/db/client';
-import { readConnectors, type ReadReport, type ReadView } from '@/server/integrations/connectors';
+import { readConnectors } from '@/server/integrations/connectors';
+import type { ReadReport, ReadView } from '@/server/integrations/views';
 import { getViewer } from '@/server/session';
 
 export type ActionResult = { ok: true; warnings?: string[] } | { ok: false; error: string };

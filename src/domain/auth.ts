@@ -92,15 +92,15 @@ export interface SignInAccount {
 }
 
 export type SignInDecision =
-  | { ok: true; userId: string | null; createAdmin: boolean; roles: RoleKey[]; createFromToken?: boolean }
+  | { ok: true; userId: string | null; createAdmin: boolean; roles: RoleKey[]; createFromClavis?: boolean }
   | { ok: false; reason: SignInRefusal };
 
 /**
- * Roles granted by the central sign-in (Clavis, CRUCIBLE_ROLES_FROM_TOKEN=on): Crucible's role keys read from the token
- * `roles` claim, case-insensitive, a "crucible." / "crucible:" / "crucible_" prefix allowed; unknown values are dropped.
+ * Crucible's role keys among `values` (case-insensitive, a "crucible." / "crucible:" / "crucible_" prefix allowed); unknown
+ * values are dropped. Never applied to the token's `roles` claim: rights are read in the database (Norma § 6, CR-N03).
  */
-export function grantedRolesFromClaims(claims: { roles?: unknown }): RoleKey[] {
-  const raw = Array.isArray(claims.roles) ? claims.roles : [];
+export function crucibleRoleKeys(values: unknown): RoleKey[] {
+  const raw = Array.isArray(values) ? values : [];
   return sortRoles(raw.filter((r): r is string => typeof r === 'string').map((r) => r.trim().toLowerCase().replace(/^crucible[.:_-]/, '')));
 }
 
@@ -110,7 +110,7 @@ export function grantedRolesFromClaims(claims: { roles?: unknown }): RoleKey[] {
  */
 export function grantedRolesFromClavisAccess(row: Record<string, unknown> | null | undefined): RoleKey[] {
   if (!row || row.ouvert !== true || typeof row.role !== 'string') return [];
-  return grantedRolesFromClaims({ roles: [row.role] });
+  return crucibleRoleKeys([row.role]);
 }
 
 /**
@@ -148,7 +148,7 @@ export function decideSignIn(input: {
     account = input.byEmail;
     if (!account && granted) {
       const roles = sortRoles(effectiveAssignments(granted, []).map((a) => a.role));
-      return roles.length ? { ok: true, userId: null, createAdmin: false, createFromToken: true, roles } : { ok: false, reason: 'no_scope' };
+      return roles.length ? { ok: true, userId: null, createAdmin: false, createFromClavis: true, roles } : { ok: false, reason: 'no_scope' };
     }
     if (!account) return input.adminEmails.includes(input.email) ? { ok: true, userId: null, createAdmin: true, roles: ['admin'] } : { ok: false, reason: 'unknown_user' };
     if (account.entraObjectId && account.entraObjectId !== input.oid) return { ok: false, reason: 'account_mismatch' };

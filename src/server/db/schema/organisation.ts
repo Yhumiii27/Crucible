@@ -101,7 +101,7 @@ export const users = crucible.table('users', {
   active: boolean('active').notNull().default(true),
   lastSignInAt: timestamp('last_sign_in_at', { withTimezone: true }),
   /**
-   * Roles granted by the central sign-in (Clavis, CRUCIBLE_ROLES_FROM_TOKEN=on) at the last sign-in; null when Crucible alone
+   * Roles granted by the central sign-in (Clavis, read in clavis.pub_acces, CRUCIBLE_ACCESS_FROM_CLAVIS=on) at the last sign-in; null when Crucible alone
    * keeps the roles (Entra ID). With them, global roles apply directly and scoped assignments only for these roles.
    */
   grantedRoles: text('granted_roles').array().$type<RoleKey[]>(),

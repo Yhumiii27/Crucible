@@ -2,7 +2,7 @@
 // the view is not published or not granted; then the documents named by their id or a former number, whatever the case.
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { codexLookup } from '@/server/dal/codex';
+import { codexLookup } from '@/server/integrations/codex/documents';
 import { testDatabase, type TestDatabase } from '@/test/db';
 
 let t: TestDatabase;

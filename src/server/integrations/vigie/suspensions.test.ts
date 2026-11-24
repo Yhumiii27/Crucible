@@ -20,7 +20,7 @@ import { and, eq, gt, inArray } from 'drizzle-orm';
 import { removeUnavailabilityAction, setVigieZonesAction } from '@/features/resources/actions';
 import { parisInstant } from '@/lib/dates';
 import { auditEntries, bookings, notifications, resources, unavailabilities, vigieZoneResources } from '@/server/db/schema';
-import { readVigieSuspensions, vigieZones } from '@/server/integrations/connectors';
+import { readVigieSuspensions, vigieZones } from '@/server/integrations/vigie/read';
 import { testDatabase, type TestDatabase } from '@/test/db';
 
 let t: TestDatabase;

@@ -58,13 +58,15 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - **Owner's answers**: questionnaire "Décisions Crucible", https://claude.ai/artifact/EaWUrHKrsdaWGB1UHtL1Ym — read its
   database (ArtifactData, collection `answers`, one document per question id: `choice` = default | altN | other | discuss,
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in
-  step with it and rebuild the page with `npm run questionnaire:page`. 22 Oct 2026: 56 defaults confirmed, P-2 answered
+  step with it and rebuild the page with `npm run questionnaire:page` (Norma's model, `norma/outils/questionnaire/build.mjs`,
+  settings in `scripts/questionnaire/config.json`). 22 Oct 2026: 56 defaults confirmed, P-2 answered
   (above); the data D-1 to D-11 are still to come. Delivery 2 added F-10, R-10, P-7, delivery 3 F-11, F-12, F-13, S-7,
   delivery 4 R-11, A-9, F-14, delivery 5 P-8, P-9, A-10, F-15, delivery 6 I-5, I-6 (confirmed 23 Oct 2026), pilot P-10, X-7 (defaults applied).
-- **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
-  run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
-  and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
-  as `url`).
+- **Remaining work**: one list for the whole suite, kept in Norma (Norma 1.2.0, REGLES § 3): Crucible's items are in
+  `reste-a-faire/crucible.json` of `Yhumiii27/Norma` (schema `reste-a-faire/SCHEMA.md`); after every development, update
+  that file in Norma (items' state, a `history` line, `updated`), run `npm run reste-a-faire` there, open Norma's PR and
+  republish the global page `.artifacts/reste-a-faire.html` to https://claude.ai/artifact/Rs7kooJdowShdYUqNS8jQf (pass it
+  as `url`). Crucible keeps no list of its own.
 - **Requests sent to other repos** (22 Oct 2026, validated by the owner): Keystone K-2 `pub_jalons` (Keystone#22, merged),
   Cursus CU-1 `pub_absences` (Cursus#15, merged), Vigie V-1 `pub_controles` (Vigie#12), Matrix M-7 (copy `pub_moyens`,
   `pub_reservations` into `partage/80-crucible.sql`, Matrix#17); Matrix M-8 (copy `pub_occupation_hebdo`, grant to
@@ -113,9 +115,10 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - **Delivery 8 (reading the other tools, CR-060) is done** (`docs/DELIVERY-8.md`, X-10 added): `keystone.pub_jalons`,
   `cursus.pub_absences` and `vigie.pub_controles` are copied into Crucible's tables with their source (`keystone`, `cursus`,
   `vigie`) every hour by the job `connectors-read` and on demand ("Read now", `/admin/connectors`), once granted
-  (`src/server/integrations/connectors.ts`; a view not readable is a state). A row read from another tool is changed there:
+  (`src/server/integrations/connectors.ts` runs the reads of `keystone/`, `cursus/`, `vigie/`, `matrix/` — one folder per
+  connector under `src/server/integrations/<tool>/`, CR-N02; a view not readable is a state). A row read from another tool is changed there:
   the Server Functions refuse it in Crucible. Codex references (protocols, reports, risk analyses, substitution justifications)
-  show the state of their document read at display time from `codex.pub_documents` (`src/server/dal/codex.ts`,
+  show the state of their document read at display time from `codex.pub_documents` (`src/server/integrations/codex/documents.ts`,
   `CodexRef`; revision in force or a warning, never the title).
 - **Delivery 9 (series and limits of bookings, CR-078) is done** (`docs/DELIVERY-9.md`, X-11 added): per resource, free time
   between two bookings (capacity 1), least notice of a new request (`BookingContext.newRequest`: requests and engine
@@ -171,7 +174,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   instant recorded with every check of the screen (48 h at most); Playwright phone journey `tests/e2e/mobile.spec.ts`.
 - **Delivery 20 (projects and people read, CR-060 continued) is done** (`docs/DELIVERY-20.md`, X-22 added): `readKeystoneProjects`
   (`keystone.pub_projets`: name follows Keystone, `projects.keystone_closed`, `drizzle/0028`) and `readCursusPeople`
-  (`cursus.pub_salaries`: name follows Cursus, a person who left is set aside) in `src/server/integrations/connectors.ts`;
+  (`cursus.pub_salaries`: name follows Cursus, a person who left is set aside) in `src/server/integrations/keystone/read.ts` and `cursus/read.ts`;
   `keystoneRdProjectsToAdd` lists the open R&D projects of Keystone not in Crucible on `/admin/organisation` (added with the
   project form, Keystone code filled in). Vigie suspensions (V-2): filed with Matrix as M-21 on 5 Nov 2026 (Matrix#73).
 - **Delivery 21 (sites and entities read from Matrix, CR-060 continued) is done** (`docs/DELIVERY-21.md`, X-23 added; M-6 done by

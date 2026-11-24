@@ -10,7 +10,7 @@ import { checkAssignment, checkEntity, checkFacility, checkProject, checkSite, c
 import { getDb } from '@/server/db/client';
 import { writeAudit } from '@/server/db/helpers';
 import { entities, facilities, facilityPartners, projects, roleAssignments, sites, users } from '@/server/db/schema';
-import { matrixReferentials, readMatrixEntities, readMatrixSites } from '@/server/integrations/connectors';
+import { matrixReferentials, readMatrixEntities, readMatrixSites } from '@/server/integrations/matrix/referentials';
 import type { Tx } from '@/server/db/types';
 import { getViewer, type Viewer } from '@/server/session';
 
