@@ -27,7 +27,7 @@
 | Tâches planifiées, sauvegardes, Matrix | `src/server/jobs/`, `src/server/backup.ts`, `src/server/integrations/matrix/`, `scripts/` | application `crucible` |
 | Administration | `src/domain/admin.ts`, `src/features/admin/`, `src/app/(app)/admin/` | **réécrite** : entités, sites, installations et partenaires, projets |
 | Conteneur, Coolify, CI | `Dockerfile`, `deploy/`, `.github/workflows/ci.yml` | port 3500 |
-| Page « reste à développer » | `scripts/remaining-work/` | domaines de Crucible |
+| Page « reste à développer » | ~~`scripts/remaining-work/`~~ | retirée le 24 nov. 2026 (Norma 1.2.0) : liste tenue dans Norma, `reste-a-faire/crucible.json` |
 
 **Jamais copiés** : le cycle DIG-PRODI, le budget, les CAPEX (`src/domain/{lifecycle,budget,capex}.ts`, `src/features/capex/`,
 `src/server/dal/{capex,cycle}.ts`), leurs écrans et migrations, le jeu de démonstration d’Arche.

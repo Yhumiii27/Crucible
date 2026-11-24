@@ -1,0 +1,18 @@
+{
+  "titre": "Décisions Crucible",
+  "sousTitre": "Crucible · moyens d’essais partagés · questionnaire du responsable produit",
+  "introduction": "Crucible planifiera et arbitrera l’usage des moyens d’essais partagés : laboratoire 67, PDE, laboratoire PDE, atelier mécanique. Chaque question porte la proposition par défaut (★) que Crucible appliquera tant qu’il n’y a pas d’autre réponse. Choisissez une réponse, ajoutez une note si besoin : tout est enregistré à mesure et relu par Claude avant chaque livraison. Commencez par « À traiter en priorité » ; les blocs « Données » peuvent attendre l’atelier avec les équipes. Le détail est dans le dépôt Crucible : docs/ANALYSE.md et docs/spec/.",
+  "decideTitre": "Déjà décidé et principes proposés",
+  "decide": [
+    "L’application s’appelle Crucible (dépôt Yhumiii27/Crucible) et suit la démarche d’Arche : cadrage, socle repris de Keystone, livraisons fusionnées une fois la CI verte.",
+    "Les dépôts Keystone, Arche, Vigie, Cursus, Codex et Matrix ne sont jamais modifiés : les besoins sont écrits dans docs/DEMANDES-*.md.",
+    "Le moteur propose, une personne décide : aucune réservation confirmée ne bouge sans validation humaine tracée.",
+    "La visibilité avant l’intelligence : référentiel, règles écrites, réservations et occupation vraie d’abord (pilote dès la livraison 2), puis proposition, arbitrage, replanification, assistant IA."
+  ],
+  "groupes": [
+    ["prio", "À traiter en priorité"], ["perimetre", "Périmètre"], ["regles", "Moyens et règles"], ["arbitrage", "Priorités et arbitrages"],
+    ["planif", "Planification"], ["users", "Utilisateurs et droits"], ["ia", "Assistant IA"], ["integrations", "Liens avec les autres outils"],
+    ["technique", "Technique"], ["extra", "Ajouts au-delà de la demande"], ["data", "Données à fournir"]
+  ],
+  "sortie": ".artifacts/decisions-crucible.html"
+}

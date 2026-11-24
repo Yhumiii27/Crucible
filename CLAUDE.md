@@ -58,13 +58,15 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
 - **Owner's answers**: questionnaire "Décisions Crucible", https://claude.ai/artifact/EaWUrHKrsdaWGB1UHtL1Ym — read its
   database (ArtifactData, collection `answers`, one document per question id: `choice` = default | altN | other | discuss,
   `note`) before each delivery and apply the answers to `docs/DECISIONS.md`; keep `scripts/questionnaire/questions.json` in
-  step with it and rebuild the page with `npm run questionnaire:page`. 22 Oct 2026: 56 defaults confirmed, P-2 answered
+  step with it and rebuild the page with `npm run questionnaire:page` (Norma's model, `norma/outils/questionnaire/build.mjs`,
+  settings in `scripts/questionnaire/config.json`). 22 Oct 2026: 56 defaults confirmed, P-2 answered
   (above); the data D-1 to D-11 are still to come. Delivery 2 added F-10, R-10, P-7, delivery 3 F-11, F-12, F-13, S-7,
   delivery 4 R-11, A-9, F-14, delivery 5 P-8, P-9, A-10, F-15, delivery 6 I-5, I-6 (confirmed 23 Oct 2026), pilot P-10, X-7 (defaults applied).
-- **Remaining-work page**: after every development, update `docs/reste-a-developper.json` (`progress`, `history`, `updated`),
-  run `npm run remaining:page` (regenerates `docs/RESTE-A-DEVELOPPER.md` and `.artifacts/reste-a-developper.html`), commit,
-  and republish the HTML with the Artifact tool to the same page, https://claude.ai/artifact/RaDZti7t97J9UvTxfCXUuW (pass it
-  as `url`).
+- **Remaining work**: one list for the whole suite, kept in Norma (Norma 1.2.0, REGLES § 3): Crucible's items are in
+  `reste-a-faire/crucible.json` of `Yhumiii27/Norma` (schema `reste-a-faire/SCHEMA.md`); after every development, update
+  that file in Norma (items' state, a `history` line, `updated`), run `npm run reste-a-faire` there, open Norma's PR and
+  republish the global page `.artifacts/reste-a-faire.html` to https://claude.ai/artifact/Rs7kooJdowShdYUqNS8jQf (pass it
+  as `url`). Crucible keeps no list of its own.
 - **Requests sent to other repos** (22 Oct 2026, validated by the owner): Keystone K-2 `pub_jalons` (Keystone#22, merged),
   Cursus CU-1 `pub_absences` (Cursus#15, merged), Vigie V-1 `pub_controles` (Vigie#12), Matrix M-7 (copy `pub_moyens`,
   `pub_reservations` into `partage/80-crucible.sql`, Matrix#17); Matrix M-8 (copy `pub_occupation_hebdo`, grant to
