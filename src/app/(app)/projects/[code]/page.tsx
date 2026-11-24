@@ -55,8 +55,8 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[code
       <PageHeader screen="project" title={dataText(project.name, lang)} crumbs={['Projects']} crumbData={project.code}
         primary={manage ? (
           <>
-            <Folded summary="Add a milestone" size="md"><MilestoneForm projectCode={project.code} /></Folded>
-            <Folded summary="Record a need" variant="primary" size="md">
+            <Folded summary="Add a milestone"><MilestoneForm projectCode={project.code} /></Folded>
+            <Folded summary="Record a need" variant="primary">
               <p className="text-muted">{t('A request is made at least 10 working days before the test (F-5); a late request is accepted when there is room, and counted.')}</p>
               <NeedForm projects={[{ code: project.code, name: dataText(project.name, lang) }]} milestones={milestones} resources={resources} testTypes={testTypes} today={today} />
             </Folded>

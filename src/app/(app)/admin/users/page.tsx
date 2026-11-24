@@ -21,7 +21,7 @@ export default async function UsersPage() {
     <>
       <PageHeader screen="admin-users" crumbs={['Administration']}
         primary={
-          <Folded summary="New account" variant="primary" size="md">
+          <Folded summary="New account" variant="primary">
             <p className="text-muted">{t('The person signs in with their Microsoft account; give them a role below.')}</p>
             <NewUserForm entities={refs.entities.map((x) => ({ code: x.code, name: dataText(x.name, lang) }))} />
           </Folded>

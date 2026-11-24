@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import { Folded } from '@/components/app/ActionForm';
 import { EmptyState } from '@/components/app/EmptyState';
 import { SectionCard } from '@/components/app/SectionCard';
+import { Segmented } from '@/components/ds/Segmented';
 import { PageHeader } from '@/components/app/shell/page-header';
 import { Tag } from '@/components/ds/Tag';
 import { Table, Td, Th } from '@/components/ds/Table';
@@ -77,53 +78,53 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
   const primary = (
     <>
       {tab === 'resources' && viewer.role === 'rd_director' && (
-        <Folded summary="Change the acquisition cost" size="md">
+        <Folded summary="Change the acquisition cost">
           <p className="text-muted">{t('Base of the value of the unused capacity in the steering (P-8).')}</p>
           <AcquisitionForm facilityCode={facility.code} value={facility.acquisitionKeur} />
         </Folded>
       )}
       {tab === 'resources' && manager && (
-        <Folded summary="Add a resource" variant="primary" size="md"><NewResourceForm facilityCode={facility.code} /></Folded>
+        <Folded summary="Add a resource" variant="primary"><NewResourceForm facilityCode={facility.code} /></Folded>
       )}
       {tab === 'calendar' && manager && (
         <>
-          <Folded summary="Change the opening hours" size="md"><HoursForm facilityCode={facility.code} hours={sheet.hours} /></Folded>
-          <Folded summary="Add a closure" size="md"><ClosureForm facilityCode={facility.code} /></Folded>
-          {resRefs.length > 0 && <Folded summary="Vigie zones" size="md"><VigieZonesForm resources={resRefs} zones={zones} /></Folded>}
-          {resRefs.length > 0 && <Folded summary="Add an unavailability" variant="primary" size="md"><UnavailabilityForm resources={resRefs} /></Folded>}
+          <Folded summary="Change the opening hours"><HoursForm facilityCode={facility.code} hours={sheet.hours} /></Folded>
+          <Folded summary="Add a closure"><ClosureForm facilityCode={facility.code} /></Folded>
+          {resRefs.length > 0 && <Folded summary="Vigie zones"><VigieZonesForm resources={resRefs} zones={zones} /></Folded>}
+          {resRefs.length > 0 && <Folded summary="Add an unavailability" variant="primary"><UnavailabilityForm resources={resRefs} /></Folded>}
         </>
       )}
       {tab === 'inspections' && manager && resRefs.length > 0 && (
-        <Folded summary="Record an inspection" variant="primary" size="md"><InspectionForm resources={resRefs} today={today} /></Folded>
+        <Folded summary="Record an inspection" variant="primary"><InspectionForm resources={resRefs} today={today} /></Folded>
       )}
       {tab === 'maintenance' && manager && resRefs.length > 0 && (
-        <Folded summary="Add a maintenance or calibration plan" variant="primary" size="md"><MaintenancePlanForm resources={resRefs} today={today} /></Folded>
+        <Folded summary="Add a maintenance or calibration plan" variant="primary"><MaintenancePlanForm resources={resRefs} today={today} /></Folded>
       )}
       {tab === 'equipment' && manager && (
-        <Folded summary="Add mobile equipment" variant="primary" size="md"><EquipmentForm facilityCode={facility.code} /></Folded>
+        <Folded summary="Add mobile equipment" variant="primary"><EquipmentForm facilityCode={facility.code} /></Folded>
       )}
       {tab === 'measurement' && manager && resRefs.length > 0 && (
-        <Folded summary="Add a kiosk or a sensor" variant="primary" size="md">
+        <Folded summary="Add a kiosk or a sensor" variant="primary">
           <p className="text-muted">{t('Start and stop events of the device start and end the booking of the resource; without a booking they are kept as a use without a booking (X-8).')}</p>
           <DeviceForm facilityCode={facility.code} resources={resRefs.map((r) => ({ value: r.id, label: r.code }))} />
         </Folded>
       )}
       {tab === 'consumables' && manager && (
-        <Folded summary="Add a consumable" variant="primary" size="md"><ConsumableForm facilityCode={facility.code} /></Folded>
+        <Folded summary="Add a consumable" variant="primary"><ConsumableForm facilityCode={facility.code} /></Folded>
       )}
       {tab === 'consumables' && manager && stock && stock.items.some((c) => c.active) && (
-        <Folded summary="Needs of a test type" size="md">
+        <Folded summary="Needs of a test type">
           <p className="text-muted">{t('What a test of this type uses: taken from the stock when it ends (the lots that expire first); a booking to come is flagged when the stock cannot cover it (X-20).')}</p>
           <RequirementForm consumables={stock.items.filter((c) => c.active).map((c) => ({ value: c.id, label: `${c.name} (${c.unit})` }))} testTypes={stock.testTypes.map((x) => ({ value: x.code, label: `${x.code} · ${x.name}` }))} />
         </Folded>
       )}
       {tab === 'rates' && manager && resRefs.length > 0 && (
-        <Folded summary="Add a rate" variant="primary" size="md">
+        <Folded summary="Add a rate" variant="primary">
           <RateForm resources={resRefs.map((r) => ({ value: r.id, label: r.code }))} entities={rateEntities} today={today} />
         </Folded>
       )}
       {tab === 'api' && manager && (
-        <Folded summary="Add a bench system" variant="primary" size="md">
+        <Folded summary="Add a bench system" variant="primary">
           <p className="text-muted">{t('The system reads the resources, bookings and events of this facility only, and writes nothing; a confidential project stays masked (X-17).')}</p>
           <ApiClientForm facilityCode={facility.code} />
         </Folded>
@@ -146,6 +147,14 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
           </span>
         }
         primary={primary}
+        toolbar={
+          <Segmented
+            wrap
+            label={t('Sections of the facility')}
+            value={tab}
+            options={FACILITY_TABS.map((x) => ({ value: x, label: t(FACILITY_TAB_LABEL[x]), count: badge[x] || undefined, href: facilityTabHref(facility.code, x) }))}
+          />
+        }
       />
       <div className={st.meta}>{[facility.operatorName, dataText(facility.siteName, lang), facility.partnerEntityCodes.length ? `${t('shared with')} ${facility.partnerEntityCodes.join(', ')}` : null].filter(Boolean).join(' · ')}</div>
 
@@ -158,14 +167,6 @@ export default async function FacilityPage({ params, searchParams }: PageProps<'
         </div>
       )}
 
-      <nav className={st.tabs} aria-label={t('Sections of the facility')}>
-        {FACILITY_TABS.map((x) => (
-          <Link key={x} href={facilityTabHref(facility.code, x)} className={x === tab ? `${st.tab} ${st.tabOn}` : st.tab} aria-current={x === tab ? 'page' : undefined} scroll={false}>
-            {t(FACILITY_TAB_LABEL[x])}
-            {!!badge[x] && <span className={st.tabBadge}>{badge[x]}</span>}
-          </Link>
-        ))}
-      </nav>
 
       {tab === 'resources' && (
         <div className={st.layout}>

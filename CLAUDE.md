@@ -81,7 +81,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `/dashboard`. Screens `/incidents`, `/notifications`.
 - **Delivery 5b (interface faithful to Keystone) is done** (`docs/DELIVERY-5b.md`, mockups validated 23 Oct 2026,
   https://claude.ai/artifact/NCPJzxcCPuXWFxPL36CvJS; X-5, X-6): menu by theme with ⌘K page search and counts, a Facility section
-  with the facility switcher and the sheet's tabs (`src/config/facility-tabs.ts`), Keystone's page header (`header-tools.tsx`:
+  with the facility switcher and the sheet's tabs (`src/config/facility-tabs.ts`), Keystone's page header (now the charte's, below:
   global search `src/server/actions/search.ts` under U-3, bell, status date, FR/EN, CSV export `src/app/api/export/[screen]`),
   every form in a side panel (`Folded` of `ActionForm.tsx`), "To decide" (`/my/decisions`, `src/server/dal/decisions.ts`), load
   heat map (`src/features/load/`). New screens follow the same layout: page actions as `PageHeader primary`, filters and period
@@ -168,7 +168,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   (`src/server/consumables.ts`) runs in the transaction that ends a test (screen and device); facility tab "consumables"
   (`src/features/consumables/`), "Consumables short" in My schedule, daily job `consumables-alerts`.
 - **Delivery 19 (phones and offline, CR-082) is done** (`docs/DELIVERY-19.md`, X-21 added): top bar and menu drawer up to
-  1024 px (`src/components/app/shell/mobile-menu.tsx`), web app manifest (`src/app/manifest.ts`, opens My schedule), service
+  1024 px (now the charte's `AppShell` / `MobileTopBar`, below), web app manifest (`src/app/manifest.ts`, opens My schedule), service
   worker `/sw.js` (`src/app/sw.js/route.ts`: last copy of My schedule and the app's static files only, dropped at sign-out);
   starts and ends without network queued on the phone, each tied to the account that recorded it (`src/features/offline/`) and applied by `syncOfflineEventsAction` at the
   instant recorded with every check of the screen (48 h at most); Playwright phone journey `tests/e2e/mobile.spec.ts`.
@@ -194,6 +194,13 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   managers with `setVigieZonesAction`, tab "calendar"); `readVigieSuspensions` (`src/domain/vigie-suspensions.ts` `suspensionPlan`)
   makes each suspension a `works` unavailability (source `vigie`, `source_ref` `suspension:<id>`, whole days) that follows Vigie and
   cannot be removed in Crucible; covered bookings are never moved, the facility's managers get `outside_works`.
+- **Common shell, Norma 2.0 (24 Nov 2026, `norma/charte/COQUE.md`)**: the layout is the charte's `AppShell` (top bar `TopBar` and
+  drawer ≤ 1024 px), the sidebar renders with `Sidebar` / `PageSearch` / `NavSection` / `NavEntry`, and `PageHeader`
+  (`src/components/app/shell/page-header.tsx`) fills the charte's header — breadcrumb without « Crucible », h1, global search,
+  the page's actions (`primary`: the last `variant="primary"` is the main one, the rightmost; export as a secondary action;
+  beyond three the « Actions » menu, where `Folded` / `ActionButton` render as menu rows), status date, assistant (help), bell,
+  then the language / display pair `PrefsStack` (`prefs.tsx`), last, and nowhere else; `toolbar` in the charte's `FilterBar`;
+  KPI tiles and empty states are the charte's (`coque.css`, tokens only).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

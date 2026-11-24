@@ -1,5 +1,5 @@
 // Dark / light display (Norma 1.0): the suite's cookie epc2i-theme read by the server (getTheme, posed on <html> by the root
-// layout), the cookie the header's toggle writes, and the toggle's place right of the FR / EN toggle.
+// layout), the cookie the display switch writes, and the place of the language / display pair (Norma 2.0, charte/COQUE.md § 4).
 import fs from 'node:fs';
 import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,10 +36,17 @@ describe('display theme', () => {
     expect(await getTheme()).toBe('light');
   });
 
-  it('the root layout poses data-theme and the header puts the toggle right of the language toggle', () => {
-    const layout = fs.readFileSync(path.join(process.cwd(), 'src/app/layout.tsx'), 'utf8');
+  it('the root layout poses data-theme; the language / display pair (PrefsStack) is in the page header and the top bar only', () => {
+    const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), 'utf8');
+    const layout = read('src/app/layout.tsx');
     expect(layout).toMatch(/<html[^>]*data-theme=\{theme\}/);
-    const header = fs.readFileSync(path.join(process.cwd(), 'src/components/app/shell/header-tools.tsx'), 'utf8');
-    expect(header).toMatch(/<LangToggle lang=\{lang\} \/>\s*<ThemeToggle theme=\{theme\} \/>/);
+    expect(layout).toMatch(/import '@norma\/charte\/coque\.css'/);
+    expect(read('src/components/app/shell/prefs.tsx')).toMatch(/<PrefsStack lang=\{lang\} theme=\{theme\} onSelect=\{setLang\} \/>/);
+    expect(read('src/components/app/shell/page-header.tsx')).toMatch(/prefs=\{<Prefs lang=\{lang\} theme=\{theme\} \/>\}/);
+    expect(read('src/app/(app)/layout.tsx')).toMatch(/topbar=\{<TopBar lang=\{lang\} theme=\{theme\} \/>\}/);
+    // Nowhere else: no other toggle of the language or the display in Crucible's code.
+    const walk = (d: string): string[] => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
+    const users = walk(path.join(process.cwd(), 'src')).filter((f) => /\.tsx?$/.test(f) && !f.endsWith('.test.ts') && /PrefsStack|ThemeToggle|ThemeSwitch|LangSwitch/.test(fs.readFileSync(f, 'utf8')));
+    expect(users.map((f) => path.relative(process.cwd(), f))).toEqual(['src/components/app/shell/prefs.tsx']);
   });
 });

@@ -1,4 +1,5 @@
-// App shell: 232px sidebar | main (Keystone's Nocturne shell). Demo mode: "View as" at the bottom of the sidebar; Entra mode:
+// App shell (Norma 2.0, charte/COQUE.md § 1 and § 8): the charte's AppShell — 232px sidebar | main, and up to 1024 px the top
+// bar (menu button, name, language / display pair) with the sidebar as a drawer. Demo mode: "View as" at the bottom of the sidebar; Entra mode:
 // the signed-in user's account menu instead. The sidebar gets the facilities of the switcher (the viewer's own first) and the
 // counts of its entries: decisions waiting, open proposals and conflicts (delivery 5b). The assistant panel is mounted once here
 // (delivery 6): it keeps its conversation from one screen to the next.
@@ -6,9 +7,9 @@ import { cookies } from 'next/headers';
 import { Suspense } from 'react';
 import { inArray } from 'drizzle-orm';
 import { ClockProvider } from '@/components/app/clock';
-import { MobileMenuProvider, MobileTopbar } from '@/components/app/shell/mobile-menu';
+import { AppShell } from '@norma/charte/ds/AppShell';
+import { TopBar } from '@/components/app/shell/prefs';
 import { Sidebar } from '@/components/app/shell/sidebar';
-import styles from '@/components/app/shell/shell.module.css';
 import { ToastProvider } from '@/components/ds/Toast';
 import { AssistantPanel } from '@/features/assistant/panel';
 import { RegisterServiceWorker } from '@/features/offline/register';
@@ -24,10 +25,10 @@ import { resources } from '@/server/db/schema';
 import { decisionQueue } from '@/server/dal/decisions';
 import { visibleFacilities } from '@/server/dal/visibility';
 import { initialsOf } from '@/server/viewer';
-import { DEMO_PERSONAS, getI18n, getViewer } from '@/server/session';
+import { DEMO_PERSONAS, getI18n, getTheme, getViewer } from '@/server/session';
 
 export default async function AppLayout({ children }: LayoutProps<'/'>) {
-  const [viewer, today, jar, { t, lang }] = await Promise.all([getViewer(), businessToday(), cookies(), getI18n()]);
+  const [viewer, today, jar, { t, lang }, theme] = await Promise.all([getViewer(), businessToday(), cookies(), getI18n(), getTheme()]);
   const entra = authMode() === 'entra';
   const personas = entra ? [] : DEMO_PERSONAS.filter((p) => isRoleKey(p.key)).map((p) => ({ role: p.key as never, name: p.name, initials: initialsOf(p.name) }));
   const facs = canSee(viewer.role, 'facility') ? await visibleFacilities(viewer) : [];
@@ -47,25 +48,24 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
   return (
     <ClockProvider today={today}>
       <ToastProvider>
-        <MobileMenuProvider>
-        <div className={styles.root}>
-          <Suspense>
-            <Sidebar
-              role={viewer.role}
-              personas={personas}
-              account={entra ? { name: viewer.name, initials: viewer.initials, role: viewer.role, roles: viewer.roles } : null}
-              facilities={facilities}
-              lastFacility={jar.get('crucible-facility')?.value ?? null}
-              folded={folded}
-              badges={{ decide: queue.items.length, propose: queue.openProposals, conflicts: queue.openConflicts }}
-            />
-          </Suspense>
-          <main className={styles.main}>
-            <MobileTopbar />
-            {children}
-          </main>
-        </div>
-        </MobileMenuProvider>
+        <AppShell
+          sidebar={
+            <Suspense>
+              <Sidebar
+                role={viewer.role}
+                personas={personas}
+                account={entra ? { name: viewer.name, initials: viewer.initials, role: viewer.role, roles: viewer.roles } : null}
+                facilities={facilities}
+                lastFacility={jar.get('crucible-facility')?.value ?? null}
+                folded={folded}
+                badges={{ decide: queue.items.length, propose: queue.openProposals, conflicts: queue.openConflicts }}
+              />
+            </Suspense>
+          }
+          topbar={<TopBar lang={lang} theme={theme} />}
+        >
+          {children}
+        </AppShell>
         {canUseAssistant(viewer.role) && <AssistantPanel />}
         <RegisterServiceWorker />
       </ToastProvider>

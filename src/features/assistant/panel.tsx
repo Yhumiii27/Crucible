@@ -1,9 +1,9 @@
 'use client';
 // The assistant panel (docs/spec/04, 05 "Assistant: panneau de conversation disponible sur chaque écran"; delivery 6): mounted
-// once in the app shell, opened by the header's Assistant button or by an "Ask the assistant" shortcut of a screen
+// once in the app shell, opened by the header's Assistant button (AssistantHelp, the help slot of the page header) or by an "Ask the assistant" shortcut of a screen
 // (openAssistant). It says which provider answers and what leaves Crucible, shows the conversation, and offers what a turn
 // prepared — a need draft to open in the needs form, minutes to decide a conflict with. The person validates there.
-import { ArrowUp, ChatCircleDots, Plus, Sparkle, Warning } from '@phosphor-icons/react/dist/ssr';
+import { ArrowUp, ChatCircleDots, Plus, Warning } from '@phosphor-icons/react/dist/ssr';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useTransition, type KeyboardEvent, type ReactNode } from 'react';
 import { Button, ButtonLink } from '@/components/ds/Button';
@@ -21,16 +21,6 @@ const OPEN_EVENT = 'crucible:assistant';
 /** Opens the panel; with a question, asks it at once. */
 export function openAssistant(question?: string) {
   window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: { question: question ?? null } }));
-}
-
-/** The header's button. */
-export function AssistantButton() {
-  const { t } = useI18n();
-  return (
-    <Button variant="ghost" size="sm" icon={Sparkle} onClick={() => openAssistant()} aria-haspopup="dialog">
-      {t('Assistant')}
-    </Button>
-  );
 }
 
 /** A screen's shortcut: asks a question built for the line (a need, a conflict). */
@@ -193,7 +183,10 @@ export function AssistantPanel() {
     return () => window.removeEventListener(OPEN_EVENT, onOpen);
   }, []);
 
-  useEffect(() => endRef.current?.scrollIntoView({ block: 'end' }), [state?.conversation?.turns.length, pending]);
+  // A block body: a newer browser's scrollIntoView returns a promise, which React would take for the effect's cleanup.
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: 'end' });
+  }, [state?.conversation?.turns.length, pending]);
   // A link of an answer opens another screen: the panel steps aside (the conversation is kept).
   const [shownOn, setShownOn] = useState(pathname);
   if (shownOn !== pathname) {

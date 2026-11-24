@@ -104,13 +104,13 @@ export default async function PlanningPage({ searchParams }: PageProps<'/plannin
         primary={
           <>
             {viewer.role === 'coordinator' && (
-              <Folded summary="Import the history" size="md">
+              <Folded summary="Import the history">
                 <p className="text-muted">{t('Past bookings of your facilities, for the reference measure of the utilisation (F-9).')}</p>
                 <ImportHistoryForm />
               </Folded>
             )}
             {canRequest && (
-              <Folded summary="Request a slot" variant="primary" size="md">
+              <Folded summary="Request a slot" variant="primary">
                 <p className="text-muted">{t('Every hard constraint is checked: opening hours, unavailabilities, inspections, capacity, validated exclusion rules. A manager of the facility then confirms.')}</p>
                 <RequestBookingForm resources={bookable.map((r) => ({ id: r.id, code: r.code, name: dataText(r.name, lang), granularity: r.granularity }))} projects={choices.projects.map((p) => ({ code: p.code, name: dataText(p.name, lang) }))} today={today}
                   needs={needs.map((n) => ({ ...n, title: dataText(n.title, lang) }))} />

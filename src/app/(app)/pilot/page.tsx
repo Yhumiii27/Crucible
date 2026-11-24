@@ -67,7 +67,7 @@ export default async function PilotPage() {
       <PageHeader screen="pilot" crumbs={['Steering']}
         aside={<Tag tone={status.kind === 'running' ? 'accent' : 'outline'} size="sm">{statusTag}</Tag>}
         primary={viewer.role === 'rd_director' ? (
-          <Folded summary={settings ? 'Change the pilot' : 'Set the pilot'} variant="primary" size="md">
+          <Folded summary={settings ? 'Change the pilot' : 'Set the pilot'} variant="primary">
             <p className="text-muted">{t('Crucible becomes the reference of the bookings of the pilot facilities from the first day; the weeks before are the reference measure (X-2).')}</p>
             <PilotForm facilities={facs.map((f) => ({ code: f.code, name: dataText(f.name, lang) }))} current={settings} today={today} />
           </Folded>

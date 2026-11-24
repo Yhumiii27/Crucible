@@ -42,19 +42,19 @@ export default async function IncidentsPage() {
         primary={
           <>
             {['rd_director', 'coordinator', 'project_lead'].includes(viewer.role) && data.resources.length > 0 && (
-              <Folded summary="Simulate a what-if" size="md" title="What if?">
+              <Folded summary="Simulate a what-if" title="What if?">
                 <p className="text-muted">{t('A simulation: the consequences if a resource were out of service, without moving or notifying anything.')}</p>
                 <SimulationForm resources={data.resources.map((r) => ({ value: r.id, label: `${r.code} · ${dataText(r.name, lang)}` }))} />
               </Folded>
             )}
             {deciding && data.openNeeds.length > 0 && (
-              <Folded summary="Declare an urgency" size="md">
+              <Folded summary="Declare an urgency">
                 <p className="text-muted">{t('An urgent test passes first, even inside the frozen window; the bookings it displaces are placed again after it. The decider validates the moves; urgencies are counted in the steering (A-8).')}</p>
                 <UrgencyForm needs={data.openNeeds.map((n) => ({ value: n.id, label: `${n.ref} · ${n.projectCode} · ${dataText(n.title, lang)}` }))} />
               </Folded>
             )}
             {DECLARERS.includes(viewer.role) && (data.resources.length > 0 || data.people.length > 0) && (
-              <Folded summary="Declare an incident" variant="primary" size="md">
+              <Folded summary="Declare an incident" variant="primary">
                 <p className="text-muted">{t('A breakdown makes the resource unavailable; an absence takes the person out. The recovery scenario is computed at once and submitted to the decider: nothing moves without a decision.')}</p>
                 <IncidentForm today={today} resources={data.resources.map((r) => ({ value: r.id, label: `${r.code} · ${dataText(r.name, lang)}` }))} people={data.people.map((p) => ({ value: p.id, label: p.name }))} />
               </Folded>

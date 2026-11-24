@@ -30,7 +30,7 @@ export default async function PeoplePage() {
     <>
       <PageHeader screen="people"
         primary={mine.length > 0 ? (
-          <Folded summary="Add a person" variant="primary" size="md">
+          <Folded summary="Add a person" variant="primary">
             <PersonForm entities={refs.entities.map((e) => ({ value: e.code, label: dataText(e.name, lang) }))} facilities={mine.map((f) => ({ value: f, label: f }))} />
           </Folded>
         ) : undefined}
