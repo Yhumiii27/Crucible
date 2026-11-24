@@ -25,6 +25,7 @@ vi.mock('next/navigation', () => ({
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 
 import { desc, eq } from 'drizzle-orm';
+import pg from 'pg';
 import { setViewAs, switchRole } from '@/server/actions/preferences';
 import { auditEntries, roleAssignments, users } from '@/server/db/schema';
 import { getViewer } from '@/server/session';
@@ -199,3 +200,47 @@ describe('central sign-in of Clavis (CRUCIBLE_ROLES_FROM_TOKEN=on)', () => {
   });
 });
 
+
+describe('rights read in the database (CRUCIBLE_ACCESS_FROM_CLAVIS=on)', () => {
+  const OID = '4c8d2e1f-6a7b-4c9d-8e0f-1a2b3c4d5e6f';
+  // Stand-in of the view Matrix publishes on the shared server (same columns Crucible reads), made as the administrator and
+  // readable by crucible_app, as Matrix's link grants it.
+  const admin = async (q: string, params: unknown[] = []) => {
+    const c = new pg.Client({ connectionString: t.url });
+    await c.connect();
+    try {
+      return await c.query(q, params);
+    } finally {
+      await c.end();
+    }
+  };
+  beforeEach(async () => {
+    useEntra({ CRUCIBLE_ACCESS_FROM_CLAVIS: 'on' });
+    await admin(`drop schema if exists clavis cascade; create schema clavis;
+      create table clavis.pub_acces (personne_id uuid, application text, autorise boolean, niveau text, domaine text, role text, ouvert boolean, maj_le timestamptz);
+      grant usage on schema clavis to ${t.role}; grant select on clavis.pub_acces to ${t.role};`);
+    await admin(`insert into clavis.pub_acces values ($1, 'crucible', true, 'referent', 'hse', 'safety', true, now()), ($1, 'keystone', true, 'admin', null, 'director', true, now())`, [OID]);
+  });
+  afterAll(async () => {
+    await admin('drop schema if exists clavis cascade');
+  });
+
+  it('takes the role set in Clavis, not the token, and applies a change or a withdrawal at the next page', async () => {
+    const r = await signIn({ oid: OID, email: 'db.reader@epc-groupe.example', name: 'Db Reader', roles: ['admin'] });
+    expect(r.res.headers.get('location')).toBe(`${ORIGIN}/facilities`);
+    expect(await userByEmail('db.reader@epc-groupe.example')).toMatchObject({ grantedRoles: ['safety'] });
+    useSession(r);
+    expect(await getViewer()).toMatchObject({ role: 'safety', roles: ['safety'] });
+    await admin(`update clavis.pub_acces set role = 'rd_director' where application = 'crucible'`);
+    expect(await getViewer()).toMatchObject({ role: 'rd_director', roles: ['rd_director'] });
+    await admin(`update clavis.pub_acces set ouvert = false where application = 'crucible'`);
+    await expect(getViewer()).rejects.toThrow(/REDIRECT:\/sign-in/);
+    jar.clear();
+    expect((await signIn({ oid: OID, email: 'db.reader@epc-groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
+  });
+
+  it('refuses when the view cannot be read, never falling back to the token', async () => {
+    await admin('drop schema clavis cascade');
+    expect((await signIn({ oid: OID, email: 'db.reader2@epc-groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=failed`);
+  });
+});

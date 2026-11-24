@@ -12,6 +12,13 @@
 //   ENTRA_POST_LOGOUT_REDIRECT_URI optional; default <origin of the redirect URI>/sign-in?signedOut=1
 //   CRUCIBLE_ROLES_FROM_TOKEN     on | off (default): the roles come from the token of the central sign-in (Clavis) — global
 //                                 roles apply directly, scoped ones through a Crucible assignment; an unknown e-mail gets an account
+//   CRUCIBLE_ACCESS_FROM_CLAVIS   on | off (default): the roles granted by Clavis are read in clavis.pub_acces (shared server)
+//                                 at sign-in and on every request, not in the token; a failed read refuses
+
+/** CRUCIBLE_ACCESS_FROM_CLAVIS=on: the roles granted by Clavis come from clavis.pub_acces, read on every request. */
+export const accessFromClavis = (e: Record<string, string | undefined> = process.env): boolean =>
+  (e.CRUCIBLE_ACCESS_FROM_CLAVIS ?? '').trim().toLowerCase() === 'on';
+
 export class AuthConfigError extends Error {}
 
 export type AuthMode = 'demo' | 'entra';
@@ -59,6 +66,8 @@ export interface EntraConfig {
   postLogoutRedirectUri: string;
   /** Roles from the token of the central sign-in (Clavis), CRUCIBLE_ROLES_FROM_TOKEN=on. */
   rolesFromToken: boolean;
+  /** Roles read in clavis.pub_acces at sign-in and on every request, CRUCIBLE_ACCESS_FROM_CLAVIS=on (rather than the token). */
+  accessFromClavis: boolean;
   session: SessionConfig;
 }
 
@@ -118,6 +127,7 @@ export function entraConfig(e: Env = env()): EntraConfig {
     redirectUri,
     postLogoutRedirectUri: postLogout,
     rolesFromToken: (e.CRUCIBLE_ROLES_FROM_TOKEN ?? '').trim().toLowerCase() === 'on',
+    accessFromClavis: accessFromClavis(e),
     session: sessionConfig(e),
   };
 }
