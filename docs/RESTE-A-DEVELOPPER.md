@@ -207,6 +207,7 @@ Analyse du besoin, état des lieux des outils du groupe, spécification docs/spe
 
 ## 3. Mises à jour
 
+- 2026-11-24 — Norma 1.1.0 : options à icône seule de Segmented à la hauteur d'une option texte, textes secondaires à 68 % en thème clair, groupe du bouton d'affichage nommé « Affichage » par la clé Dark / light display ; installation directe sur le serveur interne sans Docker (docs/EXPLOITATION.md § 6 : crucible.env, migrations, services epc2i-crucible et epc2i-crucible-worker, port 3500, inscription dans Clavis, lien clavis.pub_acces, sauvegarde).
 - 2026-11-24 — Norma 1.0.0 adopté : copie du socle commun dans norma/ (règles, charte, registre, dépendances), contrôlée en CI (npm run norma:check), CLAUDE.md importe @norma/REGLES.md ; feuille Nocturne prise dans norma/charte ; bouton d’affichage sombre / clair à droite du sélecteur FR / EN (cookie epc2i-theme, thème posé par le serveur sur <html>, sombre par défaut).
 - 2026-11-24 — Une seule base : avec CRUCIBLE_ACCESS_FROM_CLAVIS=on, les rôles accordés par Clavis sont lus dans clavis.pub_acces à la connexion et à chaque requête (un rôle de périmètre compte toujours par une affectation de Crucible) ; lecture impossible = refus.
 - 2026-11-09 — Revue de qualité des livraisons 15 à 22 (docs/REVUE-L15-L22.md) : 8 corrections — copie hors ligne effacée à la déconnexion, enregistrements hors ligne liés à leur compte, prévision des consommables, sorties de stock par lot, jours de Paris dans l’API, signalements Vigie sans doublon. 458 tests.
