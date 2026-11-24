@@ -13,5 +13,5 @@ export default defineConfig({
     hookTimeout: 60_000,
     env: { DATABASE_URL: 'postgres://crucible_app:unused@127.0.0.1:5432/crucible_unused', CRUCIBLE_AUTH: '', CRUCIBLE_CLOCK: '2026-10-22', CRUCIBLE_SEED: '', MATRIX_URL: '', MATRIX_DECLARATIONS_DIR: '' },
   },
-  resolve: { alias: { '@': path.resolve(__dirname, 'src'), 'server-only': path.resolve(__dirname, 'src/test/server-only-stub.ts') } },
+  resolve: { alias: { '@': path.resolve(__dirname, 'src'), '@norma': path.resolve(__dirname, 'norma'), 'server-only': path.resolve(__dirname, 'src/test/server-only-stub.ts') } },
 });
