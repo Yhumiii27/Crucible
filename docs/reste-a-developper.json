@@ -166,6 +166,10 @@
   {
    "date": "2026-11-24",
    "text": "Norma 1.1.0 : options à icône seule de Segmented à la hauteur d'une option texte, textes secondaires à 68 % en thème clair, groupe du bouton d'affichage nommé « Affichage » par la clé Dark / light display ; installation directe sur le serveur interne sans Docker (docs/EXPLOITATION.md § 6 : crucible.env, migrations, services epc2i-crucible et epc2i-crucible-worker, port 3500, inscription dans Clavis, lien clavis.pub_acces, sauvegarde)."
+  },
+  {
+   "date": "2026-11-24",
+   "text": "Formats en base (Norma § 4) : 213 contraintes CHECK (migration 0033) — domaines des états et types, formes des codes et des références (B-, N-, AL-, C-, R-, S-, AS-AAAA-NNNN), noms non vides, bornes et cohérences (fin après le début, quantité d'un mouvement de stock selon son sens, portée d'un flux de calendrier) ; listes dans src/server/db/schema/_checks.ts, comparées aux constantes du domaine et à la base migrée par src/server/db/formats.test.ts."
   }
  ],
  "items": [

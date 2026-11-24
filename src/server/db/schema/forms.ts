@@ -5,6 +5,7 @@ import { boolean, index, integer, jsonb, text, timestamp, unique, uuid } from 'd
 import type { FormItem, FormStage } from '@/domain/booking-forms';
 import { crucible } from './_schema';
 import { id, timestamps } from './_common';
+import { FORM_STAGES, filled, oneOf, within } from './_checks';
 import { facilities, users } from './organisation';
 import { bookings } from './resources';
 
@@ -17,7 +18,12 @@ export const formTemplates = crucible.table('form_templates', {
   active: boolean('active').notNull().default(true),
   updatedByName: text('updated_by_name').notNull(),
   ...timestamps,
-}, (t) => [unique('form_templates_facility_stage_uq').on(t.facilityCode, t.stage)]);
+}, (t) => [
+  unique('form_templates_facility_stage_uq').on(t.facilityCode, t.stage),
+  oneOf('form_templates_stage_domain', t.stage, FORM_STAGES),
+  within('form_templates_version_positive', t.version, 1, null),
+  filled('form_templates_updated_by_filled', t.updatedByName),
+]);
 
 export const formResponses = crucible.table('form_responses', {
   id: id(),
@@ -31,4 +37,9 @@ export const formResponses = crucible.table('form_responses', {
   filledByUserId: uuid('filled_by_user_id').references(() => users.id),
   filledByName: text('filled_by_name').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [index('form_responses_booking_idx').on(t.bookingId, t.stage)]);
+}, (t) => [
+  index('form_responses_booking_idx').on(t.bookingId, t.stage),
+  oneOf('form_responses_stage_domain', t.stage, FORM_STAGES),
+  within('form_responses_version_positive', t.version, 1, null),
+  filled('form_responses_filled_by_filled', t.filledByName),
+]);

@@ -1,9 +1,11 @@
 // Test resources, calendars, rules and bookings (docs/spec/02 §1–3, §5; delivery 2). Indicators are computed from these rows,
 // never stored (spec 02 §6).
 import { boolean, date, index, integer, primaryKey, smallint, text, timestamp, unique, uuid, type AnyPgColumn } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import type { BookingStatus, Granularity, ResourceKind, ResourceStatus, RuleReason, RuleStatus, UnavailabilityKind } from '@/domain/resources';
 import { crucible } from './_schema';
 import { id, timestamps } from './_common';
+import { BOOKING_SOURCES, BOOKING_STATUSES, CODE_RE, GRANULARITIES, INSPECTION_SOURCES, RESOURCE_KINDS, RESOURCE_STATUSES, RULE_REASONS, RULE_STATUSES, TIME_RE, UNAVAILABILITY_KINDS, UNAVAILABILITY_SOURCES, filled, oneOf, refRe, rule, shaped, within } from './_checks';
 import { testNeeds } from './needs';
 import { entities, facilities, projects, users } from './organisation';
 
@@ -29,7 +31,20 @@ export const resources = crucible.table('resources', {
   minNoticeHours: integer('min_notice_hours'),
   /** …and most calendar days a booking may span (null = no limit). */
   maxDays: smallint('max_days'),
-}, (t) => [index('resources_facility_idx').on(t.facilityCode)]);
+}, (t) => [
+  index('resources_facility_idx').on(t.facilityCode),
+  shaped('resources_code_shape', t.code, CODE_RE),
+  filled('resources_name_filled', t.name),
+  oneOf('resources_kind_domain', t.kind, RESOURCE_KINDS),
+  oneOf('resources_granularity_domain', t.granularity, GRANULARITIES),
+  within('resources_capacity_positive', t.capacity, 1, null),
+  within('resources_setup_non_negative', t.setupMinutes, 0, null),
+  within('resources_teardown_non_negative', t.teardownMinutes, 0, null),
+  oneOf('resources_status_domain', t.status, RESOURCE_STATUSES),
+  within('resources_buffer_non_negative', t.bufferMinutes, 0, null),
+  within('resources_min_notice_non_negative', t.minNoticeHours, 0, null),
+  within('resources_max_days_positive', t.maxDays, 1, null),
+]);
 
 /** Opening hours of a facility per ISO weekday (R-9); a weekday without a row is closed. */
 export const facilityHours = crucible.table('facility_hours', {
@@ -37,7 +52,13 @@ export const facilityHours = crucible.table('facility_hours', {
   weekday: smallint('weekday').notNull(),
   opensAt: text('opens_at').notNull(),
   closesAt: text('closes_at').notNull(),
-}, (t) => [primaryKey({ name: 'facility_hours_pk', columns: [t.facilityCode, t.weekday] })]);
+}, (t) => [
+  primaryKey({ name: 'facility_hours_pk', columns: [t.facilityCode, t.weekday] }),
+  within('facility_hours_weekday_range', t.weekday, 1, 7),
+  shaped('facility_hours_opens_shape', t.opensAt, TIME_RE),
+  shaped('facility_hours_closes_shape', t.closesAt, TIME_RE),
+  rule('facility_hours_order', sql`${t.closesAt} > ${t.opensAt}`),
+]);
 
 /** Whole days a facility is closed (public holidays, shutdowns); `facility_code` null = every facility. */
 export const closures = crucible.table('closures', {
@@ -47,7 +68,7 @@ export const closures = crucible.table('closures', {
   toOn: date('to_on', { mode: 'string' }).notNull(),
   label: text('label').notNull(),
   ...timestamps,
-});
+}, (t) => [rule('closures_dates_order', sql`${t.toOn} >= ${t.fromOn}`), filled('closures_label_filled', t.label)]);
 
 export const unavailabilities = crucible.table('unavailabilities', {
   id: id(),
@@ -62,7 +83,14 @@ export const unavailabilities = crucible.table('unavailabilities', {
   ...timestamps,
   /** For `vigie`: `suspension:<activite_id>` of vigie.pub_suspensions_essais. */
   sourceRef: text('source_ref'),
-}, (t) => [index('unavailabilities_resource_idx').on(t.resourceId, t.startsAt)]);
+}, (t) => [
+  index('unavailabilities_resource_idx').on(t.resourceId, t.startsAt),
+  oneOf('unavailabilities_kind_domain', t.kind, UNAVAILABILITY_KINDS),
+  filled('unavailabilities_label_filled', t.label),
+  rule('unavailabilities_times_order', sql`${t.endsAt} >= ${t.startsAt}`),
+  oneOf('unavailabilities_source_domain', t.source, UNAVAILABILITY_SOURCES),
+  filled('unavailabilities_created_by_filled', t.createdByName),
+]);
 
 /** Zones of Vigie's site map (essais, atex) and the resources of Crucible each one holds (V-2): kept by the facility managers. */
 export const vigieZoneResources = crucible.table('vigie_zone_resources', {
@@ -70,7 +98,7 @@ export const vigieZoneResources = crucible.table('vigie_zone_resources', {
   resourceId: uuid('resource_id').notNull().references(() => resources.id, { onDelete: 'cascade' }),
   setByName: text('set_by_name').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [primaryKey({ name: 'vigie_zone_resources_pk', columns: [t.zoneId, t.resourceId] })]);
+}, (t) => [primaryKey({ name: 'vigie_zone_resources_pk', columns: [t.zoneId, t.resourceId] }), filled('vigie_zone_resources_set_by_filled', t.setByName)]);
 
 /** Periodic regulatory inspections of a resource (R-6), entered in Crucible or read from Vigie once it publishes them (S-4, V-1). */
 export const inspections = crucible.table('inspections', {
@@ -87,7 +115,13 @@ export const inspections = crucible.table('inspections', {
   source: text('source').notNull().default('crucible'),
   /** `vigie_ref` of the control, when read from Vigie. */
   sourceRef: text('source_ref'),
-}, (t) => [unique('inspections_resource_label_uq').on(t.resourceId, t.label)]);
+}, (t) => [
+  unique('inspections_resource_label_uq').on(t.resourceId, t.label),
+  filled('inspections_label_filled', t.label),
+  within('inspections_period_positive', t.periodMonths, 1, null),
+  oneOf('inspections_source_domain', t.source, INSPECTION_SOURCES),
+  filled('inspections_updated_by_filled', t.updatedByName),
+]);
 
 /** Exclusion rules (R-2, R-3): of the resources named, at most `max_active` work at the same time. */
 export const exclusionRules = crucible.table('exclusion_rules', {
@@ -107,7 +141,17 @@ export const exclusionRules = crucible.table('exclusion_rules', {
   retiredAt: timestamp('retired_at', { withTimezone: true }),
   retiredReason: text('retired_reason'),
   ...timestamps,
-});
+}, (t) => [
+  shaped('exclusion_rules_code_shape', t.code, CODE_RE),
+  filled('exclusion_rules_label_filled', t.label),
+  within('exclusion_rules_max_active_positive', t.maxActive, 1, null),
+  oneOf('exclusion_rules_reason_domain', t.reason, RULE_REASONS),
+  filled('exclusion_rules_motive_filled', t.motive),
+  oneOf('exclusion_rules_status_domain', t.status, RULE_STATUSES),
+  rule('exclusion_rules_validated_dated', sql`${t.status} <> 'validated' or ${t.validatedAt} is not null`),
+  rule('exclusion_rules_retired_dated', sql`${t.status} <> 'retired' or ${t.retiredAt} is not null`),
+  filled('exclusion_rules_proposed_by_filled', t.proposedByName),
+]);
 
 export const exclusionRuleResources = crucible.table('exclusion_rule_resources', {
   ruleId: uuid('rule_id').notNull().references(() => exclusionRules.id, { onDelete: 'cascade' }),
@@ -125,7 +169,12 @@ export const entityAgreements = crucible.table('entity_agreements', {
   note: text('note'),
   updatedByName: text('updated_by_name').notNull(),
   ...timestamps,
-}, (t) => [primaryKey({ name: 'entity_agreements_pk', columns: [t.facilityCode, t.entityCode] })]);
+}, (t) => [
+  primaryKey({ name: 'entity_agreements_pk', columns: [t.facilityCode, t.entityCode] }),
+  within('entity_agreements_quota_non_negative', t.quotaDaysPerMonth, 0, 31),
+  within('entity_agreements_notice_non_negative', t.noticeWorkdays, 0, null),
+  filled('entity_agreements_updated_by_filled', t.updatedByName),
+]);
 
 export const bookings = crucible.table('bookings', {
   id: id(),
@@ -161,4 +210,17 @@ export const bookings = crucible.table('bookings', {
   codexRef: text('codex_ref'),
   /** Reference of the first booking of a weekly series (CR-078), on every booking of the series; null = a single booking. */
   seriesRef: text('series_ref'),
-}, (t) => [index('bookings_resource_idx').on(t.resourceId, t.startsAt), index('bookings_project_idx').on(t.projectCode)]);
+}, (t) => [
+  index('bookings_resource_idx').on(t.resourceId, t.startsAt),
+  index('bookings_project_idx').on(t.projectCode),
+  shaped('bookings_ref_shape', t.ref, refRe('B')),
+  filled('bookings_title_filled', t.title),
+  rule('bookings_times_order', sql`${t.endsAt} > ${t.startsAt}`),
+  within('bookings_setup_non_negative', t.setupMinutes, 0, null),
+  within('bookings_teardown_non_negative', t.teardownMinutes, 0, null),
+  oneOf('bookings_status_domain', t.status, BOOKING_STATUSES),
+  rule('bookings_actual_order', sql`${t.actualEndAt} is null or ${t.actualStartAt} is null or ${t.actualEndAt} >= ${t.actualStartAt}`),
+  filled('bookings_requested_by_filled', t.requestedByName),
+  oneOf('bookings_source_domain', t.source, BOOKING_SOURCES),
+  shaped('bookings_series_ref_shape', t.seriesRef, refRe('B')),
+]);

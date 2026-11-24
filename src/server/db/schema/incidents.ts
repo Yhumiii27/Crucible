@@ -2,9 +2,11 @@
 // §7, decisions A-8, F-8, X-4; delivery 5). A scenario moves nothing by itself: a person accepts it, and only then are the
 // bookings moved, traced and their requesters notified. Weekly snapshots keep the history of the computed indicators (X-4).
 import { date, index, integer, jsonb, real, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import type { IncidentKind, IncidentStatus, ScenarioKind, ScenarioStatus } from '@/domain/recovery-vocabulary';
 import { crucible } from './_schema';
 import { id, timestamps } from './_common';
+import { INCIDENT_KINDS, INCIDENT_STATUSES, NOTIFICATION_KINDS, SCENARIO_KINDS, SCENARIO_STATUSES, filled, oneOf, refRe, rule, shaped, within } from './_checks';
 import { testNeeds } from './needs';
 import { users } from './organisation';
 import { people } from './planning';
@@ -30,7 +32,16 @@ export const incidents = crucible.table('incidents', {
   declaredByName: text('declared_by_name').notNull(),
   declaredAt: timestamp('declared_at', { withTimezone: true }).notNull(),
   ...timestamps,
-});
+}, (t) => [
+  shaped('incidents_ref_shape', t.ref, refRe('AL')),
+  oneOf('incidents_kind_domain', t.kind, INCIDENT_KINDS),
+  rule('incidents_breakdown_resource', sql`${t.kind} <> 'breakdown' or ${t.resourceId} is not null`),
+  rule('incidents_absence_person', sql`${t.kind} <> 'absence' or ${t.personId} is not null`),
+  filled('incidents_label_filled', t.label),
+  rule('incidents_times_order', sql`${t.endsAt} > ${t.startsAt}`),
+  oneOf('incidents_status_domain', t.status, INCIDENT_STATUSES),
+  filled('incidents_declared_by_filled', t.declaredByName),
+]);
 
 export const scenarios = crucible.table('scenarios', {
   id: id(),
@@ -51,7 +62,14 @@ export const scenarios = crucible.table('scenarios', {
   decidedByName: text('decided_by_name'),
   decidedAt: timestamp('decided_at', { withTimezone: true }),
   decisionReason: text('decision_reason'),
-}, (t) => [index('scenarios_incident_idx').on(t.incidentId)]);
+}, (t) => [
+  index('scenarios_incident_idx').on(t.incidentId),
+  shaped('scenarios_ref_shape', t.ref, refRe('S')),
+  oneOf('scenarios_kind_domain', t.kind, SCENARIO_KINDS),
+  oneOf('scenarios_status_domain', t.status, SCENARIO_STATUSES),
+  rule('scenarios_decided_dated', sql`${t.status} not in ('accepted', 'rejected') or ${t.decidedAt} is not null`),
+  filled('scenarios_created_by_filled', t.createdByName),
+]);
 
 /** Notifications of a person (F-8): the bell, then the e-mail (sent by the worker when a transport is set). */
 export const notifications = crucible.table('notifications', {
@@ -66,7 +84,11 @@ export const notifications = crucible.table('notifications', {
   emailedAt: timestamp('emailed_at', { withTimezone: true }),
   /** The booking the notification is about (CR-072): its e-mail carries a calendar invitation (.ics). */
   bookingId: uuid('booking_id').references(() => bookings.id),
-}, (t) => [index('notifications_user_idx').on(t.userId, t.createdAt)]);
+}, (t) => [
+  index('notifications_user_idx').on(t.userId, t.createdAt),
+  oneOf('notifications_kind_domain', t.kind, NOTIFICATION_KINDS),
+  filled('notifications_title_filled', t.title),
+]);
 
 /** Weekly snapshot of the utilisation of a resource (X-4), computed once the week is over; history, never recomputed. */
 export const weeklySnapshots = crucible.table('weekly_snapshots', {
@@ -79,4 +101,9 @@ export const weeklySnapshots = crucible.table('weekly_snapshots', {
   blockedHours: real('blocked_hours').notNull(),
   noShows: integer('no_shows').notNull(),
   computedAt: timestamp('computed_at', { withTimezone: true }).notNull(),
-}, (t) => [unique('weekly_snapshots_uq').on(t.monday, t.resourceId)]);
+}, (t) => [
+  unique('weekly_snapshots_uq').on(t.monday, t.resourceId),
+  rule('weekly_snapshots_monday', sql`extract(isodow from ${t.monday}) = 1`),
+  rule('weekly_snapshots_hours_non_negative', sql`${t.netOpenHours} >= 0 and ${t.bookedHours} >= 0 and ${t.realisedHours} >= 0 and ${t.realisedWithPrepHours} >= 0 and ${t.blockedHours} >= 0`),
+  within('weekly_snapshots_no_shows_non_negative', t.noShows, 0, null),
+]);

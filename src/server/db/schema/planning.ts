@@ -2,9 +2,11 @@
 // §4–5, 03 §3–5; delivery 4). The engine proposes, a person decides: proposals and conflict sheets are stored so that a
 // decision cites them; an arbitration is never changed (a new decision replaces it).
 import { boolean, date, index, integer, jsonb, primaryKey, smallint, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import type { ConflictStatus, ProposalStatus, SubstitutionStatus } from '@/domain/planning-vocabulary';
 import { crucible } from './_schema';
 import { id, timestamps } from './_common';
+import { ARBITRATION_KINDS, CODE_RE, CONFLICT_DECIDERS, CONFLICT_STATUSES, PERSON_SOURCES, PRIORITY_CRITERIA, PROPOSAL_STATUSES, ROLE_KEYS, RUN_TRIGGERS, SUBSTITUTION_STATUSES, filled, oneOf, refRe, rule, shaped, within } from './_checks';
 import { testNeeds, testTypes } from './needs';
 import { entities, facilities, users } from './organisation';
 import { bookings, resources } from './resources';
@@ -17,7 +19,7 @@ export const skills = crucible.table('skills', {
   cursusTitreId: text('cursus_titre_id'),
   active: boolean('active').notNull().default(true),
   ...timestamps,
-});
+}, (t) => [shaped('skills_code_shape', t.code, CODE_RE), filled('skills_name_filled', t.name)]);
 
 /** People who run the tests (D-6): operators, technicians, pyrotechnicians. */
 export const people = crucible.table('people', {
@@ -32,7 +34,7 @@ export const people = crucible.table('people', {
   active: boolean('active').notNull().default(true),
   updatedByName: text('updated_by_name').notNull(),
   ...timestamps,
-});
+}, (t) => [filled('people_name_filled', t.name), filled('people_matricule_filled', t.matricule), filled('people_updated_by_filled', t.updatedByName)]);
 
 export const personSkills = crucible.table('person_skills', {
   personId: uuid('person_id').notNull().references(() => people.id, { onDelete: 'cascade' }),
@@ -43,7 +45,11 @@ export const personSkills = crucible.table('person_skills', {
   source: text('source').notNull().default('crucible'),
   updatedByName: text('updated_by_name').notNull(),
   ...timestamps,
-}, (t) => [primaryKey({ name: 'person_skills_pk', columns: [t.personId, t.skillCode] })]);
+}, (t) => [
+  primaryKey({ name: 'person_skills_pk', columns: [t.personId, t.skillCode] }),
+  oneOf('person_skills_source_domain', t.source, PERSON_SOURCES),
+  filled('person_skills_updated_by_filled', t.updatedByName),
+]);
 
 /** Absences of a person (whole days), entered until Cursus publishes them (CU-1). */
 export const personAbsences = crucible.table('person_absences', {
@@ -54,14 +60,19 @@ export const personAbsences = crucible.table('person_absences', {
   source: text('source').notNull().default('crucible'),
   createdByName: text('created_by_name').notNull(),
   ...timestamps,
-}, (t) => [index('person_absences_person_idx').on(t.personId, t.fromOn)]);
+}, (t) => [
+  index('person_absences_person_idx').on(t.personId, t.fromOn),
+  rule('person_absences_dates_order', sql`${t.toOn} >= ${t.fromOn}`),
+  oneOf('person_absences_source_domain', t.source, PERSON_SOURCES),
+  filled('person_absences_created_by_filled', t.createdByName),
+]);
 
 /** Skills a test type asks, and how many people holding each (F-7). */
 export const testTypeSkills = crucible.table('test_type_skills', {
   testTypeCode: text('test_type_code').notNull().references(() => testTypes.code, { onDelete: 'cascade' }),
   skillCode: text('skill_code').notNull().references(() => skills.code),
   count: smallint('count').notNull().default(1),
-}, (t) => [primaryKey({ name: 'test_type_skills_pk', columns: [t.testTypeCode, t.skillCode] })]);
+}, (t) => [primaryKey({ name: 'test_type_skills_pk', columns: [t.testTypeCode, t.skillCode] }), within('test_type_skills_count_positive', t.count, 1, null)]);
 
 /** People on a booking, and the skill each holds there. */
 export const bookingStaff = crucible.table('booking_staff', {
@@ -79,7 +90,7 @@ export const mobileEquipment = crucible.table('mobile_equipment', {
   active: boolean('active').notNull().default(true),
   updatedByName: text('updated_by_name').notNull(),
   ...timestamps,
-});
+}, (t) => [shaped('mobile_equipment_code_shape', t.code, CODE_RE), filled('mobile_equipment_name_filled', t.name), filled('mobile_equipment_updated_by_filled', t.updatedByName)]);
 
 export const testTypeEquipment = crucible.table('test_type_equipment', {
   testTypeCode: text('test_type_code').notNull().references(() => testTypes.code, { onDelete: 'cascade' }),
@@ -112,7 +123,14 @@ export const substitutions = crucible.table('substitutions', {
   safetyValidatedAt: timestamp('safety_validated_at', { withTimezone: true }),
   retiredReason: text('retired_reason'),
   ...timestamps,
-}, (t) => [unique('substitutions_type_resource_uq').on(t.testTypeCode, t.resourceId)]);
+}, (t) => [
+  unique('substitutions_type_resource_uq').on(t.testTypeCode, t.resourceId),
+  filled('substitutions_conditions_filled', t.conditions),
+  filled('substitutions_codex_ref_filled', t.codexRef),
+  filled('substitutions_referent_filled', t.technicalReferent),
+  oneOf('substitutions_status_domain', t.status, SUBSTITUTION_STATUSES),
+  filled('substitutions_proposed_by_filled', t.proposedByName),
+]);
 
 /** Versions of the priority rules (A-1, A-2): the order of the criteria, published by the R&D director. Never changed. */
 export const priorityRuleSets = crucible.table('priority_rule_sets', {
@@ -122,7 +140,11 @@ export const priorityRuleSets = crucible.table('priority_rule_sets', {
   note: text('note'),
   publishedByName: text('published_by_name').notNull(),
   publishedAt: timestamp('published_at', { withTimezone: true }).notNull(),
-});
+}, (t) => [
+  within('priority_rule_sets_version_positive', t.version, 1, null),
+  rule('priority_rule_sets_criteria_known', sql`cardinality(${t.criteria}) > 0 and ${t.criteria} <@ array[${sql.raw(PRIORITY_CRITERIA.map((c) => `'${c}'`).join(', '))}]::text[]`),
+  filled('priority_rule_sets_published_by_filled', t.publishedByName),
+]);
 
 /** A run of the engine (T-3): who, when, the rules version, the horizon and what it found. */
 export const planRuns = crucible.table('plan_runs', {
@@ -138,7 +160,12 @@ export const planRuns = crucible.table('plan_runs', {
   runAt: timestamp('run_at', { withTimezone: true }).notNull(),
   /** Counts and the unplaced needs with their reason. */
   summary: jsonb('summary').$type<Record<string, unknown>>().notNull(),
-});
+}, (t) => [
+  shaped('plan_runs_ref_shape', t.ref, refRe('R')),
+  rule('plan_runs_dates_order', sql`${t.toOn} >= ${t.fromOn}`),
+  oneOf('plan_runs_trigger_domain', t.trigger, RUN_TRIGGERS),
+  filled('plan_runs_run_by_filled', t.runByName),
+]);
 
 export const proposals = crucible.table('proposals', {
   id: id(),
@@ -158,7 +185,12 @@ export const proposals = crucible.table('proposals', {
   bookingId: uuid('booking_id').references(() => bookings.id),
   decidedByName: text('decided_by_name'),
   decidedAt: timestamp('decided_at', { withTimezone: true }),
-}, (t) => [index('proposals_run_idx').on(t.runId)]);
+}, (t) => [
+  index('proposals_run_idx').on(t.runId),
+  rule('proposals_times_order', sql`${t.endsAt} > ${t.startsAt}`),
+  within('proposals_late_days_non_negative', t.lateDays, 0, null),
+  oneOf('proposals_status_domain', t.status, PROPOSAL_STATUSES),
+]);
 
 /** A conflict sheet (spec 03 §5): the needs in competition, the options and their consequences, the rule, the recommendation. */
 export const conflicts = crucible.table('conflicts', {
@@ -182,7 +214,15 @@ export const conflicts = crucible.table('conflicts', {
   dueOn: date('due_on', { mode: 'string' }).notNull(),
   status: text('status').$type<ConflictStatus>().notNull().default('open'),
   ...timestamps,
-}, (t) => [index('conflicts_status_idx').on(t.status)]);
+}, (t) => [
+  index('conflicts_status_idx').on(t.status),
+  shaped('conflicts_ref_shape', t.ref, refRe('C')),
+  rule('conflicts_needs_competing', sql`cardinality(${t.needIds}) >= 2`),
+  filled('conflicts_subject_filled', t.subject),
+  filled('conflicts_rule_cited_filled', t.ruleCited),
+  oneOf('conflicts_decider_domain', t.decider, CONFLICT_DECIDERS),
+  oneOf('conflicts_status_domain', t.status, CONFLICT_STATUSES),
+]);
 
 /** A decision on a conflict, or a safety veto (A-4). Append-only: a new decision replaces the previous one. */
 export const arbitrations = crucible.table('arbitrations', {
@@ -198,4 +238,12 @@ export const arbitrations = crucible.table('arbitrations', {
   decidedByName: text('decided_by_name').notNull(),
   decidedByRole: text('decided_by_role').notNull(),
   decidedAt: timestamp('decided_at', { withTimezone: true }).notNull(),
-}, (t) => [index('arbitrations_conflict_idx').on(t.conflictId)]);
+}, (t) => [
+  index('arbitrations_conflict_idx').on(t.conflictId),
+  oneOf('arbitrations_kind_domain', t.kind, ARBITRATION_KINDS),
+  rule('arbitrations_decision_has_option', sql`${t.kind} <> 'decision' or ${t.optionKey} is not null`),
+  filled('arbitrations_rule_filled', t.ruleInvoked),
+  filled('arbitrations_reason_filled', t.reason),
+  filled('arbitrations_decided_by_filled', t.decidedByName),
+  oneOf('arbitrations_role_domain', t.decidedByRole, ROLE_KEYS),
+]);

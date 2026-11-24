@@ -3,6 +3,7 @@
 import { index, integer, jsonb, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { crucible } from './_schema';
 import { id } from './_common';
+import { JOB_STATUSES, RATE_BUCKETS, filled, oneOf, within } from './_checks';
 import { projects, users } from './organisation';
 
 export const appSettings = crucible.table('app_settings', {
@@ -10,7 +11,7 @@ export const appSettings = crucible.table('app_settings', {
   value: jsonb('value').$type<unknown>().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   updatedByName: text('updated_by_name').notNull(),
-});
+}, (t) => [filled('app_settings_key_filled', t.key), filled('app_settings_updated_by_filled', t.updatedByName)]);
 
 /** Append-only (database trigger): never updated nor deleted, in code or tests. */
 export const auditEntries = crucible.table('audit_entries', {
@@ -37,6 +38,10 @@ export const auditEntries = crucible.table('audit_entries', {
 }, (t) => [
   /** pub_journal (Matrix) is read by period. */
   index('audit_entries_occurred_at_idx').on(t.occurredAt),
+  filled('audit_entries_actor_filled', t.actorName),
+  filled('audit_entries_object_filled', t.objectRef),
+  filled('audit_entries_change_filled', t.change),
+  filled('audit_entries_area_filled', t.area),
 ]);
 
 export const activityEvents = crucible.table('activity_events', {
@@ -48,7 +53,12 @@ export const activityEvents = crucible.table('activity_events', {
   /** EN source sentence. */
   text: text('text').notNull(),
   projectCode: text('project_code').references(() => projects.code),
-}, (t) => [index('activity_events_occurred_at_idx').on(t.occurredAt)]);
+}, (t) => [
+  index('activity_events_occurred_at_idx').on(t.occurredAt),
+  filled('activity_events_actor_filled', t.actorName),
+  filled('activity_events_kind_filled', t.kind),
+  filled('activity_events_text_filled', t.text),
+]);
 
 /** Scheduled jobs (src/server/jobs): last run and a lease, so that several runners never run the same job at once. */
 export const jobRuns = crucible.table('job_runs', {
@@ -58,7 +68,7 @@ export const jobRuns = crucible.table('job_runs', {
   lastFinishedAt: timestamp('last_finished_at', { withTimezone: true }),
   lastStatus: text('last_status').$type<'ok' | 'error'>(),
   lastError: text('last_error'),
-});
+}, (t) => [oneOf('job_runs_last_status_domain', t.lastStatus, JOB_STATUSES)]);
 
 /** Counts of requests per bucket, key (account or address) and fixed window (CR-079); old windows purged daily. */
 export const rateCounters = crucible.table('rate_counters', {
@@ -66,4 +76,9 @@ export const rateCounters = crucible.table('rate_counters', {
   key: text('key').notNull(),
   windowStart: timestamp('window_start', { withTimezone: true }).notNull(),
   count: integer('count').notNull().default(0),
-}, (t) => [primaryKey({ name: 'rate_counters_pk', columns: [t.bucket, t.key, t.windowStart] }), index('rate_counters_window_idx').on(t.windowStart)]);
+}, (t) => [
+  primaryKey({ name: 'rate_counters_pk', columns: [t.bucket, t.key, t.windowStart] }),
+  index('rate_counters_window_idx').on(t.windowStart),
+  oneOf('rate_counters_bucket_domain', t.bucket, RATE_BUCKETS),
+  within('rate_counters_count_non_negative', t.count, 0, null),
+]);

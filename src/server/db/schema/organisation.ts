@@ -7,6 +7,7 @@ import type { RoleKey, ScopeKind } from '@/config/roles';
 import type { EntityKind, PriorityClass } from '@/domain/organisation';
 import { crucible } from './_schema';
 import { id, timestamps } from './_common';
+import { CODE_RE, COUNTRY_RE, ENTITY_KINDS, PRIORITY_CLASSES, ROLE_KEYS, SCOPE_KINDS, filled, oneOf, rule, shaped } from './_checks';
 
 export const entities = crucible.table('entities', {
   /** Short code, e.g. "EPC2I", "EPCFR". */
@@ -18,7 +19,12 @@ export const entities = crucible.table('entities', {
   ...timestamps,
   /** CR-060: the Matrix subsidiary (`matrix.pub_filiales.code`, D21) the entity is; its name then follows Matrix. */
   matrixCode: text('matrix_code').unique(),
-});
+}, (t) => [
+  shaped('entities_code_shape', t.code, CODE_RE),
+  filled('entities_name_filled', t.name),
+  oneOf('entities_kind_domain', t.kind, ENTITY_KINDS),
+  filled('entities_matrix_code_filled', t.matrixCode),
+]);
 
 export const sites = crucible.table('sites', {
   /** Short code; the Matrix site code once Matrix lists the site (M-6). */
@@ -29,7 +35,12 @@ export const sites = crucible.table('sites', {
   ...timestamps,
   /** CR-060: the Matrix site (`matrix.pub_sites.code`, D14) the site is; its name, city and country then follow Matrix. */
   matrixCode: text('matrix_code').unique(),
-});
+}, (t) => [
+  shaped('sites_code_shape', t.code, CODE_RE),
+  filled('sites_name_filled', t.name),
+  shaped('sites_country_shape', t.countryIso2, COUNTRY_RE),
+  filled('sites_matrix_code_filled', t.matrixCode),
+]);
 
 export const facilities = crucible.table('facilities', {
   /** Short code, e.g. "LAB67", "PDE". */
@@ -43,7 +54,11 @@ export const facilities = crucible.table('facilities', {
   ...timestamps,
   /** Acquisition cost in k€, for the value of the unused capacity (spec 02 §6; the PDE: about 3 M€). */
   acquisitionKeur: integer('acquisition_keur'),
-});
+}, (t) => [
+  shaped('facilities_code_shape', t.code, CODE_RE),
+  filled('facilities_name_filled', t.name),
+  rule('facilities_acquisition_non_negative', sql`${t.acquisitionKeur} >= 0`),
+]);
 
 /** Partner entities a facility is shared with (laboratoire 67 → EPC France). */
 export const facilityPartners = crucible.table('facility_partners', {
@@ -67,7 +82,11 @@ export const projects = crucible.table('projects', {
   ...timestamps,
   /** CR-060: the linked Keystone project is closed (pub_projets.imputable false); a person decides whether to set it aside. */
   keystoneClosed: boolean('keystone_closed').notNull().default(false),
-});
+}, (t) => [
+  shaped('projects_code_shape', t.code, CODE_RE),
+  filled('projects_name_filled', t.name),
+  oneOf('projects_priority_class_domain', t.priorityClass, PRIORITY_CLASSES),
+]);
 
 export const users = crucible.table('users', {
   id: id(),
@@ -88,6 +107,8 @@ export const users = crucible.table('users', {
   grantedRoles: text('granted_roles').array().$type<RoleKey[]>(),
   ...timestamps,
 }, (t) => [
+  rule('users_email_shape', sql`${t.email} = lower(${t.email}) and ${t.email} ~ '^[^@[:space:]]+@[^@[:space:]]+$'`),
+  filled('users_display_name_filled', t.displayName),
   check('users_granted_roles_known', sql`${t.grantedRoles} is null or ${t.grantedRoles} <@ array['rd_director', 'coordinator', 'safety', 'facility_manager', 'project_lead', 'technician', 'partner', 'viewer', 'admin']::text[]`),
 ]);
 
@@ -102,4 +123,11 @@ export const roleAssignments = crucible.table('role_assignments', {
   toOn: date('to_on', { mode: 'string' }),
   createdByName: text('created_by_name').notNull(),
   ...timestamps,
-}, (t) => [index('role_assignments_user_idx').on(t.userId)]);
+}, (t) => [
+  index('role_assignments_user_idx').on(t.userId),
+  oneOf('role_assignments_role_domain', t.role, ROLE_KEYS),
+  oneOf('role_assignments_scope_kind_domain', t.scopeKind, SCOPE_KINDS),
+  rule('role_assignments_scope_ref_iff_scoped', sql`(${t.scopeKind} = 'global') = (${t.scopeRef} is null)`),
+  rule('role_assignments_dates_order', sql`${t.toOn} is null or ${t.fromOn} is null or ${t.toOn} >= ${t.fromOn}`),
+  filled('role_assignments_created_by_filled', t.createdByName),
+]);
