@@ -38,6 +38,12 @@ describe('parseConfig', () => {
     expect(r.config.clock).toBeNull();
   });
 
+  it('CRUCIBLE_ROLES_FROM_TOKEN is removed (CR-N03): set, it stops the start; blank, it is ignored', () => {
+    expect(vars(parse({ CRUCIBLE_ROLES_FROM_TOKEN: 'on' }).errors)).toEqual(['CRUCIBLE_ROLES_FROM_TOKEN']);
+    expect(vars(parse({ CRUCIBLE_ROLES_FROM_TOKEN: 'off' }).errors)).toEqual(['CRUCIBLE_ROLES_FROM_TOKEN']);
+    expect(parse({ CRUCIBLE_ROLES_FROM_TOKEN: '' }).errors).toEqual([]);
+  });
+
   it('invalid values are errors naming the variable, never its value; defaults are kept', () => {
     const r = parse({ CRUCIBLE_SEED: 'sample', LOG_LEVEL: 'chatty', CRUCIBLE_CLOCK: 'tomorrow', NEXT_PUBLIC_CODEX_URL: 'ftp://codex', CRUCIBLE_SESSION_SECRET: 'short-secret' });
     expect(vars(r.errors).sort()).toEqual(['CRUCIBLE_CLOCK', 'CRUCIBLE_SEED', 'CRUCIBLE_SESSION_SECRET', 'LOG_LEVEL', 'NEXT_PUBLIC_CODEX_URL']);

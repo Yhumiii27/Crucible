@@ -94,7 +94,7 @@ export async function signInUser(input: { oid: string; email: string | null; nam
       return { ok: false, reason: decision.reason };
     }
     let userId = decision.userId;
-    if (decision.createFromToken) {
+    if (decision.createFromClavis) {
       const [u] = await tx.insert(users).values({ email: input.email!, displayName: input.name?.trim() || input.email!, entraObjectId: input.oid, grantedRoles: granted! }).returning({ id: users.id });
       userId = u.id;
       await writeAudit(tx, { actorName: 'System', actorUserId: null, objectRef: `User ${who}`, change: `Account created at first sign-in through Clavis (${granted!.join(', ')})`, area: 'Sign-in', entityType: 'user', entityId: userId });
