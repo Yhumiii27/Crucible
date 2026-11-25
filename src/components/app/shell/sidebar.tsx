@@ -6,7 +6,7 @@
 // facility of the URL, else the last one used (cookie crucible-facility). At the bottom the "View as" switcher (demo mode) or
 // the account menu (Entra mode). Rendered with the charte's components (Norma 2.0, charte/COQUE.md § 2: Sidebar, PageSearch,
 // NavList, NavSection, NavEntry; classes of coque.css). The language / display pair and the bell are in the page header.
-import { Buildings, CalendarX, CurrencyEur, Package, Plugs, CaretDown, CaretUpDown, Check, Eye, Flask, Gauge, ListChecks, MagnifyingGlass, Polygon, SealCheck, SignOut, Toolbox, Wrench } from '@phosphor-icons/react/dist/ssr';
+import { Buildings, CalendarX, CurrencyEur, Package, Plugs, CaretDown, CaretUpDown, Check, Eye, Flask, Gauge, ListChecks, MagnifyingGlass, SealCheck, SignOut, Toolbox, Wrench } from '@phosphor-icons/react/dist/ssr';
 import type { Icon } from '@phosphor-icons/react';
 import { useCoque } from '@norma/charte/ds/AppShell';
 import { Sidebar as CoqueSidebar, NavEntry as NavEntryLink, NavList, NavSection, NavSections, PageSearch, type PageHit } from '@norma/charte/ds/Sidebar';
@@ -23,6 +23,7 @@ import { setViewAs, switchRole } from '@/server/actions/preferences';
 import { buildNav, swapFacilityInPath, type NavEntry } from './nav-model';
 import picker from './header.module.css';
 import styles from './sidebar.module.css';
+import { ToolLogo } from '@norma/charte/ds/ToolLogo';
 
 export interface SidebarPersona {
   role: RoleKey;
@@ -138,7 +139,7 @@ export function Sidebar({ role, personas, account, facilities, lastFacility, fol
     );
 
   return (
-    <CoqueSidebar name="Crucible" icon={Polygon} footer={account ? <AccountMenu account={account} /> : <ViewAs role={role} personas={personas} />}>
+    <CoqueSidebar name="Crucible" logo={<ToolLogo code="crucible" />} footer={account ? <AccountMenu account={account} /> : <ViewAs role={role} personas={personas} />}>
       <PageSearch pages={pages}>
         <NavList>{nav.fixed.map((n) => entry(n, false))}</NavList>
         <NavSections>

@@ -201,6 +201,9 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   beyond three the « Actions » menu, where `Folded` / `ActionButton` render as menu rows), status date, assistant (help), bell,
   then the language / display pair `PrefsStack` (`prefs.tsx`), last, and nowhere else; `toolbar` in the charte's `FilterBar`;
   KPI tiles and empty states are the charte's (`coque.css`, tokens only).
+- **Logo, Norma 2.3.0** (owner, 25 Nov 2026; `norma/charte/COQUE.md` § 8 bis): the brand of the sidebar and of the top bar is the
+  charter's `ToolLogo code="crucible"` (`@norma/charte/ds/ToolLogo`, 26 px, 20 px in the top bar), also on the pages outside the shell
+  (sign-in…); the favicon is `src/app/icon.svg`, a copy of `norma/charte/logos/crucible.svg` (checked by `src/app/icon.test.ts`).
 
 ## Rules (same as Arche; confirmed by the owner's answers of 22 Oct 2026)
 

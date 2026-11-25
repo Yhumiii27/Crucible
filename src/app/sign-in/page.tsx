@@ -2,7 +2,7 @@
 // (?error=<code>), of the Microsoft sign-out (?signedOut=1) and of misconfigurations, with the "Sign in with Microsoft"
 // button (a plain link to the sign-in route, which redirects to Microsoft). Demo mode: there is nothing to sign in to,
 // so it goes Home. A signed-in visitor without an error or sign-out notice goes Home too.
-import { CheckCircle, Polygon, SignIn, WarningCircle } from '@phosphor-icons/react/dist/ssr';
+import { CheckCircle, SignIn, WarningCircle } from '@phosphor-icons/react/dist/ssr';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Card, CardTitle, cx } from '@/components/ds';
@@ -10,6 +10,7 @@ import { AUTH_PATHS, SIGN_IN_ERROR, isSignInError, safeReturnTo } from '@/domain
 import s from '@/features/auth/sign-in.module.css';
 import { authMode } from '@/server/auth/config';
 import { getI18n } from '@/server/session';
+import { ToolLogo } from '@norma/charte/ds/ToolLogo';
 
 export const metadata: Metadata = { title: 'Crucible' };
 
@@ -33,9 +34,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
     <main className={s.page}>
       <Card elev="lg" className={s.card}>
         <div className={s.brand}>
-          <div className={s.logo}>
-            <Polygon size={15} />
-          </div>
+          <ToolLogo code="crucible" />
           <div className={s.wordmark}>Crucible</div>
         </div>
         <CardTitle as="span">{t('Sign in to Crucible')}</CardTitle>
