@@ -54,4 +54,4 @@ EXPOSE 3500
 # GET /api/health: 200 when the database answers and has no pending migration.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
   CMD ["node", "-e", "fetch('http://127.0.0.1:3500/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
-CMD ["node_modules/.bin/next", "start", "-H", "0.0.0.0", "-p", "3500"]
+CMD ["sh", "deploy/start.sh"]
