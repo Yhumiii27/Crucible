@@ -12,7 +12,7 @@ const iso = (ms: number) => parisParts(new Date(ms)).iso;
 const res = (id: string, facilityCode = 'PDE'): EngineResource => ({ id, code: id, facilityCode, capacity: 1, status: 'in_service', granularity: 'half_day' });
 const RULE: RuleFacts = { code: 'PDE-ONE-ZONE', maxActive: 1, status: 'validated', resourceIds: ['ATM', 'LAB', 'PIL'] };
 const need = (o: Partial<EngineNeed> & Pick<EngineNeed, 'id' | 'resourceId' | 'remainingHalfDays' | 'earliestOn' | 'deadlineOn'>): EngineNeed => ({
-  ref: o.id, projectCode: 'P', entityCode: 'EPC2I', priorityClass: 'P2', criticality: null, requestedAt: 0, testTypeCode: null, ...o,
+  ref: o.id, projectCode: 'P', entityCode: 'GROUPE', priorityClass: 'P2', criticality: null, requestedAt: 0, testTypeCode: null, ...o,
 });
 const person = (id: string, skills: string[], extra: Partial<EnginePerson> = {}): EnginePerson =>
   ({ id, name: id, facilityCodes: ['PDE', 'LAB67'], skills: skills.map((code) => ({ code, validUntil: null })), absences: [], ...extra });

@@ -10,7 +10,7 @@
 - Responsables des quatre installations : laboratoire 67, PDE, laboratoire PDE, atelier mécanique.
 - Référent sécurité pyrotechnique / QHSE du site — règles d’exclusion.
 - Deux ou trois chefs de projet R&D (dont un qui a subi un retard faute de créneau).
-- Un représentant d’EPC France (laboratoire 67).
+- Un représentant de la filiale partenaire (laboratoire 67).
 - La personne qui tient aujourd’hui les réservations (si elle existe) ; la DSI pour les comptes et l’IA.
 
 ## Déroulé
@@ -22,7 +22,7 @@
 | 45 min | **Règles de sécurité et d’exclusion** : qu’est-ce qui ne peut pas fonctionner ensemble, pourquoi, pour quelles activités (D-2, R-2, R-3) | règles rédigées, propriétaire désigné |
 | 15 min | Pause |  |
 | 30 min | **Substitutions** : quels essais peuvent aller ailleurs, qui le valide (D-4, R-4) | première matrice type d’essai × moyen |
-| 30 min | **Priorités et partage** : comment on tranche aujourd’hui, accord avec EPC France, qui doit trancher demain (A-1 à A-4, D-7) | principes de priorité écrits, instance d’arbitrage |
+| 30 min | **Priorités et partage** : comment on tranche aujourd’hui, accord avec la filiale partenaire, qui doit trancher demain (A-1 à A-4, D-7) | principes de priorité écrits, instance d’arbitrage |
 | 20 min | **Anticipation** : quels projets, quelles échéances, où sont-elles (S-1, D-5) ; démonstration des maquettes d’écrans | liste des projets du pilote |
 | 10 min | Suite : qui fournit quelles données, quand ; périmètre du pilote (P-3) | plan d’actions daté |
 
@@ -39,7 +39,7 @@ extérieure suspend-elle les essais (Vigie le fait déjà pour les zones « essa
 **Chefs de projet** — Comment connaissez-vous vos besoins d’essais, à quel horizon ? Quand avez-vous attendu un créneau
 pour la dernière fois, et quel retard en a résulté ? Accepteriez-vous un autre moyen, à quelles conditions ?
 
-**EPC France** — Quel est votre usage du laboratoire 67 (volume, régularité) ? Existe-t-il un accord ? Qu’attendez-vous
+**Filiale partenaire** — Quel est votre usage du laboratoire 67 (volume, régularité) ? Existe-t-il un accord ? Qu’attendez-vous
 d’un outil commun (visibilité, prévisibilité, équité) ?
 
 **Direction R&D** — Quels projets sont prioritaires et qui doit le dire ? Quelle part de décision déléguer au

@@ -70,7 +70,7 @@ export function failureOf(e: unknown): ClaudeAssistantError {
   return new ClaudeAssistantError('error', e instanceof Error ? e.message : String(e));
 }
 
-export const SYSTEM_PROMPT = `You are the assistant of Crucible, the application that plans and arbitrates the shared R&D test resources of the EPC group (laboratoire 67 shared with EPC France, the PDE building whose zones — mechanical workshop, pilot, laboratory rooms — work one at a time under the exclusion rule PDE-ONE-ZONE, and other test means).
+export const SYSTEM_PROMPT = `You are the assistant of Crucible, the application that plans and arbitrates the shared R&D test resources of the group (laboratoire 67 shared with Filiale partenaire, the PDE building whose zones — mechanical workshop, pilot, laboratory rooms — work one at a time under the exclusion rule PDE-ONE-ZONE, and other test means).
 
 What you do: answer the person's questions about the planning, explain why the engine proposed a slot or could not place a need, explain a conflict and draft the minutes of its arbitration, find where a test can run, point out the load risks, simulate a resource out, and prepare a test need from a description in plain words.
 

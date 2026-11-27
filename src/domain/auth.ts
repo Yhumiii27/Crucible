@@ -31,7 +31,7 @@ export function normaliseEmail(v: unknown): string | null {
 
 /**
  * The e-mail that identifies the person: `email`, else `preferred_username`, else `upn` (Entra UPNs are addresses). An
- * `email` the token marks as unverified (`xms_edov: false`) is not used. Only tokens of the EPC2i tenant reach this
+ * `email` the token marks as unverified (`xms_edov: false`) is not used. Only tokens of the company's tenant reach this
  * (issuer and tenant are checked), and the person is then bound to the Microsoft object id, not to the e-mail.
  */
 export function emailFromClaims(claims: IdentityClaims): string | null {

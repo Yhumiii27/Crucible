@@ -28,7 +28,7 @@
   tests d’intégration des Server Functions (droits par profil, refus motivés, audit, heures réelles, non-tenue, règles,
   accords, import).
 - `npm run db:migrate` sur une base neuve (migration `0003_resources_bookings`), `npm run build`, `next start` et
-  `npm run test:smoke` : **27 contrôles HTTP** passent, dont le planning bloqué par le pilote, le masquage pour EPC France et
+  `npm run test:smoke` : **27 contrôles HTTP** passent, dont le planning bloqué par le pilote, le masquage pour la filiale partenaire et
   le pilotage.
 - Parcours vérifié dans le navigateur : un chef de projet demande un créneau du pilote, le coordinateur le confirme.
 

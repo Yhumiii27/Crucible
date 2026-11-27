@@ -8,7 +8,7 @@ import { halfDaysOf, replan, touchedBookings, urgencyPlan, type MovableBooking }
 const at = (d: string, t: string) => parisInstant(d, t).getTime();
 const iso = (ms: number) => parisParts(new Date(ms)).iso;
 const res = (id: string) => ({ id, code: id, facilityCode: 'PDE', capacity: 1, status: 'in_service' as const, granularity: 'half_day' as const });
-const facts = { priorityClass: 'P2' as const, criticality: null, requestedAt: 0, entityCode: 'EPC2I' };
+const facts = { priorityClass: 'P2' as const, criticality: null, requestedAt: 0, entityCode: 'GROUPE' };
 const booking = (id: string, resourceId: string, d: string, from = '07:00', to = '17:00', extra: Partial<MovableBooking> = {}): MovableBooking => ({
   id, ref: id, resourceId, resourceCode: resourceId, start: at(d, from), end: at(d, to), status: 'confirmed', projectCode: 'RD-ORION', needId: null, needRef: null,
   testTypeCode: null, deadlineOn: d, facts, staff: [], equipment: [], ...extra,

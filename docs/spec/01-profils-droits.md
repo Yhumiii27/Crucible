@@ -12,7 +12,7 @@
 | `safety` | Référent sécurité / QHSE | toutes installations | valide les règles d’exclusion et leurs changements ; peut bloquer un moyen |
 | `project_lead` | Chef de projet R&D (demandeur) | ses projets | déclare prévisions et demandes, accepte un créneau proposé, voit les conséquences sur ses jalons |
 | `technician` | Technicien / opérateur d’essai | ses réservations, son installation | voit son planning, démarre et termine un essai (saisie du réel), déclare un aléa |
-| `partner` | Interlocuteur d’une entité partenaire (EPC France) | son entité, installations partagées | demande et voit ses réservations ; voit l’occupation (pas le détail des projets des autres entités, U-3) |
+| `partner` | Interlocuteur d’une entité partenaire (filiale partenaire) | son entité, installations partagées | demande et voit ses réservations ; voit l’occupation (pas le détail des projets des autres entités, U-3) |
 | `viewer` | Lecteur | selon affectation | lecture |
 | `admin` *(hors demande)* | Administrateur Crucible | global | comptes, rôles, référentiels, paramètres, connecteurs ; aucune donnée métier |
 
@@ -20,7 +20,7 @@ Un utilisateur peut porter plusieurs rôles (modèle Keystone et Arche : rôle a
 
 ## 2. Portées et confidentialité
 
-- Portées : `global`, `entity` (EPC2i, EPC France…), `facility` (installation), `project` (équipe nommée).
+- Portées : `global`, `entity` (Groupe, Filiale partenaire…), `facility` (installation), `project` (équipe nommée).
 - **Confidentialité entre entités** (proposition U-3) : sur une installation partagée, chacun voit **qu’un créneau est
   occupé** et par quelle entité ; le **projet et l’objet de l’essai** ne sont visibles que de l’entité demandeuse, des
   responsables de l’installation, du coordinateur et de la direction R&D.

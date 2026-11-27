@@ -86,13 +86,13 @@ describe('calendar subscriptions', () => {
     expect((await t.db.select().from(calendarFeeds).where(eq(calendarFeeds.id, f.id)))[0].lastReadAt).not.toBeNull();
   });
 
-  it('a resource, as the EPC France partner: only a resource it sees; another entity’s project is "Booked · <entity>"', async () => {
+  it('a resource, as the Filiale partenaire partner: only a resource it sees; another entity’s project is "Booked · <entity>"', async () => {
     as('partner');
     expect(await createCalendarFeedAction(null, form({ scope: 'resource', resourceId: await resourceId('PDE-PIL') }))).toEqual({ ok: false, error: 'Choose a resource' });
     const token = await subscribe({ scope: 'resource', resourceId: await resourceId('LAB67-TRAC') });
     const s = summaries((await read(token)).body);
     expect(s).toContain('LAB67-TRAC · FR-LYRA · Tensile tests on samples');
-    expect(s).toContain('LAB67-TRAC · Réservé · EPC2I');
+    expect(s).toContain('LAB67-TRAC · Réservé · GROUPE');
     expect(s.join(' ')).not.toContain('RD-ORION');
   });
 
@@ -131,7 +131,7 @@ describe('invitations in the e-mails', () => {
     expect(confirmed).toContain('Réservation confirmée · B-2026-0013');
     expect(confirmed).toContain("L’invitation jointe ajoute l’essai à votre agenda.");
     const uid = /UID:(\S+)/.exec(confirmed)![1];
-    expect(uid).toBe(`${b.id}@crucible.epc2i`);
+    expect(uid).toBe(`${b.id}@crucible.atrium`);
     expect(confirmed).toContain('SUMMARY:PDE-ATM · RD-VEGA');
     expect(confirmed).toMatch(/To: \S+@/);
     const seq1 = Number(/SEQUENCE:(\d+)/.exec(confirmed)![1]);

@@ -23,13 +23,13 @@
 | `unavailabilities` | maintenance planifiée, contrôle périodique, panne, travaux ; origine (saisie, Vigie, aléa) |
 | `exclusion_rules` | ensembles de moyens qui ne peuvent pas fonctionner ensemble : `max_active`, activités concernées (toutes ou certaines), motif (sécurité, personnel commun, énergie, nuisance), **validée par** (sécurité), référence Codex de l’analyse de risque, dates de validité |
 | `priority_rules` | règles d’arbitrage ordonnées (spec 03 §5), versionnées : une proposition garde la version des règles qui l’a produite |
-| `entity_agreements` | accord de partage avec une entité (EPC France sur le laboratoire 67) : quota (% ou jours par mois), créneaux réservés, délai de prévenance, contact (A-3) |
+| `entity_agreements` | accord de partage avec une entité (la filiale partenaire sur le laboratoire 67) : quota (% ou jours par mois), créneaux réservés, délai de prévenance, contact (A-3) |
 
 ## 3. Projets, besoins et essais
 
 | Table | Contenu | Remarques |
 |---|---|---|
-| `projects` | projet demandeur : code, nom, entité (EPC2i, EPC France, autre), équipe, chef de projet, **classe de priorité** (fixée par la direction R&D), lien Keystone (`pub_projets.code`) si le projet y existe | miroir Keystone ou saisie locale (S-1) |
+| `projects` | projet demandeur : code, nom, entité (Groupe, Filiale partenaire, autre), équipe, chef de projet, **classe de priorité** (fixée par la direction R&D), lien Keystone (`pub_projets.code`) si le projet y existe | miroir Keystone ou saisie locale (S-1) |
 | `project_milestones` | jalons qui portent des essais : date, criticité (contractuel, réglementaire, interne), source (Keystone si publié, sinon saisie) | Keystone ne publie pas encore les jalons (DEMANDES-KEYSTONE K-2) |
 | `test_campaigns` | **campagne** : ensemble d’essais d’un projet pour un jalon, avec précédences | |
 | `test_needs` | **besoin** à trois niveaux de maturité : *prévision* (enveloppe en jours sur un type de moyen, semaine cible), *demande* (essai détaillé : type, durée, préparation, compétences, date au plus tôt, échéance, moyen souhaité, souplesse) | spec 03 §6 |

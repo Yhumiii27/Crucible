@@ -42,7 +42,7 @@ export function bookingEvent(r: BookingRow, viewer: Viewer, baseUrl: string): Ic
   const lines = [`${t('Booking reference')} : ${r.b.ref}`, `${t('Status')} : ${t(BOOKING_STATUS_LABEL[r.b.status] ?? r.b.status)}`];
   if (open && r.b.operators) lines.push(`${t('Operators')} : ${r.b.operators}`);
   return {
-    uid: `${r.b.id}@crucible.epc2i`,
+    uid: `${r.b.id}@crucible.atrium`,
     sequence: sequenceOf(r.b.updatedAt.getTime()),
     start: r.b.startsAt.getTime(),
     end: r.b.endsAt.getTime(),

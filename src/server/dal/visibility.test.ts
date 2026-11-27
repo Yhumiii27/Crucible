@@ -37,7 +37,7 @@ describe('visibility in SQL', () => {
     }
   });
 
-  it('an EPC France partner sees laboratoire 67 and its own project only: the rest does not exist for it (U-3)', async () => {
+  it('an Filiale partenaire partner sees laboratoire 67 and its own project only: the rest does not exist for it (U-3)', async () => {
     const partner = await viewerOf('partner');
     expect((await visibleFacilities(partner)).map((f) => f.code)).toEqual(['LAB67']);
     expect(await facilityForViewer(partner, 'PDE')).toBeNull();

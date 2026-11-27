@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { CONFIG_VARIABLES, formatIssues, parseConfig, redactUrl } from './parse';
 
 const cwd = '/srv/crucible';
-const DB = 'postgres://crucible_app:s3cret-pw@db:5432/epc2i';
+const DB = 'postgres://crucible_app:s3cret-pw@db:5432/atrium';
 const parse = (env: Record<string, string | undefined>) => parseConfig({ DATABASE_URL: DB, ...env }, { cwd });
 const vars = (issues: { variable: string }[]) => issues.map((i) => i.variable);
 
@@ -98,7 +98,7 @@ describe('parseConfig', () => {
   });
 
   it('redactUrl hides the password; every variable is known', () => {
-    expect(redactUrl(DB)).toBe('postgres://crucible_app:***@db:5432/epc2i');
+    expect(redactUrl(DB)).toBe('postgres://crucible_app:***@db:5432/atrium');
     expect(redactUrl('nope')).toBe('[invalid URL]');
     expect(CONFIG_VARIABLES).toContain('DATABASE_URL');
     expect(CONFIG_VARIABLES.some((v) => v.startsWith('KEYSTONE_'))).toBe(false);

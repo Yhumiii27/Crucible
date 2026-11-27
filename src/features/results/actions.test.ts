@@ -50,7 +50,7 @@ describe('recording a result', () => {
   it('once the test has started; refused to the technician of a confidential project; recorded by the project lead', async () => {
     const b = await b10();
     as('project_lead');
-    const fields = { bookingId: b.id, outcome: 'pass', measurements: 'Pression max = 212 bar\nDurée; 4,2; s', rawDataRef: 'DAT-PDE-0042', elnUrl: 'https://eln.epc2i.fr/e/9' };
+    const fields = { bookingId: b.id, outcome: 'pass', measurements: 'Pression max = 212 bar\nDurée; 4,2; s', rawDataRef: 'DAT-PDE-0042', elnUrl: 'https://eln.atrium.example/e/9' };
     expect(await recordResultAction(null, form(fields))).toEqual({ ok: false, error: 'A result is recorded once the test has started' });
     await t.db.update(bookings).set({ status: 'done', actualStartAt: b.startsAt, actualEndAt: b.endsAt }).where(eq(bookings.id, b.id));
     as('technician');
@@ -61,7 +61,7 @@ describe('recording a result', () => {
     expect(await recordResultAction(null, form({ ...fields, measurements: 'oops' }))).toMatchObject({ ok: false, error: expect.stringContaining('line 1') });
     expect(await recordResultAction(null, form(fields))).toEqual({ ok: true });
     const r = (await bookingResults([b.id])).get(b.id)!;
-    expect(r.latest).toMatchObject({ version: 1, outcome: 'pass', rawDataRef: 'DAT-PDE-0042', elnUrl: 'https://eln.epc2i.fr/e/9', reason: null, recordedByName: 'Camille Fabre' });
+    expect(r.latest).toMatchObject({ version: 1, outcome: 'pass', rawDataRef: 'DAT-PDE-0042', elnUrl: 'https://eln.atrium.example/e/9', reason: null, recordedByName: 'Camille Fabre' });
     expect(r.latest.measurements).toEqual([{ name: 'Pression max', value: '212', unit: 'bar' }, { name: 'Durée', value: '4,2', unit: 's' }]);
     const [a] = await t.db.select().from(auditEntries).where(and(eq(auditEntries.entityType, 'test_result'), eq(auditEntries.entityId, r.latest.id)));
     expect(a).toMatchObject({ area: 'Bookings', objectRef: 'Booking B-2026-0010', change: 'test result recorded: Compliant, 2 measurements', projectCode: 'RD-CASSIOPEE' });

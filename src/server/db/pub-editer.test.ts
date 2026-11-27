@@ -46,11 +46,11 @@ describe('crucible.pub_editer', () => {
   });
 
   it('adds an entity and a person; « retirer » archives, a site is never removed', async () => {
-    expect(await edit('entities', 'ajouter', null, { code: 'EPCMA', name: 'EPC Maroc', kind: 'partner' })).toMatchObject({ code: 'EPCMA', active: true });
-    await refused(edit('entities', 'ajouter', null, { code: 'epc ma', name: 'x', kind: 'partner' }), /Le code/);
-    expect(await edit('entities', 'retirer', { code: 'EPCMA' }, null)).toMatchObject({ active: false });
-    expect((await t.db.select().from(entities).where(eq(entities.code, 'EPCMA')))).toHaveLength(1);
-    const p = await edit('people', 'ajouter', null, { name: 'Paul Arnaud', entity_code: 'EPC2I', facility_codes: ['PDE'] });
+    expect(await edit('entities', 'ajouter', null, { code: 'PARTMA', name: 'Filiale Maroc', kind: 'partner' })).toMatchObject({ code: 'PARTMA', active: true });
+    await refused(edit('entities', 'ajouter', null, { code: 'part ma', name: 'x', kind: 'partner' }), /Le code/);
+    expect(await edit('entities', 'retirer', { code: 'PARTMA' }, null)).toMatchObject({ active: false });
+    expect((await t.db.select().from(entities).where(eq(entities.code, 'PARTMA')))).toHaveLength(1);
+    const p = await edit('people', 'ajouter', null, { name: 'Paul Arnaud', entity_code: 'GROUPE', facility_codes: ['PDE'] });
     expect(p).toMatchObject({ name: 'Paul Arnaud', updated_by_name: 'Ines Dupont (Matrix)', active: true });
     expect(await edit('people', 'retirer', { id: p.id }, null)).toMatchObject({ active: false });
     expect((await t.db.select().from(people).where(eq(people.id, String(p.id))))[0].active).toBe(false);
@@ -61,7 +61,7 @@ describe('crucible.pub_editer', () => {
     await t.db.update(projects).set({ keystoneCode: 'HLT-026' }).where(eq(projects.code, 'RD-ORION'));
     await refused(edit('projects', 'corriger', { code: 'RD-ORION' }, { name: 'Autre' }), /suit un autre outil/);
     expect(await edit('projects', 'corriger', { code: 'RD-ORION' }, { priority_class: 'P2' })).toMatchObject({ priority_class: 'P2' });
-    await refused(edit('entities', 'corriger', { code: 'EPCFR' }, { name: 'Autre' }), /suit un autre outil/);
+    await refused(edit('entities', 'corriger', { code: 'PARTENAIRE' }, { name: 'Autre' }), /suit un autre outil/);
   });
 
   it('is SECURITY DEFINER with a fixed search_path and not executable by PUBLIC', async () => {

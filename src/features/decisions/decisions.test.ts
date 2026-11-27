@@ -73,7 +73,7 @@ describe('global search (U-3)', () => {
     expect(await searchAction('B-2026-0012')).toEqual([{ kind: 'Booking', title: 'B-2026-0012', sub: 'PDE-LAB', href: '/planning?week=2026-10-26' }]);
   });
 
-  it('the partner of EPC France finds nothing of the PDE, nor its bookings; short or odd input finds nothing', async () => {
+  it('the partner of Filiale partenaire finds nothing of the PDE, nor its bookings; short or odd input finds nothing', async () => {
     as('partner');
     expect(await searchAction('PDE')).toEqual([]);
     expect(await searchAction('B-2026-0011')).toEqual([]);

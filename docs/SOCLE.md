@@ -2,7 +2,7 @@
 
 > Décision T-4 (confirmée le 22 oct. 2026) : le **socle** est copié **une fois** depuis Arche, qui l’a lui-même repris de
 > Keystone et déjà adapté à PostgreSQL seul ; aucun module métier n’est copié. Le socle sera ensuite extrait en paquet partagé
-> `@epc2i/socle` (lot R-194 de Keystone) et ces copies seront remplacées.
+> `@atrium/socle` (lot R-194 de Keystone) et ces copies seront remplacées.
 >
 > **Commits d’origine de la livraison 1** : Arche **`18c4686`** (pointe de `main` le 22 oct. 2026, « Merge pull request #6 »),
 > dont le socle vient de Keystone **`63f43ad`** (voir `docs/SOCLE.md` d’Arche). Les noms `arche` / `ARCHE_` / ports 3400–3410
@@ -18,7 +18,7 @@
 | Session et « Voir en tant que » | `src/server/session.ts`, `src/server/viewer.ts` | profil par défaut : direction R&D ; `entityCode` au lieu de la filiale |
 | Profils et portées | `src/config/roles.ts`, `src/domain/rights.ts` | **réécrits** : 9 profils, portées global / entité / installation / projet (spec 01) |
 | Coquille et registre d’écrans | `src/config/screens.ts`, `src/components/app/shell/` | registre de la spec 05 ; sections Planification, Référentiel, Pilotage, Administration |
-| Design Nocturne | `norma/charte/nocturne.css` (copie de Norma, thèmes sombre et clair, depuis le 24 nov. 2026) et `norma/charte/touch.css` (cibles de 40 px sur écran tactile, importé dans `src/app/layout.tsx`), `src/components/ds/`, `src/components/app/` | bouton d’affichage sombre / clair `norma/charte/ds/ThemeToggle.tsx` (cookie `epc2i-theme`) |
+| Design Nocturne | `norma/charte/nocturne.css` (copie de Norma, thèmes sombre et clair, depuis le 24 nov. 2026) et `norma/charte/touch.css` (cibles de 40 px sur écran tactile, importé dans `src/app/layout.tsx`), `src/components/ds/`, `src/components/app/` | bouton d’affichage sombre / clair `norma/charte/ds/ThemeToggle.tsx` (cookie `atrium-theme`, l’ancien nom lu à défaut, Norma 3.0) |
 | i18n et complétude du français | `src/i18n/` | dictionnaires de Crucible |
 | Base de données | `src/server/db/` (client, transactions, migrations, provision, postgres) | schéma `crucible`, verrous `crucible.migrations` / `crucible.ecritures` |
 | Piste d’audit append-only | `writeAudit`, `audit_entries`, déclencheur | colonne `project_code` au lieu de `capex_id` |

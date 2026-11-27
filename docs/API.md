@@ -82,5 +82,5 @@ def verify(secret: str, headers, body: bytes) -> bool:
 ## 5. Exemple
 
 ```bash
-curl -H "Authorization: Bearer cra_…" "https://crucible.epc2i.fr/api/v1/bookings?from=2026-11-02&to=2026-11-08&resource=PDE-LAB"
+curl -H "Authorization: Bearer cra_…" "https://crucible.atrium.example/api/v1/bookings?from=2026-11-02&to=2026-11-08&resource=PDE-LAB"
 ```

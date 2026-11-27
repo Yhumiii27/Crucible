@@ -151,8 +151,8 @@ describe('rules, substitutions, people', () => {
 
   it('people are kept by the managers of their facilities; requirements by the coordinator', async () => {
     as('facility_manager');
-    expect(await createPersonAction(null, form({ name: 'Nina Roche', entityCode: 'EPC2I', facilityCodes: ['LAB67'] }))).toEqual({ ok: false, error: 'Choose the facilities where the person works' });
-    expect(await createPersonAction(null, form({ name: 'Nina Roche', entityCode: 'EPC2I', matricule: 'EP0700', facilityCodes: ['PDE'] }))).toEqual({ ok: true });
+    expect(await createPersonAction(null, form({ name: 'Nina Roche', entityCode: 'GROUPE', facilityCodes: ['LAB67'] }))).toEqual({ ok: false, error: 'Choose the facilities where the person works' });
+    expect(await createPersonAction(null, form({ name: 'Nina Roche', entityCode: 'GROUPE', matricule: 'EP0700', facilityCodes: ['PDE'] }))).toEqual({ ok: true });
     const [nina] = await t.db.select().from(people).where(eq(people.name, 'Nina Roche'));
     expect(await setPersonSkillAction(null, form({ personId: nina.id, skillCode: 'MECA', validUntil: '2027-12-31' }))).toEqual({ ok: true });
     expect(await addAbsenceAction(null, form({ personId: nina.id, fromOn: '2026-11-02', toOn: '2026-11-06' }))).toEqual({ ok: true });

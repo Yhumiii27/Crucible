@@ -22,7 +22,7 @@ afterAll(async () => {
 
 describe('backup and restore', () => {
   it('keeps the password off the command line', () => {
-    expect(splitCredentials('postgres://crucible_app:s%40cret@db:5432/epc2i')).toEqual({ url: 'postgres://crucible_app@db:5432/epc2i', password: 's@cret' });
+    expect(splitCredentials('postgres://crucible_app:s%40cret@db:5432/atrium')).toEqual({ url: 'postgres://crucible_app@db:5432/atrium', password: 's@cret' });
   });
 
   it('dumps the schema, prunes old backups, and restores the data as it was', async () => {

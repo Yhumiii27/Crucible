@@ -55,11 +55,11 @@ describe('monthly report', () => {
     expect(r.bookings.every((b) => b.status !== 'requested')).toBe(true);
   });
 
-  it('the EPC France partner: laboratoire 67 only, other entities’ projects masked', async () => {
+  it('the Filiale partenaire partner: laboratoire 67 only, other entities’ projects masked', async () => {
     as('partner');
     const r = await monthlyReport(await getViewer(), '2026-10', null);
     expect(r.byFacility.map((f) => f.code)).toEqual(['LAB67']);
-    expect(r.bookings.filter((b) => b.entityCode !== 'EPCFR').every((b) => b.projectCode === null)).toBe(true);
+    expect(r.bookings.filter((b) => b.entityCode !== 'PARTENAIRE').every((b) => b.projectCode === null)).toBe(true);
     // A facility it does not see gives nothing.
     expect((await monthlyReport(await getViewer(), '2026-10', 'PDE')).byFacility).toEqual([]);
   });

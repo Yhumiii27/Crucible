@@ -297,7 +297,7 @@ export function parseConfig(env: Record<string, string | undefined>, opts: { cwd
       mail: {
         transport: v.CRUCIBLE_MAIL_TRANSPORT ?? 'none',
         dir: v.CRUCIBLE_MAIL_DIR ? path.resolve(opts.cwd, v.CRUCIBLE_MAIL_DIR) : null,
-        from: v.CRUCIBLE_MAIL_FROM ?? 'crucible@epc2i.example',
+        from: v.CRUCIBLE_MAIL_FROM ?? 'crucible@atrium.example',
         smtpUrl: v.CRUCIBLE_SMTP_URL ?? null,
         graph,
       },

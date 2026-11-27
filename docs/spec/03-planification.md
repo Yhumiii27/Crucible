@@ -16,7 +16,7 @@ scheduling*) avec contraintes multi-ressources, fenêtres de temps et préféren
   réglementaires, horaires d’ouverture) ;
 - et des **objectifs** hiérarchisés (§4).
 
-Ce problème est connu, bien outillé et **faisable** à l’échelle d’EPC (quelques dizaines de moyens, quelques centaines
+Ce problème est connu, bien outillé et **faisable** à l’échelle de l’entreprise (quelques dizaines de moyens, quelques centaines
 d’essais par trimestre) : il ne demande ni gros calcul ni IA pour être résolu correctement. L’IA sert à **dialoguer**,
 **expliquer** et **préparer les données** (spec 04), pas à décider.
 
@@ -30,7 +30,7 @@ d’essais par trimestre) : il ne demande ni gros calcul ni IA pour être résol
 | Substitutions validées | matrice type d’essai × moyen | « essai de traction T-12 : labo 67 ou atelier méca » |
 | Besoins des projets | demandes d’essais (spec 02 §3), dérivées des échéances | campagne de 6 tirs avant le jalon J3 du projet X |
 | Personnes, qualifications, absences | Cursus (à demander), sinon saisie locale | 2 pyrotechniciens habilités, congés |
-| Règles de priorité | paramètres d’arbitrage (§5) | classe de priorité, quota EPC France |
+| Règles de priorité | paramètres d’arbitrage (§5) | classe de priorité, quota de la filiale partenaire |
 | Planning confirmé | réservations existantes | ne bouge pas sans accord dans la fenêtre gelée |
 
 ## 3. Contraintes
@@ -58,7 +58,7 @@ d’essais par trimestre) : il ne demande ni gros calcul ni IA pour être résol
 - préférence de moyen (le moyen « nominal » avant la substitution) ;
 - regroupement (enchaîner les essais d’une campagne, limiter les changements de configuration) ;
 - stabilité (ne pas bouger ce qui était déjà planifié) ;
-- équité entre équipes et respect des quotas convenus (EPC France, A-3).
+- équité entre équipes et respect des quotas convenus (filiale partenaire, A-3).
 
 ## 4. Objectif (ordre lexicographique proposé, F-2)
 
@@ -79,12 +79,12 @@ deux demandes visent le même créneau. Le moteur ne tranche pas : il produit un
 
 | Élément | Contenu |
 |---|---|
-| Demandes en concurrence | projets, essais, demandeurs, entités (EPC2i, EPC France…) |
+| Demandes en concurrence | projets, essais, demandeurs, entités (Groupe, Filiale partenaire…) |
 | Options | 2 à 4 scénarios : A passe d’abord ; B passe d’abord ; B sur un moyen de substitution ; découpage ; heures étendues |
 | Conséquences de chaque option | retard prévu sur chaque jalon (jours), marge restante, essais décalés en cascade, occupation |
 | Règle appliquée | la règle de priorité qui départage (ex. « jalon contractuel > développement interne ») et son rang |
 | Recommandation | l’option la mieux classée selon §4, avec la raison en une phrase |
-| Décideur attendu | selon la matrice d’arbitrage (A-4) : responsable des moyens, sinon direction R&D, sinon comité avec EPC France |
+| Décideur attendu | selon la matrice d’arbitrage (A-4) : responsable des moyens, sinon direction R&D, sinon comité avec la filiale partenaire |
 
 **Règles de priorité** (paramétrables, A-2) — proposition d’amorce, dans l’ordre :
 
@@ -96,8 +96,8 @@ deux demandes visent le même créneau. Le moteur ne tranche pas : il produit un
 6. ancienneté de la demande (premier arrivé) ;
 7. à égalité : arbitrage humain.
 
-La **priorité « de fait » d’EPC France** observée aujourd’hui est remplacée par une règle **écrite** : quota ou créneaux
-réservés au laboratoire 67, ou priorité égale aux projets EPC2i selon les mêmes critères (A-3). Chaque arbitrage est
+La **priorité « de fait » de la filiale partenaire** observée aujourd’hui est remplacée par une règle **écrite** : quota ou créneaux
+réservés au laboratoire 67, ou priorité égale aux projets du groupe selon les mêmes critères (A-3). Chaque arbitrage est
 journalisé (qui, quand, option retenue, règle invoquée, motif) dans la piste d’audit append-only.
 
 ## 6. Anticipation : plan de charge prévisionnel

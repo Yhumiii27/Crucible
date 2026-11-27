@@ -23,7 +23,7 @@ export const ROLE_LABEL: Record<RoleKey, string> = {
 };
 
 /**
- * What a role assignment is limited to (§2): the whole group, an entity (EPC2i, EPC France…), a facility (laboratoire 67,
+ * What a role assignment is limited to (§2): the whole group, an entity (Groupe, Filiale partenaire…), a facility (laboratoire 67,
  * PDE…) or a project (named team).
  */
 export const SCOPE_KINDS = ['global', 'entity', 'facility', 'project'] as const;

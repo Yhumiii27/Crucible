@@ -1,7 +1,7 @@
 # Crucible
 
 Application du groupe pour **planifier et arbitrer l’usage des moyens d’essais partagés** de la R&D : laboratoire 67
-(partagé avec EPC France), PDE, laboratoire PDE, atelier mécanique. Anticipation des besoins à partir des échéances des
+(partagé avec la filiale partenaire), PDE, laboratoire PDE, atelier mécanique. Anticipation des besoins à partir des échéances des
 projets, proposition de créneaux sous contraintes (sécurité, exclusions entre installations, personnes habilitées),
 arbitrage des conflits selon des règles explicites, substitutions validées, replanification après aléa, mesure de
 l’occupation réelle, assistant IA.
@@ -12,7 +12,7 @@ plan : [`docs/PLAN.md`](docs/PLAN.md) · atelier avec les équipes : [`docs/ATEL
 
 ```bash
 npm ci
-npm run db:local        # PostgreSQL : base epc2i, rôle crucible_app, schéma crucible
+npm run db:local        # PostgreSQL : base atrium, rôle crucible_app, schéma crucible
 cp .env.example .env.local
 npm run db:migrate      # migrations et jeu de démonstration
 npm run dev             # http://localhost:3500

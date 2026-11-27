@@ -1,5 +1,5 @@
-// npm run db:local — creates Crucible's database on a developer's PostgreSQL server: database `epc2i` (CRUCIBLE_LOCAL_DATABASE),
-// role crucible_app (password CRUCIBLE_LOCAL_PASSWORD, default "crucible-dev") and schema `crucible`, the layout of the shared EPC2I
+// npm run db:local — creates Crucible's database on a developer's PostgreSQL server: database `atrium` (CRUCIBLE_LOCAL_DATABASE),
+// role crucible_app (password CRUCIBLE_LOCAL_PASSWORD, default "crucible-dev") and schema `crucible`, the layout of the suite's shared
 // server (Matrix). Connects with CRUCIBLE_ADMIN_URL (a superuser; default postgres://postgres:postgres@127.0.0.1:5432/postgres)
 // and prints the DATABASE_URL to put in .env.local. Then: npm run db:migrate. Never run it against the shared server: there,
 // Matrix's base layer creates the role and the schema.
@@ -10,7 +10,7 @@ import { appUrlOf, provisionDatabase, provisionSchema, withDatabase } from '@/se
 async function main(): Promise<void> {
   loadEnvFiles(process.cwd());
   const adminUrl = process.env.CRUCIBLE_ADMIN_URL || 'postgres://postgres:postgres@127.0.0.1:5432/postgres';
-  const database = process.env.CRUCIBLE_LOCAL_DATABASE || 'epc2i';
+  const database = process.env.CRUCIBLE_LOCAL_DATABASE || 'atrium';
   const password = process.env.CRUCIBLE_LOCAL_PASSWORD || 'crucible-dev';
   const admin = new pg.Client({ connectionString: adminUrl });
   await admin.connect();

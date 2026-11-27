@@ -66,7 +66,7 @@ export interface IcsCalendar {
 }
 
 export function icsCalendar(c: IcsCalendar): string {
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//EPC2I//Crucible//FR', 'CALSCALE:GREGORIAN'];
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Atrium//Crucible//FR', 'CALSCALE:GREGORIAN'];
   if (c.method) lines.push(`METHOD:${c.method}`);
   if (c.name) lines.push(`X-WR-CALNAME:${icsText(c.name)}`, 'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H');
   for (const e of c.events) {
