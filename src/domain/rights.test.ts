@@ -6,11 +6,11 @@ import {
 } from './rights';
 import type { RoleKey } from '@/config/roles';
 
-const lab67: FacilityScopeFacts = { code: 'LAB67', operatorEntityCode: 'EPC2I', partnerEntityCodes: ['EPCFR'] };
-const pde: FacilityScopeFacts = { code: 'PDE', operatorEntityCode: 'EPC2I', partnerEntityCodes: [] };
-const orion: ProjectScopeFacts = { code: 'RD-ORION', entityCode: 'EPC2I', confidential: false };
-const cassiopee: ProjectScopeFacts = { code: 'RD-CASSIOPEE', entityCode: 'EPC2I', confidential: true };
-const lyra: ProjectScopeFacts = { code: 'FR-LYRA', entityCode: 'EPCFR', confidential: false };
+const lab67: FacilityScopeFacts = { code: 'LAB67', operatorEntityCode: 'GROUPE', partnerEntityCodes: ['PARTENAIRE'] };
+const pde: FacilityScopeFacts = { code: 'PDE', operatorEntityCode: 'GROUPE', partnerEntityCodes: [] };
+const orion: ProjectScopeFacts = { code: 'RD-ORION', entityCode: 'GROUPE', confidential: false };
+const cassiopee: ProjectScopeFacts = { code: 'RD-CASSIOPEE', entityCode: 'GROUPE', confidential: true };
+const lyra: ProjectScopeFacts = { code: 'FR-LYRA', entityCode: 'PARTENAIRE', confidential: false };
 
 const seenFacilities = (role: RoleKey, a: RoleAssignment[]) => [lab67, pde].filter((f) => canSeeFacility(facilityVisibility(role, a), f)).map((f) => f.code);
 const seenProjects = (role: RoleKey, a: RoleAssignment[]) => [orion, cassiopee, lyra].filter((p) => canSeeProject(projectVisibility(role, a), p)).map((p) => p.code);
@@ -23,8 +23,8 @@ describe('facility visibility', () => {
   });
 
   it('a partner sees only the facilities shared with its entity (U-3)', () => {
-    expect(seenFacilities('partner', [{ role: 'partner', scopeKind: 'entity', scopeRef: 'EPCFR' }])).toEqual(['LAB67']);
-    expect(seenFacilities('viewer', [{ role: 'viewer', scopeKind: 'entity', scopeRef: 'EPC2I' }])).toEqual(['LAB67', 'PDE']);
+    expect(seenFacilities('partner', [{ role: 'partner', scopeKind: 'entity', scopeRef: 'PARTENAIRE' }])).toEqual(['LAB67']);
+    expect(seenFacilities('viewer', [{ role: 'viewer', scopeKind: 'entity', scopeRef: 'GROUPE' }])).toEqual(['LAB67', 'PDE']);
   });
 });
 
@@ -40,15 +40,15 @@ describe('project visibility', () => {
 
   it('a project lead sees their projects, confidential or not; a partner its entity only', () => {
     expect(seenProjects('project_lead', [{ role: 'project_lead', scopeKind: 'project', scopeRef: 'RD-CASSIOPEE' }])).toEqual(['RD-CASSIOPEE']);
-    expect(seenProjects('partner', [{ role: 'partner', scopeKind: 'entity', scopeRef: 'EPCFR' }])).toEqual(['FR-LYRA']);
-    expect(seenProjects('viewer', [{ role: 'viewer', scopeKind: 'entity', scopeRef: 'EPC2I' }])).toEqual(['RD-ORION']);
+    expect(seenProjects('partner', [{ role: 'partner', scopeKind: 'entity', scopeRef: 'PARTENAIRE' }])).toEqual(['FR-LYRA']);
+    expect(seenProjects('viewer', [{ role: 'viewer', scopeKind: 'entity', scopeRef: 'GROUPE' }])).toEqual(['RD-ORION']);
     expect(seenProjects('technician', [{ role: 'technician', scopeKind: 'facility', scopeRef: 'PDE' }])).toEqual([]);
   });
 
   it('visibility follows the active role only', () => {
     const both: RoleAssignment[] = [
       { role: 'project_lead', scopeKind: 'project', scopeRef: 'RD-CASSIOPEE' },
-      { role: 'viewer', scopeKind: 'entity', scopeRef: 'EPCFR' },
+      { role: 'viewer', scopeKind: 'entity', scopeRef: 'PARTENAIRE' },
     ];
     expect(seenProjects('project_lead', both)).toEqual(['RD-CASSIOPEE']);
     expect(seenProjects('viewer', both)).toEqual(['FR-LYRA']);
@@ -56,7 +56,7 @@ describe('project visibility', () => {
   });
 
   it('assignments at another scope than their role’s are ignored', () => {
-    expect(isValidAssignment({ role: 'rd_director', scopeKind: 'entity', scopeRef: 'EPC2I' })).toBe(false);
+    expect(isValidAssignment({ role: 'rd_director', scopeKind: 'entity', scopeRef: 'GROUPE' })).toBe(false);
     expect(isValidAssignment({ role: 'partner', scopeKind: 'entity', scopeRef: ' ' })).toBe(false);
     expect(isValidAssignment({ role: 'technician', scopeKind: 'facility', scopeRef: 'PDE' })).toBe(true);
   });
@@ -77,14 +77,14 @@ describe('booking rights', () => {
     expect(canRequestBooking('coordinator', lab('coordinator', 'PDE', 'facility'), pde, cassiopee)).toBe(false);
     expect(canRequestBooking('project_lead', lab('project_lead', 'RD-CASSIOPEE', 'project'), pde, cassiopee)).toBe(true);
     expect(canRequestBooking('project_lead', lab('project_lead', 'RD-CASSIOPEE', 'project'), pde, orion)).toBe(false);
-    expect(canRequestBooking('partner', lab('partner', 'EPCFR', 'entity'), lab67, lyra)).toBe(true);
-    expect(canRequestBooking('partner', lab('partner', 'EPCFR', 'entity'), pde, lyra)).toBe(false);
+    expect(canRequestBooking('partner', lab('partner', 'PARTENAIRE', 'entity'), lab67, lyra)).toBe(true);
+    expect(canRequestBooking('partner', lab('partner', 'PARTENAIRE', 'entity'), pde, lyra)).toBe(false);
     expect(canRequestBooking('rd_director', lab('rd_director', null, 'global'), pde, orion)).toBe(false);
   });
 
   it('what a booking shows (U-3): the project to those who see it, "booked" to the others', () => {
-    expect(canSeeBookingDetail('partner', lab('partner', 'EPCFR', 'entity'), 'LAB67', orion)).toBe(false);
-    expect(canSeeBookingDetail('partner', lab('partner', 'EPCFR', 'entity'), 'LAB67', lyra)).toBe(true);
+    expect(canSeeBookingDetail('partner', lab('partner', 'PARTENAIRE', 'entity'), 'LAB67', orion)).toBe(false);
+    expect(canSeeBookingDetail('partner', lab('partner', 'PARTENAIRE', 'entity'), 'LAB67', lyra)).toBe(true);
     expect(canSeeBookingDetail('technician', lab('technician', 'PDE', 'facility'), 'PDE', orion)).toBe(true);
     expect(canSeeBookingDetail('technician', lab('technician', 'PDE', 'facility'), 'PDE', cassiopee)).toBe(false);
     expect(canSeeBookingDetail('technician', lab('technician', 'PDE', 'facility'), 'LAB67', orion)).toBe(false);

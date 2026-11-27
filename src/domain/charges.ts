@@ -1,5 +1,5 @@
-// Internal chargeback (CR-074, X-19): dated rates per resource, for every entity or for one (laboratoire 67 shared with EPC
-// France), and the statement of a month per entity and project — booked hours, realised hours, billed hours and amount, computed
+// Internal chargeback (CR-074, X-19): dated rates per resource, for every entity or for one (laboratoire 67 shared with the
+// partner subsidiary), and the statement of a month per entity and project — booked hours, realised hours, billed hours and amount, computed
 // at each read, never stored. Billed: a test done for its realised time (actual start to actual end; the booked slot when not
 // recorded), a booking not held for its booked slot; nothing for a booking cancelled, requested or still to come. A booking
 // belongs to the month of its start. Amounts in euro cents. Pure: no import.

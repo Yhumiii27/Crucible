@@ -8,7 +8,7 @@
 
 Nouvel onglet **Tarifs** de la fiche d’une installation : la liste des tarifs de ses moyens, lisible par ceux qui voient
 l’installation. Ses **responsables** (coordinateur, responsable d’installation) ajoutent un tarif : un moyen, **toutes les
-entités** ou une seule (le laboratoire 67 peut avoir un tarif propre à EPC France), un montant en **€ par heure**, un
+entités** ou une seule (le laboratoire 67 peut avoir un tarif propre à la filiale partenaire), un montant en **€ par heure**, un
 **premier jour**. Un tarif n’est jamais modifié : un tarif plus récent prend le relais à son premier jour, les anciens restent
 pour les mois passés ; un tarif saisi par erreur est **retiré** (gardé, avec qui et quand). Journalisé.
 

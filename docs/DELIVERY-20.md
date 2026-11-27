@@ -23,7 +23,7 @@
 
 ## 3. Ce qui reste
 
-- **Sites** : saisis dans Crucible tant que M-6 (sites du laboratoire 67 et du PDE, EPC France) est ouverte chez Matrix.
+- **Sites** : saisis dans Crucible tant que M-6 (sites du laboratoire 67 et du PDE, la filiale partenaire) est ouverte chez Matrix.
 - **Suspensions d’essais de Vigie (V-2)** : la vue `vigie.pub_suspensions_essais` est déjà accordée par Matrix, mais la
   demande n’a jamais été déposée dans le `REQUESTS.md` de Vigie (constat de la note de convergence de Vigie). À déposer après
   votre « validé ».

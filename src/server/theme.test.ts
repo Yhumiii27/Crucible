@@ -1,9 +1,9 @@
-// Dark / light display (Norma 1.0): the suite's cookie epc2i-theme read by the server (getTheme, posed on <html> by the root
+// Dark / light display (Norma 3.0): the suite's cookie atrium-theme (the former name read as a fallback) read by the server (getTheme, posed on <html> by the root
 // layout), the cookie the display switch writes, and the place of the language / display pair (Norma 2.0, charte/COQUE.md § 4).
 import fs from 'node:fs';
 import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_THEME, THEME_COOKIE, themeCookie, themeOf } from '@norma/charte/ds/theme';
+import { DEFAULT_THEME, LEGACY_THEME_COOKIE, THEME_COOKIE, themeCookie, themeOf } from '@norma/charte/ds/theme';
 
 const jar = new Map<string, string>();
 vi.mock('next/headers', () => ({
@@ -14,7 +14,7 @@ describe('display theme', () => {
   beforeEach(() => jar.clear());
 
   it('reads the cookie: light only when asked, dark otherwise', () => {
-    expect(THEME_COOKIE).toBe('epc2i-theme');
+    expect(THEME_COOKIE).toBe('atrium-theme');
     expect(DEFAULT_THEME).toBe('dark');
     expect(themeOf('light')).toBe('light');
     expect(themeOf('dark')).toBe('dark');
@@ -24,8 +24,8 @@ describe('display theme', () => {
   });
 
   it('writes a one-year cookie on the whole site', () => {
-    expect(themeCookie('light')).toBe('epc2i-theme=light; path=/; max-age=31536000; samesite=lax');
-    expect(themeCookie('dark')).toMatch(/^epc2i-theme=dark; path=\/; max-age=31536000/);
+    expect(themeCookie('light')).toBe('atrium-theme=light; path=/; max-age=31536000; samesite=lax');
+    expect(themeCookie('dark')).toMatch(/^atrium-theme=dark; path=\/; max-age=31536000/);
   });
 
   it('getTheme follows the request cookie', async () => {
@@ -34,6 +34,14 @@ describe('display theme', () => {
     jar.set(THEME_COOKIE, 'light');
     // getTheme is cached per request (React cache); outside a request each call reads again.
     expect(await getTheme()).toBe('light');
+  });
+
+  it('getTheme reads the former cookie name when the new one is absent, the new one first', async () => {
+    const { getTheme } = await import('./session');
+    jar.set(LEGACY_THEME_COOKIE, 'light');
+    expect(await getTheme()).toBe('light');
+    jar.set(THEME_COOKIE, 'dark');
+    expect(await getTheme()).toBe('dark');
   });
 
   it('the root layout poses data-theme; the language / display pair (PrefsStack) is in the page header and the top bar only', () => {

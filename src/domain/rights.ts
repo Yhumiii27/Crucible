@@ -16,7 +16,7 @@ export interface FacilityScopeFacts {
   code: string;
   /** Entity that runs the facility. */
   operatorEntityCode: string;
-  /** Partner entities the facility is shared with (laboratoire 67 → EPC France). */
+  /** Partner entities the facility is shared with (laboratoire 67 → Filiale partenaire). */
   partnerEntityCodes: readonly string[];
 }
 

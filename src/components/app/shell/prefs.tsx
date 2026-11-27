@@ -1,7 +1,7 @@
 'use client';
 // The language / display pair of Norma 2.0 (charte/COQUE.md § 4): FR | EN above dark | light, same size, left edges aligned —
 // the last element of every page header and, up to 1024 px, of the top bar (charte/COQUE.md § 8). The language is Crucible's
-// cookie (setLang), the display the suite's cookie epc2i-theme.
+// cookie (setLang), the display the suite's cookie atrium-theme (Norma 3.0).
 import { MobileTopBar } from '@norma/charte/ds/AppShell';
 import { PrefsStack, type Lang } from '@norma/charte/ds/HeaderTools';
 import type { Theme } from '@norma/charte/ds/theme';

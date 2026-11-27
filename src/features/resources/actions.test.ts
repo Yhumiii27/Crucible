@@ -58,7 +58,7 @@ describe('booking requests', () => {
     // F-5 (delivery 3): 10 working days of notice for every entity — 2 Nov is less than that after 22 Oct: accepted, flagged late.
     expect(r).toEqual({ ok: true, warnings: ['Late request: less notice than agreed'] });
     const [b] = await t.db.select().from(bookings).where(eq(bookings.title, 'Firing tests, series 3'));
-    expect(b).toMatchObject({ status: 'requested', projectCode: 'RD-ORION', entityCode: 'EPC2I', requestedByName: 'Camille Fabre', setupMinutes: 90, teardownMinutes: 60 });
+    expect(b).toMatchObject({ status: 'requested', projectCode: 'RD-ORION', entityCode: 'GROUPE', requestedByName: 'Camille Fabre', setupMinutes: 90, teardownMinutes: 60 });
     expect(b.startsAt).toEqual(parisInstant('2026-11-02', '07:00'));
     expect(b.ref).toBe('B-2026-0017');
     expect(await lastAudit('Booking B-2026-0017')).toMatchObject({ change: 'requested: PDE-PIL', projectCode: 'RD-ORION', area: 'Bookings' });
@@ -82,7 +82,7 @@ describe('booking requests', () => {
     expect((await requestBookingAction(null, halfDays(await rid('PDE-PIL'), 'RD-ORION', '2026-11-02', 'pm', 'pm'))).ok).toBe(false);
   });
 
-  it('EPC France books the tensile bench of laboratoire 67 by the hour; short notice is a warning (A-3)', async () => {
+  it('Filiale partenaire books the tensile bench of laboratoire 67 by the hour; short notice is a warning (A-3)', async () => {
     as('partner');
     const r = await requestBookingAction(null, form({ resourceId: await rid('LAB67-TRAC'), projectCode: 'FR-LYRA', fromOn: '2026-10-30', toOn: '2026-10-30', fromTime: '09:00', toTime: '10:30', title: 'Extra tensile tests' }));
     expect(r).toEqual({ ok: true, warnings: ['Late request: less notice than agreed'] });
@@ -175,11 +175,11 @@ describe('resources, calendars, rules, agreements', () => {
 
   it('the sharing agreement is the R&D director’s (A-3)', async () => {
     as('coordinator');
-    expect((await setAgreementAction(null, form({ facilityCode: 'LAB67', entityCode: 'EPCFR', quotaDaysPerMonth: '6' }))).ok).toBe(false);
+    expect((await setAgreementAction(null, form({ facilityCode: 'LAB67', entityCode: 'PARTENAIRE', quotaDaysPerMonth: '6' }))).ok).toBe(false);
     as('rd_director');
-    expect(await setAgreementAction(null, form({ facilityCode: 'LAB67', entityCode: 'EPCFR', quotaDaysPerMonth: '6', noticeWorkdays: '5' }))).toEqual({ ok: true });
+    expect(await setAgreementAction(null, form({ facilityCode: 'LAB67', entityCode: 'PARTENAIRE', quotaDaysPerMonth: '6', noticeWorkdays: '5' }))).toEqual({ ok: true });
     expect((await t.db.select().from(entityAgreements))[0]).toMatchObject({ quotaDaysPerMonth: 6, noticeWorkdays: 5, updatedByName: 'Hélène Marchal' });
-    expect((await setAgreementAction(null, form({ facilityCode: 'PDE', entityCode: 'EPCFR' }))).ok).toBe(false);
+    expect((await setAgreementAction(null, form({ facilityCode: 'PDE', entityCode: 'PARTENAIRE' }))).ok).toBe(false);
   });
 
   it('the coordinator imports past bookings for the reference measure (F-9)', async () => {

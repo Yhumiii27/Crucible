@@ -1,7 +1,7 @@
 // Internal chargeback (CR-074, X-19) on a fresh PostgreSQL database with the demo data set, demo mode ("View as"): a facility's
 // managers add dated rates (every entity, or one) and withdraw one entered by mistake; the statement of October bills the
 // realised time of a test done and the booked slot of one not held; a partner reads its entity's lines only; exported for the
-// accounting. LAB67-TRAC in October: FR-LYRA (EPC France) done 09:05–11:40, RD-VEGA (EPC2I) not held 13:00–16:00.
+// accounting. LAB67-TRAC in October: FR-LYRA (Filiale partenaire) done 09:05–11:40, RD-VEGA (GROUPE) not held 13:00–16:00.
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const jar = new Map<string, string>();
@@ -61,8 +61,8 @@ describe('rates', () => {
     as('coordinator');
     expect(await addRateAction(null, form({ resourceId: id, eurPerHour: 'cheap', validFrom: '2026-01-01' }))).toMatchObject({ ok: false });
     expect(await addRateAction(null, form({ resourceId: id, eurPerHour: '100', validFrom: '2026-01-01' }))).toEqual({ ok: true });
-    expect(await addRateAction(null, form({ resourceId: id, eurPerHour: '80', validFrom: '2026-10-01', entityCode: 'EPCFR' }))).toEqual({ ok: true });
-    expect(await addRateAction(null, form({ resourceId: id, eurPerHour: '999', validFrom: '2026-10-01', entityCode: 'EPCFR' }))).toEqual({ ok: true });
+    expect(await addRateAction(null, form({ resourceId: id, eurPerHour: '80', validFrom: '2026-10-01', entityCode: 'PARTENAIRE' }))).toEqual({ ok: true });
+    expect(await addRateAction(null, form({ resourceId: id, eurPerHour: '999', validFrom: '2026-10-01', entityCode: 'PARTENAIRE' }))).toEqual({ ok: true });
     const [wrong] = await t.db.select().from(chargeRates).where(eq(chargeRates.centsPerHour, 99900));
     expect(await withdrawRateAction(wrong.id)).toEqual({ ok: true });
     const [a] = await t.db.select().from(auditEntries).where(and(eq(auditEntries.entityType, 'charge_rate'), eq(auditEntries.entityId, wrong.id)));
@@ -77,7 +77,7 @@ describe('statement of the month', () => {
     const c = await monthlyCharges(await getViewer(), '2026-10', 'LAB67');
     const lines = c.groups.flatMap((g) => g.lines).filter((l) => l.resourceCode === 'LAB67-TRAC');
     const billed = lines.filter((l) => l.billedHours > 0).map((l) => [l.entityCode, l.status, l.billedHours, l.centsPerHour, l.amountCents]);
-    expect(billed).toEqual(expect.arrayContaining([['EPCFR', 'done', 2.58, 8000, 20640], ['EPC2I', 'no_show', 3, 10000, 30000]]));
+    expect(billed).toEqual(expect.arrayContaining([['PARTENAIRE', 'done', 2.58, 8000, 20640], ['GROUPE', 'no_show', 3, 10000, 30000]]));
     expect(billed).toHaveLength(2);
     // A booking still to come is valued (booked hours) but not billed.
     expect(lines.find((l) => l.status === 'confirmed')).toMatchObject({ billedHours: 0, amountCents: 0 });
@@ -85,11 +85,11 @@ describe('statement of the month', () => {
     expect(c.groups.every((g) => g.lines.every((l) => l.status !== 'cancelled' && l.status !== 'requested'))).toBe(true);
   });
 
-  it('the EPC France partner reads its entity’s lines only', async () => {
+  it('the Filiale partenaire partner reads its entity’s lines only', async () => {
     as('partner');
     const c = await monthlyCharges(await getViewer(), '2026-10', null);
     expect(c.groups.length).toBeGreaterThan(0);
-    expect(c.groups.every((g) => g.entityCode === 'EPCFR')).toBe(true);
+    expect(c.groups.every((g) => g.entityCode === 'PARTENAIRE')).toBe(true);
   });
 
   it('exported for the accounting, one line per booking', async () => {

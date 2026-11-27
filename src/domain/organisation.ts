@@ -1,6 +1,6 @@
 // Organisation vocabulary (docs/spec/00 §3, 02 §1–3): entity kinds and project priority classes. Pure, no import.
 
-/** `internal`: the entity running Crucible (EPC2i); `partner`: an entity sharing some facilities (EPC France, A-3). */
+/** `internal`: the entity running Crucible (Groupe); `partner`: an entity sharing some facilities (Filiale partenaire, A-3). */
 export const ENTITY_KINDS = ['internal', 'partner'] as const;
 export type EntityKind = (typeof ENTITY_KINDS)[number];
 

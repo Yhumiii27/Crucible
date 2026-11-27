@@ -1,9 +1,9 @@
-// Demonstration data set (T-7): the installations named by the R&D teams — laboratoire 67 (shared with EPC France) and the
+// Demonstration data set (T-7): the installations named by the R&D teams — laboratoire 67 (shared with Filiale partenaire) and the
 // PDE, a single building whose zones (mechanical workshop, pilot, laboratory rooms) cannot work at the same time (P-2) —
-// with fictitious people and projects, two entities (EPC2i, EPC France), one person per profile. No real person or project.
+// with fictitious people and projects, two entities (Groupe, Filiale partenaire), one person per profile. No real person or project.
 // The e-mail domains are reserved example domains. Delivery 2 adds the resources (the three zones of the PDE, three means of
 // laboratoire 67), the opening hours, the rule "one zone of the PDE at a time" validated by the safety officer, the agreement
-// with EPC France, inspections, an unavailability and bookings around the demonstration date (Thu 22 Oct 2026): a history
+// with Filiale partenaire, inspections, an unavailability and bookings around the demonstration date (Thu 22 Oct 2026): a history
 // of done tests, today's, and requests and confirmations of the next weeks — one of which the PDE rule forbids. Delivery 3
 // adds the milestones of the projects, a test type catalogue and test needs: forecasts that overload the PDE in the week of
 // 14 Dec 2026 (a bottleneck signalled 8 weeks ahead), a request covered by its booking and a late request (F-5).
@@ -21,24 +21,24 @@ import {
 import type { Tx } from '../types';
 
 export const DEMO_ENTITIES = [
-  { code: 'EPC2I', name: 'EPC2i', kind: 'internal' },
-  { code: 'EPCFR', name: 'EPC France', kind: 'partner', matrixCode: 'SMC' },
+  { code: 'GROUPE', name: 'Groupe', kind: 'internal' },
+  { code: 'PARTENAIRE', name: 'Filiale partenaire', kind: 'partner', matrixCode: 'SMC' },
 ] as const;
 
 // M-6 (Matrix, 4 Nov 2026): the laboratoire 67 and the PDE are on Matrix's site `smc` (Saint-Martin-de-Crau), subsidiary `SMC`
-// (EPC France): the demo site and EPC France are linked to them; their names follow Matrix once its views are granted.
+// (Filiale partenaire): the demo site and Filiale partenaire are linked to them; their names follow Matrix once its views are granted.
 export const DEMO_SITES = [{ code: 'RD-SITE', name: 'R&D test site (demo)', city: null, countryIso2: 'FR', matrixCode: 'smc' }] as const;
 
 export const DEMO_FACILITIES = [
-  { code: 'LAB67', name: 'Laboratoire 67', siteCode: 'RD-SITE', operatorEntityCode: 'EPC2I', description: 'Shared laboratory', partners: ['EPCFR'], acquisitionKeur: 850 },
-  { code: 'PDE', name: 'PDE', siteCode: 'RD-SITE', operatorEntityCode: 'EPC2I', description: 'Single building: mechanical workshop, pilot, laboratory rooms — one zone at a time', partners: [], acquisitionKeur: 3000 },
+  { code: 'LAB67', name: 'Laboratoire 67', siteCode: 'RD-SITE', operatorEntityCode: 'GROUPE', description: 'Shared laboratory', partners: ['PARTENAIRE'], acquisitionKeur: 850 },
+  { code: 'PDE', name: 'PDE', siteCode: 'RD-SITE', operatorEntityCode: 'GROUPE', description: 'Single building: mechanical workshop, pilot, laboratory rooms — one zone at a time', partners: [], acquisitionKeur: 3000 },
 ] as const;
 
 export const DEMO_PROJECTS: { code: string; name: string; entityCode: string; priorityClass: PriorityClass; confidential: boolean }[] = [
-  { code: 'RD-ORION', name: 'Orion', entityCode: 'EPC2I', priorityClass: 'P1', confidential: false },
-  { code: 'RD-VEGA', name: 'Vega', entityCode: 'EPC2I', priorityClass: 'P2', confidential: false },
-  { code: 'RD-CASSIOPEE', name: 'Cassiopée', entityCode: 'EPC2I', priorityClass: 'P1', confidential: true },
-  { code: 'FR-LYRA', name: 'Lyra', entityCode: 'EPCFR', priorityClass: 'P2', confidential: false },
+  { code: 'RD-ORION', name: 'Orion', entityCode: 'GROUPE', priorityClass: 'P1', confidential: false },
+  { code: 'RD-VEGA', name: 'Vega', entityCode: 'GROUPE', priorityClass: 'P2', confidential: false },
+  { code: 'RD-CASSIOPEE', name: 'Cassiopée', entityCode: 'GROUPE', priorityClass: 'P1', confidential: true },
+  { code: 'FR-LYRA', name: 'Lyra', entityCode: 'PARTENAIRE', priorityClass: 'P2', confidential: false },
 ];
 
 interface DemoPerson {
@@ -50,22 +50,22 @@ interface DemoPerson {
   roles: { role: RoleKey; scope: ScopeKind; ref: string | null }[];
 }
 
-const I = 'epc2i.example';
-const F = 'epc-france.example';
+const I = 'atrium.example';
+const F = 'filiale-partenaire.example';
 
 /** One persona per profile (the "View as" list) first, then the other people of the data set. */
 export const DEMO_PEOPLE: DemoPerson[] = [
-  { key: 'rd_director', name: 'Hélène Marchal', email: `h.marchal@${I}`, title: 'Head of R&D', entity: 'EPC2I', roles: [{ role: 'rd_director', scope: 'global', ref: null }] },
-  { key: 'coordinator', name: 'Antoine Leroy', email: `a.leroy@${I}`, title: 'Test resources coordinator', entity: 'EPC2I', roles: [{ role: 'coordinator', scope: 'facility', ref: 'LAB67' }, { role: 'coordinator', scope: 'facility', ref: 'PDE' }] },
-  { key: 'safety', name: 'Nathalie Brun', email: `n.brun@${I}`, title: 'Pyrotechnic safety officer', entity: 'EPC2I', roles: [{ role: 'safety', scope: 'global', ref: null }] },
-  { key: 'facility_manager', name: 'Damien Petit', email: `d.petit@${I}`, title: 'PDE manager', entity: 'EPC2I', roles: [{ role: 'facility_manager', scope: 'facility', ref: 'PDE' }] },
-  { key: 'project_lead', name: 'Camille Fabre', email: `c.fabre@${I}`, title: 'R&D project lead', entity: 'EPC2I', roles: [{ role: 'project_lead', scope: 'project', ref: 'RD-ORION' }, { role: 'project_lead', scope: 'project', ref: 'RD-CASSIOPEE' }] },
-  { key: 'technician', name: 'Julien Masson', email: `j.masson@${I}`, title: 'Test technician', entity: 'EPC2I', roles: [{ role: 'technician', scope: 'facility', ref: 'PDE' }] },
-  { key: 'partner', name: 'Isabelle Garnier', email: `i.garnier@${F}`, title: 'R&D engineer, EPC France', entity: 'EPCFR', roles: [{ role: 'partner', scope: 'entity', ref: 'EPCFR' }] },
-  { key: 'viewer', name: 'Olivier Caron', email: `o.caron@${I}`, title: 'Engineering manager', entity: 'EPC2I', roles: [{ role: 'viewer', scope: 'entity', ref: 'EPC2I' }] },
-  { key: 'admin', name: 'Crucible administrator', email: `admin.crucible@${I}`, title: 'Crucible administrator', entity: 'EPC2I', roles: [{ role: 'admin', scope: 'global', ref: null }] },
-  { key: 'lab67_manager', name: 'Sandrine Roux', email: `s.roux@${I}`, title: 'Laboratoire 67 manager', entity: 'EPC2I', roles: [{ role: 'facility_manager', scope: 'facility', ref: 'LAB67' }] },
-  { key: 'vega_lead', name: 'Mehdi Arnaud', email: `m.arnaud@${I}`, title: 'R&D project lead', entity: 'EPC2I', roles: [{ role: 'project_lead', scope: 'project', ref: 'RD-VEGA' }] },
+  { key: 'rd_director', name: 'Hélène Marchal', email: `h.marchal@${I}`, title: 'Head of R&D', entity: 'GROUPE', roles: [{ role: 'rd_director', scope: 'global', ref: null }] },
+  { key: 'coordinator', name: 'Antoine Leroy', email: `a.leroy@${I}`, title: 'Test resources coordinator', entity: 'GROUPE', roles: [{ role: 'coordinator', scope: 'facility', ref: 'LAB67' }, { role: 'coordinator', scope: 'facility', ref: 'PDE' }] },
+  { key: 'safety', name: 'Nathalie Brun', email: `n.brun@${I}`, title: 'Pyrotechnic safety officer', entity: 'GROUPE', roles: [{ role: 'safety', scope: 'global', ref: null }] },
+  { key: 'facility_manager', name: 'Damien Petit', email: `d.petit@${I}`, title: 'PDE manager', entity: 'GROUPE', roles: [{ role: 'facility_manager', scope: 'facility', ref: 'PDE' }] },
+  { key: 'project_lead', name: 'Camille Fabre', email: `c.fabre@${I}`, title: 'R&D project lead', entity: 'GROUPE', roles: [{ role: 'project_lead', scope: 'project', ref: 'RD-ORION' }, { role: 'project_lead', scope: 'project', ref: 'RD-CASSIOPEE' }] },
+  { key: 'technician', name: 'Julien Masson', email: `j.masson@${I}`, title: 'Test technician', entity: 'GROUPE', roles: [{ role: 'technician', scope: 'facility', ref: 'PDE' }] },
+  { key: 'partner', name: 'Isabelle Garnier', email: `i.garnier@${F}`, title: 'R&D engineer, partner subsidiary', entity: 'PARTENAIRE', roles: [{ role: 'partner', scope: 'entity', ref: 'PARTENAIRE' }] },
+  { key: 'viewer', name: 'Olivier Caron', email: `o.caron@${I}`, title: 'Engineering manager', entity: 'GROUPE', roles: [{ role: 'viewer', scope: 'entity', ref: 'GROUPE' }] },
+  { key: 'admin', name: 'Crucible administrator', email: `admin.crucible@${I}`, title: 'Crucible administrator', entity: 'GROUPE', roles: [{ role: 'admin', scope: 'global', ref: null }] },
+  { key: 'lab67_manager', name: 'Sandrine Roux', email: `s.roux@${I}`, title: 'Laboratoire 67 manager', entity: 'GROUPE', roles: [{ role: 'facility_manager', scope: 'facility', ref: 'LAB67' }] },
+  { key: 'vega_lead', name: 'Mehdi Arnaud', email: `m.arnaud@${I}`, title: 'R&D project lead', entity: 'GROUPE', roles: [{ role: 'project_lead', scope: 'project', ref: 'RD-VEGA' }] },
 ];
 
 export async function seedDemo(tx: Tx): Promise<void> {
@@ -159,7 +159,7 @@ async function seedResources(tx: Tx, idOf: Map<string, string>): Promise<void> {
     status: 'validated', proposedByName: 'Antoine Leroy', validatedByName: 'Nathalie Brun', validatedAt: parisInstant('2026-10-20', '09:00'),
   }).returning({ id: exclusionRules.id });
   await tx.insert(exclusionRuleResources).values(['PDE-ATM', 'PDE-LAB', 'PDE-PIL'].map((c) => ({ ruleId: rule.id, resourceId: rid.get(c)! })));
-  await tx.insert(entityAgreements).values({ facilityCode: 'LAB67', entityCode: 'EPCFR', quotaDaysPerMonth: 4, noticeWorkdays: 10, note: 'Demonstration agreement', updatedByName: 'Hélène Marchal' });
+  await tx.insert(entityAgreements).values({ facilityCode: 'LAB67', entityCode: 'PARTENAIRE', quotaDaysPerMonth: 4, noticeWorkdays: 10, note: 'Demonstration agreement', updatedByName: 'Hélène Marchal' });
   await tx.insert(inspections).values([
     { resourceId: rid.get('PDE-PIL')!, label: 'Periodic check of the electrical installations', periodMonths: 12, lastOn: '2025-11-16', updatedByName: 'Damien Petit' },
     { resourceId: rid.get('LAB67-CLIM')!, label: 'Pressure equipment inspection', periodMonths: 24, lastOn: '2025-03-10', updatedByName: 'Sandrine Roux' },
@@ -219,7 +219,7 @@ async function seedPlanning(tx: Tx, idOf: Map<string, string>): Promise<void> {
   await tx.insert(skills).values(DEMO_SKILLS.map((x) => ({ ...x })));
   for (const o of DEMO_OPERATORS) {
     const [p] = await tx.insert(people).values({
-      name: o.name, entityCode: 'EPC2I', matricule: o.matricule, facilityCodes: o.facilities, updatedByName: 'Demonstration data set',
+      name: o.name, entityCode: 'GROUPE', matricule: o.matricule, facilityCodes: o.facilities, updatedByName: 'Demonstration data set',
       userId: o.user ? idOf.get(byKey.get(o.user)!.email)! : null,
     }).returning({ id: people.id });
     await tx.insert(personSkills).values(o.skills.map(([skillCode, validUntil]) => ({ personId: p.id, skillCode, validUntil, updatedByName: 'Demonstration data set' })));

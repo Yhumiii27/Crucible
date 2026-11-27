@@ -1,12 +1,12 @@
 @norma/REGLES.md
 
-The line above imports the common rules of the EPC2I suite (Norma, versioned copy in `norma/`, checked by `npm run norma:check`);
+The line above imports the common rules of the Atrium suite (Norma, versioned copy in `norma/`, checked by `npm run norma:check`);
 they change in `Yhumiii27/Norma` only, never in this copy. The rules below are Crucible's own.
 
 # Crucible — instructions for Claude sessions
 
 Crucible is the group's application for **planning and arbitrating the shared R&D test resources**: laboratoire 67 (shared
-with EPC France), PDE, laboratoire PDE, atelier mécanique, then the other test means. Sibling apps: Keystone (projects,
+with the partner subsidiary, « Filiale partenaire » in the demo data set), PDE, laboratoire PDE, atelier mécanique, then the other test means. Sibling apps: Keystone (projects,
 `Yhumiii27/Keystone`), Arche (subsidiaries' CAPEX — the model to follow), Codex (documents), Vigie (QHSE), Cursus (HR),
 Matrix (shared PostgreSQL server). Their repositories can be added read-only to a session (never modified).
 
@@ -28,7 +28,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   from Keystone `63f43ad`), PostgreSQL only, 9 profiles with global / entity / facility / project scopes, visibility filtered in
   SQL (`src/domain/rights.ts`, `src/server/dal/visibility.ts`: a partner sees the facilities shared with its entity and its own
   projects; a confidential project stays with its team and the R&D director), administration of accounts, roles, entities,
-  sites, facilities and projects, demo data set (laboratoire 67 shared with EPC France, PDE).
+  sites, facilities and projects, demo data set (laboratoire 67 shared with « Filiale partenaire », PDE).
 - **Delivery 2 (resources, rules, bookings, utilisation) is done** (`docs/DELIVERY-2.md`): resources and calendars
   (`src/domain/calendar.ts`, `resources.ts`), exclusion rules validated by the safety officer, agreements, bookings checked
   against every hard constraint (`src/domain/booking.ts` `checkBooking`, Server Functions `src/features/resources/actions.ts`
@@ -178,7 +178,7 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   `keystoneRdProjectsToAdd` lists the open R&D projects of Keystone not in Crucible on `/admin/organisation` (added with the
   project form, Keystone code filled in). Vigie suspensions (V-2): filed with Matrix as M-21 on 5 Nov 2026 (Matrix#73).
 - **Delivery 21 (sites and entities read from Matrix, CR-060 continued) is done** (`docs/DELIVERY-21.md`, X-23 added; M-6 done by
-  Matrix 4 Nov 2026: laboratoire 67 and PDE on site `smc`, subsidiary `SMC` EPC France): `sites.matrix_code` and
+  Matrix 4 Nov 2026: laboratoire 67 and PDE on site `smc`, subsidiary `SMC`, the partner subsidiary): `sites.matrix_code` and
   `entities.matrix_code` (`drizzle/0029`), set by the administrator (`linkMatrixAction`, or a site / entity added from Matrix on
   `/admin/organisation`); `readMatrixSites` / `readMatrixEntities` make the name (and a site's city and country) follow
   `matrix.pub_sites` / `matrix.pub_filiales`; `matrixReferentials` lists Matrix's ones with their link.
@@ -201,6 +201,12 @@ Matrix (shared PostgreSQL server). Their repositories can be added read-only to 
   beyond three the « Actions » menu, where `Folded` / `ActionButton` render as menu rows), status date, assistant (help), bell,
   then the language / display pair `PrefsStack` (`prefs.tsx`), last, and nowhere else; `toolbar` in the charte's `FilterBar`;
   KPI tiles and empty states are the charte's (`coque.css`, tokens only).
+- **Atrium suite, Norma 3.1.0** (owner, 27 Nov 2026): the suite is named Atrium; no file names the former suite or the
+  company (the demo partner entity is « Filiale partenaire », code `PARTENAIRE`; the internal one « Groupe », `GROUPE`). The
+  display cookie is `atrium-theme`, the former name read as a fallback (`getTheme` through `themeFromCookies` of
+  `@norma/charte/ds/theme`). The database and host of the shared server are never hard-coded: `deploy/compose.shared.yaml`
+  builds DATABASE_URL from `ATRIUM_PG_HOST` / `ATRIUM_PG_DB` (defaults: today's names until Matrix renames the server;
+  `docs/EXPLOITATION.md` § 4.0).
 - **Logo, Norma 2.3.0** (owner, 25 Nov 2026; `norma/charte/COQUE.md` § 8 bis): the brand of the sidebar and of the top bar is the
   charter's `ToolLogo code="crucible"` (`@norma/charte/ds/ToolLogo`, 26 px, 20 px in the top bar), also on the pages outside the shell
   (sign-in…); the favicon is `src/app/icon.svg`, a copy of `norma/charte/logos/crucible.svg` (checked by `src/app/icon.test.ts`).

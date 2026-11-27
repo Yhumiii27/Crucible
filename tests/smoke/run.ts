@@ -55,7 +55,7 @@ async function main(): Promise<void> {
   const plan = await get('/planning?week=2026-10-26', 'coordinator');
   check(plan.status === 200 && plan.body.includes('PDE-ONE-ZONE · PDE-PIL') && plan.body.includes('B-2026-0011'), 'planning: the PDE zones blocked by the pilot (P-2), the bookings of the week');
   const partnerPlan = await get('/planning?week=2026-10-26', 'partner');
-  check(partnerPlan.status === 200 && partnerPlan.body.includes('Réservé · EPC2I') && !partnerPlan.body.includes('RD-ORION') && !partnerPlan.body.includes('PDE-PIL'), 'planning of EPC France: laboratoire 67 only, other entities’ tests masked (U-3)');
+  check(partnerPlan.status === 200 && partnerPlan.body.includes('Réservé · GROUPE') && !partnerPlan.body.includes('RD-ORION') && !partnerPlan.body.includes('PDE-PIL'), 'planning of Filiale partenaire: laboratoire 67 only, other entities’ tests masked (U-3)');
   check((await get('/facilities/LAB67', 'partner')).status === 200 && (await get('/facilities/PDE', 'partner')).status === 404, 'facility sheet: laboratoire 67 for the partner, the PDE does not exist for it');
   const sheet = await get('/facilities/PDE', 'facility_manager');
   check(sheet.status === 200 && sheet.body.includes('Vérification périodique des installations électriques'), 'facility sheet of the PDE: zones, rule, inspections');
@@ -73,7 +73,7 @@ async function main(): Promise<void> {
   const needs = await get('/my/needs', 'project_lead');
   check(needs.status === 200 && needs.body.includes('N-2026-0001') && needs.body.includes('RD-CASSIOPEE'), 'my test needs: the needs of the project lead’s projects');
   const lyra = await get('/my/needs', 'partner');
-  check(lyra.status === 200 && lyra.body.includes('N-2026-0005') && !lyra.body.includes('N-2026-0001'), 'my test needs of EPC France: its projects only');
+  check(lyra.status === 200 && lyra.body.includes('N-2026-0005') && !lyra.body.includes('N-2026-0001'), 'my test needs of Filiale partenaire: its projects only');
   const orion = await get('/projects/RD-ORION', 'rd_director');
   check(orion.status === 200 && orion.body.includes('Revue de qualification') && orion.body.includes('N-2026-0004'), 'project sheet: milestones and needs');
   // CR-081: a done test of the project offers to record its result.

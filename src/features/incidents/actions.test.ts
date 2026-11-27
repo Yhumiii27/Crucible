@@ -103,17 +103,17 @@ describe('a breakdown of the PDE (delivery 5 done-when)', () => {
   it('the worker e-mails every notification once, in French, with its link', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'crucible-mail-'));
     try {
-      const sent = await sendPendingMail(t.db, { transport: 'file', dir, from: 'crucible@epc2i.example', baseUrl: 'https://crucible.example' });
+      const sent = await sendPendingMail(t.db, { transport: 'file', dir, from: 'crucible@atrium.example', baseUrl: 'https://crucible.example' });
       expect(sent).toBe(4);
       // The text part is quoted-printable (nodemailer, CR-072): decoded before reading it.
       const qp = (x: string) => Buffer.from(x.replace(/=\r\n/g, '').replace(/=([0-9A-F]{2})/g, (_m, h: string) => String.fromCharCode(parseInt(h, 16))), 'latin1').toString('utf8');
       const files = fs.readdirSync(dir).map((f) => qp(fs.readFileSync(path.join(dir, f), 'latin1')));
       const moved = files.find((f) => f.includes('Votre essai a été déplacé · B-2026-0011 · S-2026-0001'))!;
-      expect(moved).toMatch(/^From: Crucible <crucible@epc2i\.example>\r\nTo: \S+@/);
+      expect(moved).toMatch(/^From: Crucible <crucible@atrium\.example>\r\nTo: \S+@/);
       expect(moved).toContain('Bonjour Camille Fabre,');
       expect(moved).toContain('https://crucible.example/projects/RD-ORION');
       expect(files.some((f) => f.includes('Scénario à trancher · S-2026-0001 · AL-2026-0001'))).toBe(true);
-      expect(await sendPendingMail(t.db, { transport: 'file', dir, from: 'crucible@epc2i.example' })).toBe(0);
+      expect(await sendPendingMail(t.db, { transport: 'file', dir, from: 'crucible@atrium.example' })).toBe(0);
       expect(await sendPendingMail(t.db, { transport: 'none', dir: null, from: 'x' })).toBe(0);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });

@@ -1,7 +1,7 @@
 # Crucible — vue d’ensemble (livraison 0, cadrage)
 
 > 22 oct. 2026. **Crucible** est l’application du groupe pour **planifier et arbitrer l’usage des moyens d’essais partagés**
-> de la R&D : laboratoire 67 (partagé avec EPC France), PDE, laboratoire PDE, atelier mécanique, puis les autres moyens.
+> de la R&D : laboratoire 67 (partagé avec la filiale partenaire), PDE, laboratoire PDE, atelier mécanique, puis les autres moyens.
 > Analyse du besoin et état des lieux des outils : [`../ANALYSE.md`](../ANALYSE.md). Ce document et les suivants sont des
 > **propositions** ; les points ouverts sont dans [`../DECISIONS.md`](../DECISIONS.md) avec une réponse par défaut (★).
 > Rien ne sera codé avant les réponses du responsable produit.
@@ -14,7 +14,7 @@
 | **Besoins et réservations** | chefs de projet, techniciens | un projet déclare ses besoins (prévision → demande → réservation) ; le réel est saisi |
 | **Anticipation** | coordinateur des moyens, direction R&D | charge prévisionnelle par moyen et par semaine, goulots et creux 4 à 12 semaines à l’avance |
 | **Proposition de créneaux** | demandeurs, coordinateur | créneaux compatibles avec toutes les contraintes dures, classés et expliqués |
-| **Conflits et arbitrages** | coordinateur, direction R&D, comité avec EPC France | fiche de conflit : options, conséquences par projet, règle appliquée, recommandation ; décision tracée |
+| **Conflits et arbitrages** | coordinateur, direction R&D, comité avec la filiale partenaire | fiche de conflit : options, conséquences par projet, règle appliquée, recommandation ; décision tracée |
 | **Aléas et replanification** | tous | scénario de reprise, avant / après par projet, notifications |
 | **Pilotage** | direction R&D, responsables | occupation vraie (réservé / réalisé / blocage), attentes par entité, retards imputables, valeur inoccupée |
 | **Assistant** | tous | demandes en langage naturel, explications, simulations « et si ? » ; jamais de décision seul (spec 04) |
@@ -24,7 +24,7 @@
 | Propriétaire | Ce qu’il possède | Ce que Crucible en fait |
 |---|---|---|
 | **Crucible** | moyens d’essai, règles d’exclusion, substitutions, règles de priorité, besoins d’essais, réservations, conflits, arbitrages, aléas, indicateurs d’occupation | — |
-| **Keystone** | projets, jalons, plannings des projets EPC2i | lit `pub_projets` ; demande la publication des jalons (K-2) ; publie ses réservations pour le planning des projets |
+| **Keystone** | projets, jalons, plannings des projets du groupe | lit `pub_projets` ; demande la publication des jalons (K-2) ; publie ses réservations pour le planning des projets |
 | **Vigie** | contrôles réglementaires, zones (dont `essais`, `atex`), coactivité, plans de prévention, permis | demande les contrôles et indisponibilités (V-1) et les suspensions d’essais pour coactivité (V-2) ; publie ses réservations pour la coactivité |
 | **Cursus** | personnes, habilitations, absences | lit `pub_salaries`, `pub_titres_detenus` ; demande les absences (CU-1) |
 | **Codex** | tous les documents | références : protocoles, modes opératoires, analyses de risque, justifications, rapports d’essai |
@@ -40,8 +40,8 @@ schéma et ne lit les autres outils que par leurs vues `pub_`.
 | **Installation** | ensemble physique sous une même responsabilité : laboratoire 67, PDE, laboratoire PDE, atelier mécanique |
 | **Moyen d’essai** | ce qui se réserve : banc, cellule, enceinte, machine, salle ; appartient à une installation |
 | **PDE** | bâtiment unique découpé en **zones** : l’atelier mécanique, le pilote et les pièces laboratoire (« laboratoire PDE ») ; on ne travaille qu’à **une zone à la fois** (pas de coactivité pyrotechnique) — réponse P-2 du 22 oct. 2026 |
-| **Laboratoire 67** | *localisation et statut à préciser* : propriété, exploitant, part d’EPC France (P-1) |
-| **Entité** | organisation demandeuse : EPC2i, EPC France, autre filiale ou partenaire |
+| **Laboratoire 67** | *localisation et statut à préciser* : propriété, exploitant, part de la filiale partenaire (P-1) |
+| **Entité** | organisation demandeuse : le groupe, la filiale partenaire, une autre filiale ou un partenaire |
 | **Type d’essai** | catégorie d’essai du catalogue R&D (durée type, compétences, moyen nominal) |
 | **Substitution** | autorisation **validée** d’exécuter un type d’essai sur un autre moyen que le moyen nominal |
 | **Règle d’exclusion** | ensemble de moyens dont au plus *k* fonctionnent en même temps (éventuellement pour certaines activités) |

@@ -35,7 +35,7 @@ Jeu de démonstration : jalons des quatre projets, cinq types d’essai, six bes
   d’essai, rapport, colonnes et masquage des vues `pub_`, connecteurs).
 - `npm run db:migrate` sur une base neuve (migrations `0004_needs_milestones`, `0005_share_resources`), `npm run build`,
   `next start` et `npm run test:smoke` : **34 contrôles HTTP** passent, dont le goulot du PDE à 8 semaines, « Mes besoins »
-  du chef de projet et d’EPC France, la fiche projet introuvable hors visibilité et les connecteurs. Aucune page en erreur
+  du chef de projet et de la filiale partenaire, la fiche projet introuvable hors visibilité et les connecteurs. Aucune page en erreur
   pour les neuf profils.
 
 ## 3. Choix appliqués, à confirmer (questionnaire)

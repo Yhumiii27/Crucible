@@ -71,7 +71,7 @@ describe('milestones', () => {
     expect((await lastAudit('Project RD-ORION')).change).toBe('milestone removed: Customer demo · 2027-02-17');
   });
 
-  it('refuses another project, a partner on an EPC2i project, and the removal of a milestone that needs serve', async () => {
+  it('refuses another project, a partner on a Groupe project, and the removal of a milestone that needs serve', async () => {
     as('project_lead');
     expect(await addMilestoneAction(null, form({ projectCode: 'RD-VEGA', label: 'Review', dueOn: '2027-02-10' }))).toEqual({ ok: false, error: 'This action is not in your workspace' });
     as('partner');
@@ -153,7 +153,7 @@ describe('reads', () => {
     // The pilot's electrical inspection falls due on 16 Nov (R-10): the December firing campaign cannot be booked until it is renewed.
     expect(data.inspectionAlerts).toContainEqual({ needRef: 'N-2026-0001', resourceCode: 'PDE-PIL', label: 'Periodic check of the electrical installations', dueOn: '2026-11-16' });
     // Cassiopée is confidential: the coordinator sees its need, not its project nor its purpose (U-3).
-    expect(data.needs.find((n) => n.ref === 'N-2026-0003')).toMatchObject({ projectCode: null, title: null, confidential: true, entityCode: 'EPC2I' });
+    expect(data.needs.find((n) => n.ref === 'N-2026-0003')).toMatchObject({ projectCode: null, title: null, confidential: true, entityCode: 'GROUPE' });
   });
 
   it('a project sheet does not exist outside the viewer’s visibility; my needs list the projects I enter', async () => {

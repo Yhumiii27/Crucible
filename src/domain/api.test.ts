@@ -43,13 +43,13 @@ describe('eventCursor', () => {
 describe('apiBooking', () => {
   const b = {
     ref: 'B-2026-0010', resourceCode: 'PDE-LAB', facilityCode: 'PDE', status: 'confirmed', startsAt: new Date('2026-10-22T10:00:00Z'), endsAt: new Date('2026-10-22T15:00:00Z'),
-    setupMinutes: 30, teardownMinutes: 0, actualStartAt: null, actualEndAt: null, projectCode: 'RD-SECRET', keystoneCode: 'K-12', entityCode: 'EPC2I', title: 'Ignition tests',
+    setupMinutes: 30, teardownMinutes: 0, actualStartAt: null, actualEndAt: null, projectCode: 'RD-SECRET', keystoneCode: 'K-12', entityCode: 'GROUPE', title: 'Ignition tests',
     operators: 'J. Masson', seriesRef: null, confidential: false, updatedAt: new Date('2026-10-20T08:00:00Z'),
   };
   it('shows the project of an open one; masks project, purpose and operators of a confidential one', () => {
     expect(apiBooking(b)).toMatchObject({ project: 'RD-SECRET', keystoneProject: 'K-12', purpose: 'Ignition tests', operators: 'J. Masson', start: '2026-10-22T10:00:00.000Z' });
     const hidden = apiBooking({ ...b, confidential: true });
-    expect(hidden).toMatchObject({ project: null, keystoneProject: null, purpose: null, operators: null, confidential: true, entity: 'EPC2I' });
+    expect(hidden).toMatchObject({ project: null, keystoneProject: null, purpose: null, operators: null, confidential: true, entity: 'GROUPE' });
     expect(JSON.stringify(hidden)).not.toMatch(/SECRET|Ignition|Masson/);
   });
 });

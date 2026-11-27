@@ -39,20 +39,20 @@ describe('administration actions', () => {
     as('rd_director');
     expect(await createUserAction(null, form({ email: 'x@y.example', displayName: 'X Y' }))).toEqual({ ok: false, error: 'This action is reserved to the administrator' });
     as('coordinator');
-    expect((await createFacilityAction(null, form({ code: 'ATM', name: 'Atelier', siteCode: 'RD-SITE', operatorEntityCode: 'EPC2I' }))).ok).toBe(false);
+    expect((await createFacilityAction(null, form({ code: 'ATM', name: 'Atelier', siteCode: 'RD-SITE', operatorEntityCode: 'GROUPE' }))).ok).toBe(false);
     expect(await userId('x@y.example')).toBeUndefined();
   });
 
   it('create an account, give and remove a role, deactivate and reactivate it — every step audited', async () => {
     as('admin');
-    expect(await createUserAction(null, form({ email: 'Ana.Ruiz@epc2i.example', displayName: 'Ana Ruiz', entityCode: 'EPC2I', jobTitle: 'Test technician' }))).toEqual({ ok: true });
-    const id = (await userId('ana.ruiz@epc2i.example'))!;
-    expect(await lastAudit()).toMatchObject({ objectRef: 'User ana.ruiz@epc2i.example', change: 'account created', area: 'Administration', actorRole: 'admin' });
-    expect(await createUserAction(null, form({ email: 'ana.ruiz@epc2i.example', displayName: 'Ana' }))).toEqual({ ok: false, error: 'An account already has this e-mail address' });
+    expect(await createUserAction(null, form({ email: 'Ana.Ruiz@atrium.example', displayName: 'Ana Ruiz', entityCode: 'GROUPE', jobTitle: 'Test technician' }))).toEqual({ ok: true });
+    const id = (await userId('ana.ruiz@atrium.example'))!;
+    expect(await lastAudit()).toMatchObject({ objectRef: 'User ana.ruiz@atrium.example', change: 'account created', area: 'Administration', actorRole: 'admin' });
+    expect(await createUserAction(null, form({ email: 'ana.ruiz@atrium.example', displayName: 'Ana' }))).toEqual({ ok: false, error: 'An account already has this e-mail address' });
 
     expect(await addRoleAction(null, form({ userId: id, role: 'technician', scopeRef: 'LAB67' }))).toEqual({ ok: true });
     expect(await addRoleAction(null, form({ userId: id, role: 'technician', scopeRef: 'ZZZ' }))).toEqual({ ok: false, error: 'Choose a facility' });
-    expect(await addRoleAction(null, form({ userId: id, role: 'partner', scopeRef: 'EPC2I' }))).toEqual({ ok: false, error: 'A partner contact is given a partner entity' });
+    expect(await addRoleAction(null, form({ userId: id, role: 'partner', scopeRef: 'GROUPE' }))).toEqual({ ok: false, error: 'A partner contact is given a partner entity' });
     const [a] = await t.db.select().from(roleAssignments).where(eq(roleAssignments.userId, id));
     expect(a).toMatchObject({ role: 'technician', scopeKind: 'facility', scopeRef: 'LAB67', createdByName: 'Crucible administrator' });
     expect(await lastAudit()).toMatchObject({ change: 'role added: technician · LAB67' });
@@ -69,7 +69,7 @@ describe('administration actions', () => {
 
   it('an administrator cannot deactivate themselves nor remove their own last administrator role', async () => {
     as('admin');
-    const me = (await userId('admin.crucible@epc2i.example'))!;
+    const me = (await userId('admin.crucible@atrium.example'))!;
     expect(await setUserActiveAction(me, false)).toEqual({ ok: false, error: 'You cannot deactivate your own account' });
     const [mine] = await t.db.select().from(roleAssignments).where(and(eq(roleAssignments.userId, me), eq(roleAssignments.role, 'admin')));
     expect(await removeRoleAction(mine.id)).toEqual({ ok: false, error: 'You cannot remove your own last administrator role' });
@@ -77,23 +77,23 @@ describe('administration actions', () => {
 
   it('organisation: entity, site, facility shared with a partner', async () => {
     as('admin');
-    expect(await createEntityAction(null, form({ code: 'EPCBE', name: 'EPC Belgique', kind: 'partner' }))).toEqual({ ok: true });
+    expect(await createEntityAction(null, form({ code: 'PARTBE', name: 'Filiale Belgique', kind: 'partner' }))).toEqual({ ok: true });
     expect(await createSiteAction(null, form({ code: 'SITE-2', name: 'Second test site', city: 'Lyon' }))).toEqual({ ok: true });
     expect(await createSiteAction(null, form({ code: 'SITE-2', name: 'Again' }))).toEqual({ ok: false, error: 'This code is already used' });
-    expect(await createFacilityAction(null, form({ code: 'ATM2', name: 'Workshop 2', siteCode: 'SITE-2', operatorEntityCode: 'EPC2I', partnerEntityCodes: ['EPCFR', 'EPCBE'] }))).toEqual({ ok: true });
-    expect(await t.db.$count(entities, eq(entities.code, 'EPCBE'))).toBe(1);
+    expect(await createFacilityAction(null, form({ code: 'ATM2', name: 'Workshop 2', siteCode: 'SITE-2', operatorEntityCode: 'GROUPE', partnerEntityCodes: ['PARTENAIRE', 'PARTBE'] }))).toEqual({ ok: true });
+    expect(await t.db.$count(entities, eq(entities.code, 'PARTBE'))).toBe(1);
     expect((await t.db.select().from(sites).where(eq(sites.code, 'SITE-2')))[0]).toMatchObject({ name: 'Second test site', countryIso2: 'FR' });
-    expect((await t.db.select().from(facilities).where(eq(facilities.code, 'ATM2')))[0]).toMatchObject({ siteCode: 'SITE-2', operatorEntityCode: 'EPC2I' });
-    expect((await t.db.select().from(facilityPartners).where(eq(facilityPartners.facilityCode, 'ATM2'))).map((x) => x.entityCode).sort()).toEqual(['EPCBE', 'EPCFR']);
+    expect((await t.db.select().from(facilities).where(eq(facilities.code, 'ATM2')))[0]).toMatchObject({ siteCode: 'SITE-2', operatorEntityCode: 'GROUPE' });
+    expect((await t.db.select().from(facilityPartners).where(eq(facilityPartners.facilityCode, 'ATM2'))).map((x) => x.entityCode).sort()).toEqual(['PARTBE', 'PARTENAIRE']);
     expect(await lastAudit()).toMatchObject({ objectRef: 'Facility ATM2', change: 'facility created' });
   });
 
   it('projects: the R&D director or the administrator, with the priority class; never a project lead', async () => {
     as('project_lead');
-    expect(await createProjectAction(null, form({ code: 'RD-ALTAIR', name: 'Altair', entityCode: 'EPC2I', priorityClass: 'P1' }))).toEqual({ ok: false, error: 'This action is reserved to the R&D director and the administrator' });
+    expect(await createProjectAction(null, form({ code: 'RD-ALTAIR', name: 'Altair', entityCode: 'GROUPE', priorityClass: 'P1' }))).toEqual({ ok: false, error: 'This action is reserved to the R&D director and the administrator' });
     as('rd_director');
-    expect(await createProjectAction(null, form({ code: 'rd-altair', name: 'Altair', entityCode: 'EPC2I', priorityClass: 'P1', confidential: 'on' }))).toEqual({ ok: true });
-    expect((await t.db.select().from(projects).where(eq(projects.code, 'RD-ALTAIR')))[0]).toMatchObject({ priorityClass: 'P1', confidential: true, entityCode: 'EPC2I' });
+    expect(await createProjectAction(null, form({ code: 'rd-altair', name: 'Altair', entityCode: 'GROUPE', priorityClass: 'P1', confidential: 'on' }))).toEqual({ ok: true });
+    expect((await t.db.select().from(projects).where(eq(projects.code, 'RD-ALTAIR')))[0]).toMatchObject({ priorityClass: 'P1', confidential: true, entityCode: 'GROUPE' });
     expect(await lastAudit()).toMatchObject({ objectRef: 'Project RD-ALTAIR', area: 'Projects', projectCode: 'RD-ALTAIR', actorRole: 'rd_director' });
   });
 });

@@ -1,4 +1,4 @@
-// Crucible's place on a PostgreSQL server — the shared EPC2I server (decision M-01 in Matrix: one database `epc2i`, one schema
+// Crucible's place on a PostgreSQL server — the shared server of the Atrium suite (decision M-01 in Matrix: one shared database, one schema
 // per tool; Crucible connects as `crucible_app`, owner of the schema `crucible` and of nothing else, N-1). Crucible runs on PostgreSQL
 // only (owner, 22 Oct 2026): a developer machine and the CI use the same layout (`npm run db:local` creates it there).
 // - tables are declared in the schema (`crucible.table(…)`, ./schema/_schema.ts), so migrations name `"crucible".` themselves;

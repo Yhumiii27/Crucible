@@ -42,7 +42,7 @@ export interface SidebarAccount {
 export interface FacilityOption {
   code: string;
   name: string;
-  /** "EPC2I · 3 resources". */
+  /** "GROUPE · 3 resources". */
   sub: string;
   /** A facility the viewer manages or coordinates. */
   mine: boolean;

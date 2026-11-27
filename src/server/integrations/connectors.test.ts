@@ -183,15 +183,15 @@ describe('the Connectors screen', () => {
 describe('Keystone projects (S-1, K-3)', () => {
   it('a linked project takes its name from Keystone; R&D projects not in Crucible are offered; a closed one is flagged, not set aside', async () => {
     await publish('keystone.pub_projets', 'code, nom, imputable, categorie, filiale_code',
-      `('HLT-026', 'Orion (Keystone)', true, 'rd', 'EPC2I'), ('KS-RD-9', 'Banc de vieillissement', true, 'rd', 'EPC2I'),
+      `('HLT-026', 'Orion (Keystone)', true, 'rd', 'GROUPE'), ('KS-RD-9', 'Banc de vieillissement', true, 'rd', 'GROUPE'),
        ('KS-CL-1', 'Projet client', true, 'client', null), ('KS-RD-OLD', 'Ancien', false, 'rd', null)`);
     expect(await readOf('keystone.pub_projets')).toMatchObject({ readable: true, read: 1, changed: 1 });
     const [orion] = await t.db.select().from(projects).where(eq(projects.code, 'RD-ORION'));
     expect(orion).toMatchObject({ name: 'Orion (Keystone)', keystoneClosed: false, active: true });
-    expect(await keystoneRdProjectsToAdd(t.db)).toEqual([{ code: 'KS-RD-9', name: 'Banc de vieillissement', entityCode: 'EPC2I' }]);
+    expect(await keystoneRdProjectsToAdd(t.db)).toEqual([{ code: 'KS-RD-9', name: 'Banc de vieillissement', entityCode: 'GROUPE' }]);
     expect(await readOf('keystone.pub_projets')).toMatchObject({ changed: 0 });
 
-    await publish('keystone.pub_projets', 'code, nom, imputable, categorie, filiale_code', `('HLT-026', 'Orion (Keystone)', false, 'rd', 'EPC2I')`);
+    await publish('keystone.pub_projets', 'code, nom, imputable, categorie, filiale_code', `('HLT-026', 'Orion (Keystone)', false, 'rd', 'GROUPE')`);
     expect(await readOf('keystone.pub_projets')).toMatchObject({ changed: 1 });
     expect((await t.db.select().from(projects).where(eq(projects.code, 'RD-ORION')))[0]).toMatchObject({ keystoneClosed: true, active: true });
     const [a] = await t.db.select().from(auditEntries).where(and(eq(auditEntries.objectRef, 'keystone.pub_projets'), eq(auditEntries.area, 'Projects')));
@@ -215,22 +215,22 @@ describe('Cursus employees (S-3)', () => {
 describe('Matrix sites and subsidiaries (D14, D21, M-6)', () => {
   it('a linked site and entity take their names from Matrix; the unlinked ones of Matrix are offered; linking and adding', async () => {
     await publish('matrix.pub_sites', 'code, libelle, ville, pays_iso2, ordre, actif',
-      `('smc', 'Saint-Martin-de-Crau — EPC France (laboratoire 67, PDE)', 'Saint-Martin-de-Crau', 'FR', 40, true), ('lyon', 'Lyon — siège et atelier', 'Lyon', 'FR', 10, true), ('old', 'Fermé', null, 'FR', 90, false)`);
-    await publish('matrix.pub_filiales', 'code, nom, ordre, actif', `('SMC', 'EPC France SAS', 10, true), ('MAR', 'EPC Maroc', 20, true)`);
+      `('smc', 'Saint-Martin-de-Crau — Filiale partenaire (laboratoire 67, PDE)', 'Saint-Martin-de-Crau', 'FR', 40, true), ('lyon', 'Lyon — siège et atelier', 'Lyon', 'FR', 10, true), ('old', 'Fermé', null, 'FR', 90, false)`);
+    await publish('matrix.pub_filiales', 'code, nom, ordre, actif', `('SMC', 'Filiale partenaire SAS', 10, true), ('MAR', 'Filiale Maroc', 20, true)`);
     const reps = await read();
     expect(reps.find((r) => r.view === 'matrix.pub_sites')).toMatchObject({ readable: true, read: 1, changed: 1 });
     expect(reps.find((r) => r.view === 'matrix.pub_filiales')).toMatchObject({ readable: true, read: 1, changed: 1 });
-    expect((await t.db.select().from(sites).where(eq(sites.code, 'RD-SITE')))[0]).toMatchObject({ name: 'Saint-Martin-de-Crau — EPC France (laboratoire 67, PDE)', city: 'Saint-Martin-de-Crau', matrixCode: 'smc' });
-    expect((await t.db.select().from(entities).where(eq(entities.code, 'EPCFR')))[0].name).toBe('EPC France SAS');
+    expect((await t.db.select().from(sites).where(eq(sites.code, 'RD-SITE')))[0]).toMatchObject({ name: 'Saint-Martin-de-Crau — Filiale partenaire (laboratoire 67, PDE)', city: 'Saint-Martin-de-Crau', matrixCode: 'smc' });
+    expect((await t.db.select().from(entities).where(eq(entities.code, 'PARTENAIRE')))[0].name).toBe('Filiale partenaire SAS');
     const ref = await matrixReferentials(t.db);
     expect(ref.sites.map((x) => [x.code, x.linkedTo])).toEqual([['lyon', null], ['smc', 'RD-SITE']]);
-    expect(ref.subsidiaries.map((x) => [x.code, x.linkedTo])).toEqual([['SMC', 'EPCFR'], ['MAR', null]]);
+    expect(ref.subsidiaries.map((x) => [x.code, x.linkedTo])).toEqual([['SMC', 'PARTENAIRE'], ['MAR', null]]);
 
     // The administrator only; a code already linked or unknown is refused; a site added from Matrix is linked to it.
     as('rd_director');
-    expect(await linkMatrixAction(null, form({ kind: 'entity', code: 'EPC2I', matrixCode: 'MAR' }))).toMatchObject({ ok: false });
+    expect(await linkMatrixAction(null, form({ kind: 'entity', code: 'GROUPE', matrixCode: 'MAR' }))).toMatchObject({ ok: false });
     as('admin');
-    expect(await linkMatrixAction(null, form({ kind: 'entity', code: 'EPC2I', matrixCode: 'SMC' }))).toEqual({ ok: false, error: 'Choose a Matrix subsidiary not yet linked' });
+    expect(await linkMatrixAction(null, form({ kind: 'entity', code: 'GROUPE', matrixCode: 'SMC' }))).toEqual({ ok: false, error: 'Choose a Matrix subsidiary not yet linked' });
     expect(await linkMatrixAction(null, form({ kind: 'site', code: 'RD-SITE', matrixCode: 'nowhere' }))).toEqual({ ok: false, error: 'Choose a Matrix site not yet linked' });
     expect(await createSiteAction(null, form({ code: 'LYON', name: 'Lyon', countryIso2: 'FR', matrixCode: 'lyon' }))).toEqual({ ok: true });
     expect((await t.db.select().from(sites).where(eq(sites.code, 'LYON')))[0].matrixCode).toBe('lyon');

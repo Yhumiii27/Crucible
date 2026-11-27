@@ -91,12 +91,12 @@ describe('Entra ID sign-in', () => {
   beforeEach(() => useEntra());
 
   it('signs a registered account in by e-mail, links the Microsoft object id, audits, and returns to the page', async () => {
-    const r = await signIn({ oid: 'oid-camille', preferred_username: 'C.Fabre@epc2i.example', name: 'Camille Fabre' });
+    const r = await signIn({ oid: 'oid-camille', preferred_username: 'C.Fabre@atrium.example', name: 'Camille Fabre' });
     expect(r.res.status).toBe(302);
     expect(r.res.headers.get('location')).toBe(`${ORIGIN}/facilities`);
     expect(r.cookies[SESSION].attrs).toMatch(/httponly/);
     expect(r.cookies[TX].value).toBe('');
-    const u = await userByEmail('c.fabre@epc2i.example');
+    const u = await userByEmail('c.fabre@atrium.example');
     expect(u).toMatchObject({ entraObjectId: 'oid-camille', active: true });
     expect(u.lastSignInAt).toBeInstanceOf(Date);
     expect(await lastAudit()).toMatchObject({ actorName: 'Camille Fabre', change: 'Signed in', area: 'Sign-in' });
@@ -112,28 +112,28 @@ describe('Entra ID sign-in', () => {
   });
 
   it('refuses an unknown e-mail, an account without role, a deactivated account and another Microsoft account', async () => {
-    const unknown = await signIn({ oid: 'oid-x', email: 'nobody@epc2i.example' });
+    const unknown = await signIn({ oid: 'oid-x', email: 'nobody@atrium.example' });
     expect(unknown.res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=unknown_user`);
     expect(await lastAudit()).toMatchObject({ change: 'Sign-in refused · Unknown e-mail' });
 
-    const mehdi = await userByEmail('m.arnaud@epc2i.example');
+    const mehdi = await userByEmail('m.arnaud@atrium.example');
     await t.db.update(users).set({ entraObjectId: 'oid-mehdi-elsewhere' }).where(eq(users.id, mehdi.id));
-    expect((await signIn({ oid: 'oid-mehdi', email: 'm.arnaud@epc2i.example' })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=account_mismatch`);
+    expect((await signIn({ oid: 'oid-mehdi', email: 'm.arnaud@atrium.example' })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=account_mismatch`);
 
-    const sandrine = await userByEmail('s.roux@epc2i.example');
+    const sandrine = await userByEmail('s.roux@atrium.example');
     await t.db.update(users).set({ active: false }).where(eq(users.id, sandrine.id));
-    expect((await signIn({ oid: 'oid-sandrine', email: 's.roux@epc2i.example' })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=inactive`);
+    expect((await signIn({ oid: 'oid-sandrine', email: 's.roux@atrium.example' })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=inactive`);
 
-    const olivier = await userByEmail('o.caron@epc2i.example');
+    const olivier = await userByEmail('o.caron@atrium.example');
     await t.db.delete(roleAssignments).where(eq(roleAssignments.userId, olivier.id));
-    expect((await signIn({ oid: 'oid-olivier', email: 'o.caron@epc2i.example' })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
+    expect((await signIn({ oid: 'oid-olivier', email: 'o.caron@atrium.example' })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
   });
 
   it('creates the first administrator from CRUCIBLE_ADMIN_EMAILS', async () => {
-    useEntra({ CRUCIBLE_ADMIN_EMAILS: 'it.admin@epc2i.example' });
-    const r = await signIn({ oid: 'oid-it', email: 'IT.Admin@epc2i.example', name: 'IT Admin' });
+    useEntra({ CRUCIBLE_ADMIN_EMAILS: 'it.admin@atrium.example' });
+    const r = await signIn({ oid: 'oid-it', email: 'IT.Admin@atrium.example', name: 'IT Admin' });
     expect(r.res.headers.get('location')).toBe(`${ORIGIN}/facilities`);
-    const u = await userByEmail('it.admin@epc2i.example');
+    const u = await userByEmail('it.admin@atrium.example');
     expect(u).toMatchObject({ displayName: 'IT Admin', entraObjectId: 'oid-it' });
     const roles = await t.db.select().from(roleAssignments).where(eq(roleAssignments.userId, u.id));
     expect(roles.map((x) => [x.role, x.scopeKind, x.scopeRef])).toEqual([['admin', 'global', null]]);
@@ -142,9 +142,9 @@ describe('Entra ID sign-in', () => {
   });
 
   it('switches the active role among the roles held, refuses another one, and signs out', async () => {
-    const antoine = await userByEmail('a.leroy@epc2i.example');
+    const antoine = await userByEmail('a.leroy@atrium.example');
     await t.db.insert(roleAssignments).values({ userId: antoine.id, role: 'technician', scopeKind: 'facility', scopeRef: 'PDE', createdByName: 'Test' });
-    const r = await signIn({ oid: 'oid-antoine', email: 'a.leroy@epc2i.example', name: 'Antoine Leroy' });
+    const r = await signIn({ oid: 'oid-antoine', email: 'a.leroy@atrium.example', name: 'Antoine Leroy' });
     useSession(r);
     expect(await getViewer()).toMatchObject({ role: 'coordinator', roles: ['coordinator', 'technician'] });
     expect(await switchRole('rd_director')).toEqual({ ok: false, error: 'You do not hold this role' });
@@ -162,7 +162,7 @@ describe('Entra ID sign-in', () => {
   it('refuses a callback whose state does not match the sign-in cookie', async () => {
     const start = await handleSignIn(new NextRequest(`${ORIGIN}/api/auth/sign-in`));
     const tx = setCookies(start)[TX].value;
-    const { code } = idp.authorize(start.headers.get('location')!, { oid: 'o', email: 'a.leroy@epc2i.example' });
+    const { code } = idp.authorize(start.headers.get('location')!, { oid: 'o', email: 'a.leroy@atrium.example' });
     const res = await handleCallback(new NextRequest(`${ORIGIN}/api/auth/callback?code=${code}&state=forged`, { headers: { cookie: `${TX}=${tx}` } }));
     expect(res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=state`);
   });
@@ -193,9 +193,9 @@ describe('rights read in the database (CRUCIBLE_ACCESS_FROM_CLAVIS=on)', () => {
   });
 
   it('takes the role set in Clavis, not the token, and applies a change or a withdrawal at the next page', async () => {
-    const r = await signIn({ oid: OID, email: 'db.reader@epc-groupe.example', name: 'Db Reader', roles: ['admin'] });
+    const r = await signIn({ oid: OID, email: 'db.reader@groupe.example', name: 'Db Reader', roles: ['admin'] });
     expect(r.res.headers.get('location')).toBe(`${ORIGIN}/facilities`);
-    expect(await userByEmail('db.reader@epc-groupe.example')).toMatchObject({ grantedRoles: ['safety'] });
+    expect(await userByEmail('db.reader@groupe.example')).toMatchObject({ grantedRoles: ['safety'] });
     useSession(r);
     expect(await getViewer()).toMatchObject({ role: 'safety', roles: ['safety'] });
     await admin(`update clavis.pub_acces set role = 'rd_director' where application = 'crucible'`);
@@ -203,20 +203,20 @@ describe('rights read in the database (CRUCIBLE_ACCESS_FROM_CLAVIS=on)', () => {
     await admin(`update clavis.pub_acces set ouvert = false where application = 'crucible'`);
     await expect(getViewer()).rejects.toThrow(/REDIRECT:\/sign-in/);
     jar.clear();
-    expect((await signIn({ oid: OID, email: 'db.reader@epc-groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
+    expect((await signIn({ oid: OID, email: 'db.reader@groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
   });
 
   it('ignores the roles of the token when the access from Clavis is off: Crucible\'s own assignments rule', async () => {
     useEntra({ CRUCIBLE_ACCESS_FROM_CLAVIS: 'off' });
-    const r = await signIn({ oid: 'oid-token-only', email: 'token.only@epc-groupe.example', roles: ['admin', 'rd_director'] });
+    const r = await signIn({ oid: 'oid-token-only', email: 'token.only@groupe.example', roles: ['admin', 'rd_director'] });
     expect(r.res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=unknown_user`);
-    expect(await userByEmail('token.only@epc-groupe.example')).toBeUndefined();
+    expect(await userByEmail('token.only@groupe.example')).toBeUndefined();
   });
 
   it('keeps a scoped role only while Clavis grants it; the facility still comes from the Crucible assignment', async () => {
     const DAMIEN = '7e1f3a2b-5c6d-4e8f-9a0b-1c2d3e4f5a6b';
     await admin(`insert into clavis.pub_acces values ($1, 'crucible', true, 'gestion', null, 'Crucible.Facility_Manager', true, now())`, [DAMIEN]);
-    const granted = await signIn({ oid: DAMIEN, preferred_username: 'd.petit@epc2i.example', roles: ['admin'] });
+    const granted = await signIn({ oid: DAMIEN, preferred_username: 'd.petit@atrium.example', roles: ['admin'] });
     useSession(granted);
     const v = await getViewer();
     expect(v).toMatchObject({ role: 'facility_manager' });
@@ -229,13 +229,13 @@ describe('rights read in the database (CRUCIBLE_ACCESS_FROM_CLAVIS=on)', () => {
     const NONE = '1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d';
     const TECH = '2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e';
     await admin(`insert into clavis.pub_acces values ($1, 'crucible', true, 'contribution', null, 'technician', true, now())`, [TECH]);
-    expect((await signIn({ oid: NONE, email: 'none@epc-groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
-    expect((await signIn({ oid: TECH, email: 'new.tech@epc-groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_scope`);
-    expect(await userByEmail('new.tech@epc-groupe.example')).toBeUndefined();
+    expect((await signIn({ oid: NONE, email: 'none@groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_role`);
+    expect((await signIn({ oid: TECH, email: 'new.tech@groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=no_scope`);
+    expect(await userByEmail('new.tech@groupe.example')).toBeUndefined();
   });
 
   it('refuses when the view cannot be read, never falling back to the token', async () => {
     await admin('drop schema clavis cascade');
-    expect((await signIn({ oid: OID, email: 'db.reader2@epc-groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=failed`);
+    expect((await signIn({ oid: OID, email: 'db.reader2@groupe.example', roles: ['admin'] })).res.headers.get('location')).toBe(`${ORIGIN}/sign-in?error=failed`);
   });
 });

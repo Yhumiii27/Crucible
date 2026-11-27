@@ -27,11 +27,11 @@ Pilotage ; direction R&D, coordinateur, responsables d’installation, référen
 | # | Prérequis | Qui | État au 23/10/2026 | Où le suivre |
 |---|---|---|---|---|
 | 1 | **Atelier avec les équipes** ([`ATELIER-CADRAGE.md`](ATELIER-CADRAGE.md)) : moyens, règles d’exclusion, substitutions, priorités, projets du pilote | Responsable produit, direction R&D | à planifier | D-11 (participants) |
-| 2 | **Données D-1 à D-10** : moyens, règles, types d’essai, substitutions, projets et besoins, personnes, accord EPC France, **historique 6 à 12 mois** (D-8), origine des 30 % (D-9), contrôles | Responsables d’installation, référent sécurité, chefs de projet | à fournir | gabarits [`atelier/gabarits-donnees-crucible.xlsx`](atelier/gabarits-donnees-crucible.xlsx) ; questionnaire « Décisions Crucible », blocs Données |
+| 2 | **Données D-1 à D-10** : moyens, règles, types d’essai, substitutions, projets et besoins, personnes, accord avec la filiale partenaire, **historique 6 à 12 mois** (D-8), origine des 30 % (D-9), contrôles | Responsables d’installation, référent sécurité, chefs de projet | à fournir | gabarits [`atelier/gabarits-donnees-crucible.xlsx`](atelier/gabarits-donnees-crucible.xlsx) ; questionnaire « Décisions Crucible », blocs Données |
 | 3 | **Hébergement** (T-6) : même hébergeur que Keystone et Arche, données et sauvegardes en France ; kit Coolify `deploy/compose.shared.yaml` | DSI | à faire | [`EXPLOITATION.md`](EXPLOITATION.md) §3–4 |
 | 4 | **Serveur commun** : rôle `crucible_app`, schéma `crucible`, droits (M-1 à M-5 faites ; M-7 et M-8 fusionnées le 23/10/2026, Matrix#17) ; site du laboratoire 67 et du PDE dans le référentiel (M-6, faite le 04/11/2026 : site `smc`, filiale `SMC`) | Matrix | M-6 ouverte | [`DEMANDES-MATRIX.md`](DEMANDES-MATRIX.md) |
-| 5 | **Inscription Microsoft Entra** de Crucible (identifiant d’application, secret, adresse de retour) ; invités B2B pour EPC France (U-1) ; premier administrateur (`CRUCIBLE_ADMIN_EMAILS`) | DSI | à faire | `.env.example`, [`EXPLOITATION.md`](EXPLOITATION.md) §2 |
-| 6 | **Comptes et rôles** : direction R&D, coordinateur (U-2), référent sécurité, responsables et techniciens par installation, chefs de projet, contact EPC France | Administrateur (DSI) puis direction R&D | après 5 | écran Utilisateurs et rôles |
+| 5 | **Inscription Microsoft Entra** de Crucible (identifiant d’application, secret, adresse de retour) ; invités B2B pour la filiale partenaire (U-1) ; premier administrateur (`CRUCIBLE_ADMIN_EMAILS`) | DSI | à faire | `.env.example`, [`EXPLOITATION.md`](EXPLOITATION.md) §2 |
+| 6 | **Comptes et rôles** : direction R&D, coordinateur (U-2), référent sécurité, responsables et techniciens par installation, chefs de projet, contact de la filiale partenaire | Administrateur (DSI) puis direction R&D | après 5 | écran Utilisateurs et rôles |
 | 7 | **Annonce** : à partir du premier jour, toute réservation des installations du pilote passe par Crucible (F-9) | Direction R&D | à faire | — |
 | 8 | Connecteurs : jalons Keystone (K-2), absences Cursus (CU-1), contrôles Vigie (V-1) — **non bloquants** (saisie dans Crucible en attendant) | Keystone, Cursus, Vigie | K-2, CU-1 fusionnées ; V-1 en attente | écran Connecteurs |
 | 9 | Assistant IA avec Claude — **non bloquant** (l’assistant répond par gabarits sans IA) | DSI (I-3) | en attente | [`DELIVERY-6.md`](DELIVERY-6.md) |
@@ -74,4 +74,4 @@ Les remarques des équipes sont notées à la revue hebdomadaire ; une demande d
 ## 6. Après le pilote
 
 Bilan écrit dans ce fichier ; décisions de déploiement général (autres moyens R&D, autres sites, socle partagé
-`@epc2i/socle`) ; activation de Claude si la DSI l’a validé (I-3).
+`@atrium/socle`) ; activation de Claude si la DSI l’a validé (I-3).

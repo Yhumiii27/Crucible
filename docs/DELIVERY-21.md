@@ -2,8 +2,8 @@
 
 > 5 nov. 2026, branche `claude/lucid-dirac-7bdq6x`. Demande du responsable produit : « continue ». Relecture du
 > questionnaire et de `REQUESTS.md` : aucune nouvelle réponse, aucune entrée ouverte. Matrix a fait **M-6** le 04/11/2026
-> d’après votre réponse (« Labo 67 = SMC, PDE = SMC, EPC France = SMC ») : site `smc` « Saint-Martin-de-Crau — EPC France
-> (laboratoire 67, PDE) » et filiale `SMC` « EPC France », publiés par `matrix.pub_sites` et `matrix.pub_filiales`. La
+> d’après votre réponse (reformulé, 27/11/2026 : le laboratoire 67, le PDE et la filiale partenaire relèvent tous trois de SMC) : site `smc`
+> de Saint-Martin-de-Crau (laboratoire 67, PDE) et filiale `SMC` (la Filiale partenaire), publiés par `matrix.pub_sites` et `matrix.pub_filiales`. La
 > localisation est reportée dans P-1 ([`DECISIONS.md`](DECISIONS.md)). Nouvelle question **X-23**, défaut appliqué, à
 > confirmer.
 
@@ -14,7 +14,7 @@
 - Écran **Organisation** (administrateur) : une colonne « Matrix » relie chaque site et chaque entité à un site ou une filiale
   de Matrix (ou défait le lien) ; une section liste les **sites et filiales de Matrix absents de Crucible**, avec « Ajouter à
   Crucible » (formulaire rempli, relié à Matrix). Un code de Matrix ne se relie qu’une fois. Journalisé.
-- Données de démonstration : le site de démonstration est relié à `smc`, EPC France à `SMC`.
+- Données de démonstration : le site de démonstration est relié à `smc`, la filiale partenaire à `SMC`.
 
 ## 2. Lecture
 

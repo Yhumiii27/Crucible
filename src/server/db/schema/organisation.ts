@@ -1,4 +1,4 @@
-// Organisation (docs/spec/02-objets.md §1, §3–4): entities (EPC2i, EPC France…), sites, facilities and the partner entities
+// Organisation (docs/spec/02-objets.md §1, §3–4): entities (Groupe, Filiale partenaire…), sites, facilities and the partner entities
 // they are shared with, R&D projects (minimal record of delivery 1; needs and milestones come with delivery 3), users and
 // their role assignments with a scope (docs/spec/01 §2).
 import { sql } from 'drizzle-orm';
@@ -10,10 +10,10 @@ import { id, timestamps } from './_common';
 import { CODE_RE, COUNTRY_RE, ENTITY_KINDS, PRIORITY_CLASSES, ROLE_KEYS, SCOPE_KINDS, filled, oneOf, rule, shaped } from './_checks';
 
 export const entities = crucible.table('entities', {
-  /** Short code, e.g. "EPC2I", "EPCFR". */
+  /** Short code, e.g. "GROUPE", "PARTENAIRE". */
   code: text('code').primaryKey(),
   name: text('name').notNull(),
-  /** `internal`: the entity running Crucible; `partner`: an entity sharing some facilities (EPC France, A-3). */
+  /** `internal`: the entity running Crucible; `partner`: an entity sharing some facilities (Filiale partenaire, A-3). */
   kind: text('kind').$type<EntityKind>().notNull(),
   active: boolean('active').notNull().default(true),
   ...timestamps,
@@ -60,7 +60,7 @@ export const facilities = crucible.table('facilities', {
   rule('facilities_acquisition_non_negative', sql`${t.acquisitionKeur} >= 0`),
 ]);
 
-/** Partner entities a facility is shared with (laboratoire 67 → EPC France). */
+/** Partner entities a facility is shared with (laboratoire 67 → Filiale partenaire). */
 export const facilityPartners = crucible.table('facility_partners', {
   facilityCode: text('facility_code').notNull().references(() => facilities.code, { onDelete: 'cascade' }),
   entityCode: text('entity_code').notNull().references(() => entities.code),

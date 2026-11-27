@@ -27,13 +27,13 @@
   {
     "id": "A-3",
     "group": "prio",
-    "title": "Règle de partage avec EPC France sur le laboratoire 67",
-    "context": "Une priorité de fait semble donnée à EPC France. Crucible ne peut appliquer qu’une règle écrite. Existe-t-il un accord (contrat, convention, refacturation) ?",
-    "proposal": "Écrire un accord de partage : quota ou créneaux réservés à EPC France (par exemple X jours par mois), délai de prévenance identique pour tous ; au-delà du quota, mêmes règles de priorité que les projets EPC2i (classe, échéance, marge). Désaccord : comité mensuel commun.",
+    "title": "Règle de partage avec la filiale partenaire sur le laboratoire 67",
+    "context": "Une priorité de fait semble donnée à la filiale partenaire. Crucible ne peut appliquer qu’une règle écrite. Existe-t-il un accord (contrat, convention, refacturation) ?",
+    "proposal": "Écrire un accord de partage : quota ou créneaux réservés à la filiale partenaire (par exemple X jours par mois), délai de prévenance identique pour tous ; au-delà du quota, mêmes règles de priorité que les projets du groupe (classe, échéance, marge). Désaccord : comité mensuel commun.",
     "alts": [
       "Priorité égale sans quota : seules les règles de priorité comptent",
-      "EPC France reste prioritaire sur le laboratoire 67 (formaliser l’existant)",
-      "Les projets EPC2i sont prioritaires sur le laboratoire 67"
+      "La filiale partenaire reste prioritaire sur le laboratoire 67 (formaliser l’existant)",
+      "Les projets du groupe sont prioritaires sur le laboratoire 67"
     ],
     "blocks": "L2"
   },
@@ -70,7 +70,7 @@
     "context": "Le moteur classe les options selon un ordre de critères (sécurité, échéances critiques, retard pondéré, stabilité, utilisation, équité) et des règles de priorité. Ces règles doivent avoir un propriétaire légitime aux yeux des deux entités.",
     "proposal": "La direction R&D fixe et publie les règles et l’ordre des critères ; elles sont versionnées dans Crucible et chaque proposition cite la version qui l’a produite. Les classes de priorité des projets sont fixées par la direction R&D, jamais par l’entité demandeuse.",
     "alts": [
-      "Un comité commun EPC2i / EPC France",
+      "Un comité commun groupe / filiale partenaire",
       "La direction générale",
       "Le coordinateur des moyens d’essais"
     ],
@@ -81,9 +81,9 @@
     "group": "prio",
     "title": "Le laboratoire 67 : où, à qui, comment est-il partagé ?",
     "context": "Matrix ne connaît que trois sites (Lyon, Le Havre, Marseille), aucun laboratoire. « 67 » est-il un numéro de bâtiment, un département ? Qui en est propriétaire et exploitant ?",
-    "proposal": "Le laboratoire 67 est une installation exploitée par EPC2i (ou le groupe), dont EPC France est utilisateur partenaire ; son site est à ajouter au référentiel de Matrix (demande M-6). Préciser en note la localisation.",
+    "proposal": "Le laboratoire 67 est une installation exploitée par le groupe, dont la filiale partenaire est utilisateur partenaire ; son site est à ajouter au référentiel de Matrix (demande M-6). Préciser en note la localisation.",
     "alts": [
-      "EPC France est propriétaire et exploitant ; EPC2i est utilisateur",
+      "La filiale partenaire est propriétaire et exploitant ; le groupe est utilisateur",
       "Copropriété ou exploitation commune"
     ],
     "blocks": "L1"
@@ -187,9 +187,9 @@
   {
     "id": "R-7",
     "group": "regles",
-    "title": "EPC France dans le laboratoire 67 : coactivité et plan de prévention",
-    "context": "Si EPC France est une autre personne morale, ses interventions relèvent de la coactivité (plan de prévention), que Vigie gère. Vigie suspend déjà les essais d’une zone « essais » pendant une intervention extérieure.",
-    "proposal": "Crucible publie ses réservations (vue pub_reservations) pour que Vigie détecte la coactivité ; le plan de prévention reste dans Vigie ; Crucible affiche son état sur les réservations d’EPC France quand Vigie le publie.",
+    "title": "La filiale partenaire dans le laboratoire 67 : coactivité et plan de prévention",
+    "context": "Si la filiale partenaire est une autre personne morale, ses interventions relèvent de la coactivité (plan de prévention), que Vigie gère. Vigie suspend déjà les essais d’une zone « essais » pendant une intervention extérieure.",
+    "proposal": "Crucible publie ses réservations (vue pub_reservations) pour que Vigie détecte la coactivité ; le plan de prévention reste dans Vigie ; Crucible affiche son état sur les réservations de la filiale partenaire quand Vigie le publie.",
     "alts": [
       "Pas de plan de prévention nécessaire (même entité ou personnel commun)",
       "À voir avec le QHSE (note)"
@@ -236,7 +236,7 @@
     "group": "arbitrage",
     "title": "Qui tranche un conflit ?",
     "context": "Tous les conflits ne se valent pas. Un petit décalage sans conséquence n’a pas à remonter à la direction.",
-    "proposal": "Le coordinateur tranche si aucune option ne retarde un jalon critique ; sinon la direction R&D ; pour le laboratoire 67, un désaccord avec EPC France va au comité commun mensuel. Le référent sécurité a un droit de veto.",
+    "proposal": "Le coordinateur tranche si aucune option ne retarde un jalon critique ; sinon la direction R&D ; pour le laboratoire 67, un désaccord avec la filiale partenaire va au comité commun mensuel. Le référent sécurité a un droit de veto.",
     "alts": [
       "Toujours la direction R&D",
       "Toujours le responsable de l’installation"
@@ -426,12 +426,12 @@
   {
     "id": "U-1",
     "group": "users",
-    "title": "Comptes des utilisateurs d’EPC France",
-    "context": "EPC France doit pouvoir demander et voir ses créneaux du laboratoire 67.",
-    "proposal": "Comptes Entra du même annuaire si EPC France y est, sinon invités B2B ; profil « partenaire » limité à son entité et aux installations partagées.",
+    "title": "Comptes des utilisateurs de la filiale partenaire",
+    "context": "La filiale partenaire doit pouvoir demander et voir ses créneaux du laboratoire 67.",
+    "proposal": "Comptes Entra du même annuaire si la filiale partenaire y est, sinon invités B2B ; profil « partenaire » limité à son entité et aux installations partagées.",
     "alts": [
-      "Pas de compte : EPC France passe par le coordinateur",
-      "Accès complet comme les équipes EPC2i"
+      "Pas de compte : la filiale partenaire passe par le coordinateur",
+      "Accès complet comme les équipes du groupe"
     ],
     "blocks": "L1"
   },
@@ -634,7 +634,7 @@
     "id": "T-3",
     "group": "technique",
     "title": "Solveur",
-    "context": "Une heuristique déterministe suffit à l’échelle d’EPC ; un solveur de contraintes (OR-Tools) n’est utile que pour optimiser un trimestre entier.",
+    "context": "Une heuristique déterministe suffit à l’échelle de l’entreprise ; un solveur de contraintes (OR-Tools) n’est utile que pour optimiser un trimestre entier.",
     "proposal": "Heuristique déterministe en TypeScript (L4) ; solveur de contraintes ajouté seulement si les mesures du pilote le justifient.",
     "alts": [
       "Solveur de contraintes dès la livraison 4"
@@ -649,7 +649,7 @@
     "proposal": "Copier le socle tel qu’adapté par Arche (connexion Entra, droits, audit, i18n, PostgreSQL seul, worker, sauvegardes, CI), en notant les commits d’origine Keystone et Arche dans docs/SOCLE.md ; aucun module métier.",
     "alts": [
       "Copier directement depuis Keystone",
-      "Attendre le paquet partagé @epc2i/socle"
+      "Attendre le paquet partagé @atrium/socle"
     ],
     "blocks": "L1"
   },
@@ -681,7 +681,7 @@
     "group": "technique",
     "title": "Jeu de démonstration",
     "context": "Pour développer et montrer l’outil sans données réelles.",
-    "proposal": "Les quatre installations citées avec des moyens, des projets et des essais fictifs, deux entités (EPC2i, EPC France), une règle d’exclusion et des conflits ; aucune donnée réelle.",
+    "proposal": "Les quatre installations citées avec des moyens, des projets et des essais fictifs, deux entités (Groupe, Filiale partenaire), une règle d’exclusion et des conflits ; aucune donnée réelle.",
     "alts": [
       "Utiliser des données réelles anonymisées"
     ],
@@ -927,7 +927,7 @@
     "id": "X-23",
     "group": "extra",
     "title": "Sites et filiales lus dans Matrix (CR-060)",
-    "context": "Sites et entités étaient saisis dans Crucible ; Matrix connaît désormais le site de Saint-Martin-de-Crau (smc) et la filiale EPC France (SMC) (M-6).",
+    "context": "Sites et entités étaient saisis dans Crucible ; Matrix connaît désormais le site de Saint-Martin-de-Crau (smc) et la Filiale partenaire (SMC) (M-6).",
     "proposal": "L’administrateur relie un site ou une entité de Crucible à un site ou une filiale de Matrix ; son nom (et la ville et le pays d’un site) suit ensuite Matrix ; les sites et filiales de Matrix absents de Crucible sont proposés à l’ajout.",
     "alts": [
       "Reprendre les codes de Matrix comme codes de Crucible (renommage)",
@@ -1006,7 +1006,7 @@
     "id": "D-7",
     "group": "data",
     "kind": "data",
-    "title": "Accord avec EPC France",
+    "title": "Accord avec la filiale partenaire",
     "context": "S’il existe : quotas, créneaux réservés, priorités, refacturation, contact.",
     "placeholder": "Résumé de l’accord ou « aucun accord écrit »",
     "blocks": "L2"
@@ -1043,7 +1043,7 @@
     "group": "data",
     "kind": "data",
     "title": "Participants au premier atelier",
-    "context": "Qui inviter à l’atelier de cadrage (docs/ATELIER-CADRAGE.md) : responsables d’installation, référent sécurité, chefs de projet, représentant d’EPC France, coordinateur.",
+    "context": "Qui inviter à l’atelier de cadrage (docs/ATELIER-CADRAGE.md) : responsables d’installation, référent sécurité, chefs de projet, représentant de la filiale partenaire, coordinateur.",
     "placeholder": "Nom ; fonction ; entité",
     "blocks": "L0"
   },

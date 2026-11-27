@@ -38,8 +38,8 @@ describe('checkResult', () => {
   });
   it('Codex references and the ELN address', () => {
     expect(checkResult({ ...base, rawDataRef: 'X' }, false)).toEqual({ ok: false, error: 'A Codex reference has 2 to 60 characters' });
-    expect(checkResult({ ...base, rawDataRef: ' DAT-PDE-0042 ', notebookRef: 'CL-12', elnUrl: 'https://eln.epc2i.fr/entry/9' }, false))
-      .toMatchObject({ ok: true, value: { rawDataRef: 'DAT-PDE-0042', notebookRef: 'CL-12', elnUrl: 'https://eln.epc2i.fr/entry/9' } });
+    expect(checkResult({ ...base, rawDataRef: ' DAT-PDE-0042 ', notebookRef: 'CL-12', elnUrl: 'https://eln.atrium.example/entry/9' }, false))
+      .toMatchObject({ ok: true, value: { rawDataRef: 'DAT-PDE-0042', notebookRef: 'CL-12', elnUrl: 'https://eln.atrium.example/entry/9' } });
     expect(checkResult({ ...base, elnUrl: 'javascript:alert(1)' }, false)).toEqual({ ok: false, error: 'The ELN address must be an http or https address' });
     expect(elnAddress('https://u:p@eln.fr')).toBeUndefined();
     expect(elnAddress('')).toBeNull();

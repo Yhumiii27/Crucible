@@ -9,9 +9,9 @@
 
 **Constat des équipes R&D**
 
-- Des moyens d’essais **partagés** entre plusieurs équipes projet : le **laboratoire 67** (partagé avec **EPC France**),
+- Des moyens d’essais **partagés** entre plusieurs équipes projet : le **laboratoire 67** (partagé avec la **filiale partenaire**),
   le **PDE**, le **laboratoire PDE** et l’**atelier mécanique**.
-- Les équipes **se disputent les créneaux** ; une **priorité de fait** semble donnée à EPC France ; des projets prennent
+- Les équipes **se disputent les créneaux** ; une **priorité de fait** semble donnée à la filiale partenaire ; des projets prennent
   du **retard faute d’accès** au bon moment.
 - Un **défaut d’anticipation** des besoins.
 - Un **paradoxe** : le PDE (≈ 3 M€) serait occupé à **≈ 30 %**, alors que des projets attendent.
@@ -35,7 +35,7 @@
 
 1. **Le problème est classique.** Planifier des essais qui demandent en même temps un moyen, des personnes qualifiées et
    le respect de règles d’exclusion est un problème d’ordonnancement à ressources limitées. Il est bien connu et bien
-   outillé. À l’échelle d’EPC (quelques dizaines de moyens, quelques centaines d’essais par trimestre), une heuristique
+   outillé. À l’échelle de l’entreprise (quelques dizaines de moyens, quelques centaines d’essais par trimestre), une heuristique
    déterministe donne de bonnes propositions en moins d’une seconde ; un solveur de contraintes (OR-Tools) n’est utile que
    pour optimiser un trimestre entier.
 2. **La difficulté n’est pas l’algorithme, ce sont les données et les règles.** Aujourd’hui les règles d’exclusion, les
@@ -46,7 +46,7 @@
    contient même un moteur de chemin critique, des calendriers et une gestion des conflits arbitrés (§5.1) dont on peut
    reprendre les **principes** (pas le code métier, règle A-3 d’Arche).
 4. **L’IA a sa place, mais pas comme décideur.** Un agent IA qui « choisit » le planning serait inexplicable et
-   difficile à faire accepter, surtout entre deux entités (EPC2i et EPC France) et avec des contraintes de sécurité. La
+   difficile à faire accepter, surtout entre deux entités (le groupe et la filiale partenaire) et avec des contraintes de sécurité. La
    proposition : un **moteur déterministe** qui calcule et un **assistant IA** qui reçoit les demandes en langage naturel,
    explique les propositions et les conflits, simule des « et si ? » et prépare les arbitrages (spec 04). L’assistant
    n’écrit rien sans validation humaine.
@@ -68,7 +68,7 @@ aujourd’hui. Chacune appelle une réponse différente :
 | **Temps de préparation** non comptés (montage, sécurisation, remise en état) | réalisé court, occupation réelle plus haute | occupation « réalisé + préparation » |
 | **Mauvaise adéquation** : les projets attendent un autre moyen que le PDE | file d’attente sur le labo 67, PDE libre | substitutions validées vers le PDE ; charge prévisionnelle |
 | **Mesure** : 30 % de quoi ? (heures calendaires, heures ouvrées, jours) | — | définition écrite de l’occupation (question P-5) |
-| **Priorité implicite** d’EPC France sur le laboratoire 67 | attente plus longue pour les autres entités | règles écrites, quota, indicateur d’attente par entité |
+| **Priorité implicite** de la filiale partenaire sur le laboratoire 67 | attente plus longue pour les autres entités | règles écrites, quota, indicateur d’attente par entité |
 
 ## 4. Ce que Crucible n’est pas (frontières proposées)
 
@@ -87,7 +87,7 @@ aujourd’hui. Chacune appelle une réponse différente :
 
 ### 5.1 Keystone (`Yhumiii27/Keystone`, `main` au commit `a8ba6df`)
 
-Outil de gestion de projets et de portefeuille d’EPC2i, Next.js 16, Drizzle, PostgreSQL (schéma `keystone`), Entra ID,
+Outil de gestion de projets et de portefeuille de l’entreprise, Next.js 16, Drizzle, PostgreSQL (schéma `keystone`), Entra ID,
 design Nocturne, livraisons 1 à 8 faites.
 
 | Ce qui existe | Où | Intérêt pour Crucible |
@@ -126,7 +126,7 @@ Crucible suit **la même démarche et les mêmes conventions** (ce dépôt en es
 | Contrôles périodiques (`controls` : équipement en texte libre, périodicité, `next_on`, réserves) | un contrôle échu doit bloquer le moyen ; **pas d’entité équipement ni de vue publiée** → demande V-1 |
 | Carte du site, zones typées dont **`atex`** et **`essais`** | les moyens de Crucible peuvent être rattachés à une zone Vigie |
 | Coactivité (`detectConflicts`, fonction pure jour par jour : même zone, proximité, voie partagée ; danger si permis feu / essai ; zones `essais` et `atex` : « essais suspendus pendant l’intervention ») | **règle existante qui touche les essais** : une intervention d’entreprise extérieure dans une zone d’essais les suspend → Crucible doit le savoir (V-2). Vigie ne couvre pas l’exclusion entre deux installations internes : c’est à Crucible |
-| Entreprises extérieures, **plans de prévention**, permis (`feu`, `essai`) | EPC France dans le laboratoire 67 relève-t-il d’un plan de prévention ? (R-7) ; un permis « essai » est-il exigé avant certains essais ? |
+| Entreprises extérieures, **plans de prévention**, permis (`feu`, `essai`) | La filiale partenaire dans le laboratoire 67 relève-t-il d’un plan de prévention ? (R-7) ; un permis « essai » est-il exigé avant certains essais ? |
 | Habilitations propres à Vigie (en attendant Cursus), exigences par personne ; analyse « AST en contexte pyrotechnique » | compétences requises par type d’essai |
 | Vues `pub_` : `pub_non_conformites`, `pub_hse_projet`, `pub_journal` | rien encore sur les contrôles ni les zones |
 
@@ -149,7 +149,7 @@ projets R&D (S-1).
 
 ### 5.6 Matrix (socle du serveur PostgreSQL commun)
 
-Base `epc2i`, un schéma par outil, partage par vues `pub_` dont Matrix accorde les droits ; journal unifié ; déclaration
+Base commune, un schéma par outil, partage par vues `pub_` dont Matrix accorde les droits ; journal unifié ; déclaration
 des tables au démarrage (`/api/declarations`). Référentiels : **sites** (lyon, le_havre, marseille — **aucun site « 67 »**
 ni laboratoire), organigramme (15 départements dont **RDI « Recherche & innovation »**), pays, zones et filiales (vides).
 Ajouter un outil (précédent d’Arche, décision M-07) touche les rôles, le schéma, les droits, un fichier de partage, le
@@ -177,7 +177,7 @@ catalogue → demandes M-1 à M-6 de [`DEMANDES-MATRIX.md`](DEMANDES-MATRIX.md).
 | D-4 | **Substitutions** techniquement validées (type d’essai × moyen) et qui les valide | responsables techniques | L4 |
 | D-5 | Projets R&D en cours, jalons, plans d’essais prévus sur 6 à 12 mois | chefs de projet R&D | L3 |
 | D-6 | Personnes qui réalisent les essais, habilitations, contraintes horaires | responsables de laboratoire, RH | L3 |
-| D-7 | Accord avec EPC France sur le laboratoire 67 (s’il existe) : quotas, créneaux, priorités | direction R&D | L2 |
+| D-7 | Accord avec la filiale partenaire sur le laboratoire 67 (s’il existe) : quotas, créneaux, priorités | direction R&D | L2 |
 | D-8 | Historique des réservations (agendas Outlook, fichiers Excel…) sur 6 à 12 mois | planificateurs actuels | mesure de référence |
 | D-9 | Calcul actuel du « 30 % » du PDE | qui l’a produit | mesure de référence |
 | D-10 | Calendrier des maintenances et contrôles réglementaires des moyens | maintenance, QHSE | L2 |
@@ -188,7 +188,7 @@ catalogue → demandes M-1 à M-6 de [`DEMANDES-MATRIX.md`](DEMANDES-MATRIX.md).
 |---|---|
 | Règles non écrites, chacun a « sa » version | atelier de cadrage ; règles versionnées, validées par la sécurité, référence Codex |
 | Rejet par les équipes si l’outil « décide » | moteur explicable, décision toujours humaine, fiche de conflit avec règle citée |
-| Asymétrie EPC2i / EPC France (deux entités, priorité de fait) | accord écrit, règles identiques, indicateur d’attente par entité, comité d’arbitrage commun |
+| Asymétrie groupe / filiale partenaire (deux entités, priorité de fait) | accord écrit, règles identiques, indicateur d’attente par entité, comité d’arbitrage commun |
 | Données de réservation non tenues à jour (le réel n’est pas saisi) | saisie du réel en un geste (démarrer / terminer), relance automatique, `no_show` |
 | Dépendance aux autres outils (jalons Keystone, absences Cursus, contrôles Vigie) non publiés | saisie locale en attendant, connecteur avec simulation (modèle de Keystone et d’Arche) |
 | Données sensibles (sécurité pyrotechnique, programmes de recherche confidentiels) | droits par entité et par projet ; IA désactivée tant qu’aucun fournisseur conforme n’est validé (I-3) |

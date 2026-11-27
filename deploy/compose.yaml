@@ -1,8 +1,9 @@
 # Crucible on Coolify — a "Docker Compose" resource (derived from Keystone's kit). Runbook in French: docs/EXPLOITATION.md.
 #
-#   db       PostgreSQL 16 (named volume crucible-db); postgres-init/ creates the database epc2i, the role crucible_app and the
-#            schema `crucible` on an empty volume. To use the shared EPC2I server instead (decision M-01), drop this service and
-#            set DATABASE_URL to postgres://crucible_app:…@<host>:5432/epc2i (Matrix creates the role and the schema).
+#   db       PostgreSQL 16 (named volume crucible-db); postgres-init/ creates the database ATRIUM_PG_DB (default: the
+#            name of the shared server before its rename, so that an existing volume keeps working), the role crucible_app
+#            and the schema `crucible` on an empty volume. To use the shared server of the Atrium suite instead (decision
+#            M-01), use deploy/compose.shared.yaml (Matrix creates the role and the schema).
 #   migrate  one-shot `npm run db:migrate` before every start (migrations, then the seed of an EMPTY schema: CRUCIBLE_SEED must
 #            be set — demo for the beta, production for reference data only); left out of Coolify's health status
 #   app      the web server (port 3500, behind Coolify's proxy and TLS); starts once the migration has succeeded
@@ -14,7 +15,7 @@
 
 x-crucible-env: &crucible-env
   NODE_ENV: production
-  DATABASE_URL: postgresql://crucible_app:${CRUCIBLE_APP_PASSWORD:?CRUCIBLE_APP_PASSWORD is required}@db:5432/epc2i
+  DATABASE_URL: postgresql://crucible_app:${CRUCIBLE_APP_PASSWORD:?CRUCIBLE_APP_PASSWORD is required}@db:5432/${ATRIUM_PG_DB:-epc2i}
   DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-}
   CRUCIBLE_SEED: ${CRUCIBLE_SEED:?CRUCIBLE_SEED is required (demo or production)}
   CRUCIBLE_AUTH: ${CRUCIBLE_AUTH:-}
@@ -52,11 +53,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       CRUCIBLE_APP_PASSWORD: ${CRUCIBLE_APP_PASSWORD:?CRUCIBLE_APP_PASSWORD is required}
+      CRUCIBLE_DB_NAME: ${ATRIUM_PG_DB:-epc2i}
     volumes:
       - crucible-db:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d epc2i"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d $${CRUCIBLE_DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 12
